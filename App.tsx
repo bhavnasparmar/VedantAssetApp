@@ -29,6 +29,8 @@ import CheckNetworkModal from './app/shared/components/CheckNetworkModal/CheckNe
 import Passwordrecovery from './app/screens/auth/passwordrecovery/passwordrecovery';
 import API from './app/utils/API';
 import Otp from './app/screens/auth/Otp/Otp';
+import SplashScreen from 'react-native-splash-screen';
+
 
 const {RootCheckModule} = NativeModules;
 const RootStack = createNativeStackNavigator();
@@ -59,7 +61,9 @@ export default function App() {
     const unsubscribe = NetInfo.addEventListener(state =>
       setNetworkModal(!state.isConnected),
     );
-
+setTimeout(() => {
+      SplashScreen.hide();
+    }, 2000);
     return () => {
       unsubscribe();
     };
