@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 export const localStorageKeys = {
-  TOKEN:'USER_TOKEN',
+  TOKEN_PREFIX:'TOKEN_PREFIX',
   LOGIN_CRED: 'LOGIN_CRED',
   USER_DATA: 'USER_DATA',
   LABEL_DATA: 'LABEL_DATA',

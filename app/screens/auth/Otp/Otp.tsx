@@ -372,43 +372,7 @@ const Otp = ({route}: any) => {
           />
         </Wrapper>
         <Spacer y="S" />
-        {!route?.params?.registerData ? (
-          <>
-            <Wrapper
-              position="center"
-              align="center"
-              width={responsiveWidth(100)}>
-              <CusText text="Reset Password" size="L" color={colors.black} />
-              <CusText
-                text="Enter your valid e-mail id for reset your password with OTP verification."
-                size="SS"
-                customStyles={styles.subtitle}
-                position="center"
-                color={colors.placeholderColor}
-              />
-            </Wrapper>
-            <Spacer y="XS" />
-            <Wrapper position="center">
-              <InputField
-                label="email"
-                editable={false}
-                width={responsiveWidth(90)}
-                placeholder="Enter Your Email"
-                value={
-                  route?.params?.registerData?.email
-                    ? route?.params?.registerData?.email
-                    : ''
-                }
-                onChangeText={(value: string) => {}}
-                borderColor={colors.placeholderColor}
-                suffixIcon={'mail-outline'}
-                suffixColor={colors.placeholderColor}
-                suffixArea={30}
-              />
-            </Wrapper>
-            <Spacer y="S" />
-          </>
-        ) : null}
+     
         {route?.params?.registerData ? (
           <>
             <Wrapper

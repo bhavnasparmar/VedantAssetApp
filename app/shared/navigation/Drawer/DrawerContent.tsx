@@ -28,8 +28,12 @@ import {
   getTokenExpiredflagChange,
   tokenExpiredflagChange,
 } from '../../../utils/Commanutils';
+import { useSelector } from 'react-redux';
 
 export function DrawerContent(props: any) {
+    const appState = useSelector((state: any) => state);
+  const tokenExpiredToggles = appState.tokenReducer.tokenExpiredFlag;
+
   const {signOut}: any = React.useContext(AuthContext);
   const {colors}: any = React.useContext(AppearanceContext);
   const [loggingOut, setloggingOut] = useState(false);
@@ -37,6 +41,7 @@ export function DrawerContent(props: any) {
   const isDrawerOpen = useDrawerStatus() === 'open';
   const isFocused = useIsFocused();
   useEffect(() => {
+    console.log("---",getTokenExpiredflagChange())
     Keyboard.dismiss();
   }, [isDrawerOpen, isFocused]);
 
@@ -92,6 +97,46 @@ export function DrawerContent(props: any) {
               }}
             />
           </View>
+           <View style={[styles.menuItem, {borderColor: colors.gray}]}>
+            {/* <View style={styles.iconSet}></View> */}
+            <DrawerItem
+              icon={({}) => (
+                <IonIcon
+                  name="lock-closed"
+                  color={colors.black}
+                  size={19}
+                  style={styles.menuIcon}
+                />
+              )}
+              label={({}) => (
+                <CusText style={styles.menuTextstyle} text="Goal Planning" />
+              )}
+              onPress={() => {
+                // props.navigation.navigate("Tabs");
+                props.navigation.navigate('GoalDashboard');
+              }}
+            />
+          </View>
+           <View style={[styles.menuItem, {borderColor: colors.gray}]}>
+            {/* <View style={styles.iconSet}></View> */}
+            <DrawerItem
+              icon={({}) => (
+                <IonIcon
+                  name="lock-closed"
+                  color={colors.black}
+                  size={19}
+                  style={styles.menuIcon}
+                />
+              )}
+              label={({}) => (
+                <CusText style={styles.menuTextstyle} text="Risk Profile" />
+              )}
+              onPress={() => {
+                // props.navigation.navigate("Tabs");
+                props.navigation.navigate('RiskProfile');
+              }}
+            />
+          </View>
         </DrawerContentScrollView>
         <Alert
           AlertVisible={AlertVisible}
@@ -101,9 +146,9 @@ export function DrawerContent(props: any) {
           navigation={props.navigation}
         />
         <Alert
-            AlertVisible={getTokenExpiredflagChange()}
+            AlertVisible={tokenExpiredToggles}
           setAlertVisible={(value: any) => tokenExpiredflagChange(false)}
-          onConfirm={submit}
+          onConfirm={()=>{submit()}}
           alertMsgType ={'SessionExpired'}
           AlertMsg={'Your Session is expired, Please login again'}
         />

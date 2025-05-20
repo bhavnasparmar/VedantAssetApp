@@ -142,6 +142,7 @@ let reptativeColors = {
 };
 
 const colors: any = {
+  lightGray :reptativeColors?.lightGray,
   gradient3: 'rgba(229, 75, 186, 0.4)',
   gradient4: 'rgba(243, 118, 124, 0.29)',
   gradient5: 'rgba(255, 151, 75, 0.2)',

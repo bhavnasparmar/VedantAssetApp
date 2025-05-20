@@ -30,7 +30,7 @@ import Passwordrecovery from './app/screens/auth/passwordrecovery/passwordrecove
 import API from './app/utils/API';
 import Otp from './app/screens/auth/Otp/Otp';
 import SplashScreen from 'react-native-splash-screen';
-
+import {localStorageKeys} from './app/services/localStorageService';
 
 const {RootCheckModule} = NativeModules;
 const RootStack = createNativeStackNavigator();
@@ -61,7 +61,8 @@ export default function App() {
     const unsubscribe = NetInfo.addEventListener(state =>
       setNetworkModal(!state.isConnected),
     );
-setTimeout(() => {
+    setTimeout(() => {
+      appUser();
       SplashScreen.hide();
     }, 2000);
     return () => {
@@ -77,6 +78,31 @@ setTimeout(() => {
       // console.log(error, 'while fetching apperance');
     }
   };
+
+  const appUser = async () => {
+    try {
+      let initialRoute = 'Home';
+      const token = await AsyncStorage.getItem(localStorageKeys.TOKEN_PREFIX);
+      // console.log("company dataaaaaaaaa", companyData);
+      // dispatch({
+      //   type: 'RESTORE_TOKEN',
+      //   token: token,
+      //   isCompanyConfigured: !!companyData,
+      //   initialRoute,
+      // });
+      dispatch({
+        type: 'RESTORE_TOKEN',
+        userToken: token,
+        initialRoute: 'Home',
+        //initialRoute,
+        isLoading: false,
+        isSignout: false,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const toastConfig = {
     success: (props: any) => (
       <BaseToast
@@ -204,6 +230,7 @@ setTimeout(() => {
         } catch (error: any) {}
       },
       signIn: async (data: any) => {
+        console.log("data", data);
         try {
           await AsyncStorage.setItem(TOKEN_PREFIX, data?.token);
           await AsyncStorage.setItem(USER_DATA, JSON.stringify(data?.user));
