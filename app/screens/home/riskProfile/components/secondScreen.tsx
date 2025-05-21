@@ -31,7 +31,10 @@ import {
 } from '../../../../utils/Commanutils';
 
 import {showToast, toastTypes} from '../../../../services/toastService';
-import {getAllRiskQuestionAPi} from '../../../../api/homeapi';
+import {
+  addRiskProfileQuestionAnswerApi,
+  getAllRiskQuestionAPi,
+} from '../../../../api/homeapi';
 
 const SecondScreen = ({setIndex, queList, setdata}: any) => {
   const {colors}: any = useContext(AppearanceContext);
@@ -52,22 +55,21 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
   ];
 
   useEffect(() => {
-    // const savedData = getRiskObjectData();
-    // if (savedData) {
-    //   const lastIndex = savedData.length - 1;
-    //   setCurrentIndex(lastIndex);
-    //   setQuestionList(savedData);
-    // }
-
-    const lastIndex = queList.length - 1;
-    setCurrentIndex(lastIndex);
-    setQuestionList(queList);
+    const savedData = getRiskObjectData();
+    if (savedData) {
+      const lastIndex = savedData.length - 1;
+      setCurrentIndex(lastIndex);
+      setQuestionList(savedData);
+    } else {
+      setQuestionList(queList);
+      setCurrentIndex(0);
+    }
   }, []);
 
   useEffect(() => {
     const current = questionList[currentIndex];
     if (current?.question_type === 3) {
-      const allRangeValues = current?.Risk_profile_answers?.flatMap(
+      const allRangeValues = current?.RiskProfileAnswers?.flatMap(
         (item: any) => [item.range_min, item.range_max],
       );
       const uniqueSorted = [...new Set(allRangeValues)].sort((a, b) => a - b);
@@ -110,7 +112,7 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
 
   const handleSliderChange = (val: number) => {
     const currentQ = questionList[currentIndex];
-    const match = currentQ.Risk_profile_answers.find(
+    const match = currentQ?.RiskProfileAnswers?.find(
       (item: any) => val >= item.range_min && val < item.range_max,
     );
 
@@ -126,42 +128,88 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
     }
   };
 
+  // const handleSubmit = async () => {
+  //   const infoData: any = await AsyncStorage.getItem(RISK_PROFILE_INFODATA);
+  //   const data = JSON.parse(infoData);
+
+  //   const answers = questionList.map((item: any) => ({
+  //     queId: item.id,
+  //     queType: item.question_type,
+  //     selectedAnswer: item.selectAns,
+  //     point: item.Points,
+  //   }));
+
+  //   setRiskObject(null);
+  //   setRiskObject(questionList);
+
+  //   try {
+  //     const [result, error]: any = await getAllRiskQuestionAPi();
+  //     if (result != null) {
+  //       setIndex('4');
+  //       const updatedUser = updateObjectKey(
+  //         getLoginUserDetails(),
+  //         'User_risk_profile',
+  //         result?.data?.userRiskProfileData,
+  //       );
+  //       setLoginUserDetails(updatedUser);
+  //       setdata(result?.data);
+
+  //       await AsyncStorage.setItem(
+  //         RISK_PROFILE_FINAL,
+  //         JSON.stringify(result?.data),
+  //       );
+  //     } else {
+  //       console.log('getAllRiskQuestionAPi error', error);
+  //     }
+  //   } catch (error) {
+  //     console.log(error, 'getAllRiskQuestionAPi error');
+  //   }
+  // };
+
   const handleSubmit = async () => {
     const infoData: any = await AsyncStorage.getItem(RISK_PROFILE_INFODATA);
-    const data = JSON.parse(infoData);
-
-    const answers = questionList.map((item: any) => ({
-      queId: item.id,
-      queType: item.question_type,
-      selectedAnswer: item.selectAns,
-      point: item.Points,
-    }));
-
-    setRiskObject(null);
+    let data = JSON.parse(infoData);
+    let array: any = [];
+    questionList.map((item: any, i: number) => {
+      let obj = {
+        queId: item?.id,
+        queType: item?.question_type,
+        selectedAnswer: item?.selectAns,
+        point: item?.Points,
+      };
+      array.push(obj);
+    });
+    if (getRiskObjectData() !== null) {
+      setRiskObject(null);
+    }
     setRiskObject(questionList);
 
+    let payload = {
+      answerList: array,
+    };
+    console.log('payload : ', payload);
     try {
-      const [result, error]: any = await getAllRiskQuestionAPi();
-      console.log('getAllRiskQuestionAPi result', result);
+      // const result: any = await API.post('risk-profile/add-question-answer', payload)
+      const [result, error]: any = await addRiskProfileQuestionAnswerApi(
+        payload,
+      );
+      console.log("result",result)
       if (result != null) {
-        setIndex('4');
-        const updatedUser = updateObjectKey(
-          getLoginUserDetails(),
-          'User_risk_profile',
-          result?.data?.userRiskProfileData,
-        );
-        setLoginUserDetails(updatedUser);
-        setdata(result?.data);
-
-        await AsyncStorage.setItem(
-          RISK_PROFILE_FINAL,
-          JSON.stringify(result?.data),
-        );
+       
+      // const update_data = updateObjectKey(getLoginUserDetails(), 'User_risk_profile', result?.data?.userRiskProfileData)
+      setRiskObject(result?.data);
+      setdata(result?.data);
+      await AsyncStorage.setItem(
+        RISK_PROFILE_FINAL,
+        JSON.stringify(result?.data),
+      );
+        setIndex('3');
       } else {
-        console.log('getAllRiskQuestionAPi error', error);
+        console.log("addRiskProfileQuestionAnswerApi error",error)
       }
+     
     } catch (error) {
-      console.log(error, 'getAllRiskQuestionAPi error');
+      console.log('addRiskProfileQuestionAnswerApi error-', error);
     }
   };
 
@@ -178,7 +226,7 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
     </View>
   );
 
-  const currentQ = queList[currentIndex];
+  const currentQ = questionList[currentIndex]; // ✅ FIXED: Use updated questionList
 
   const isNextEnabled = !!currentQ?.selectAns;
 
@@ -200,7 +248,7 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
           minHeight: responsiveHeight(45),
         }}>
         {currentQ?.question_type === 1 &&
-          currentQ?.Risk_profile_answers?.map((item: any, i: number) => (
+          currentQ?.RiskProfileAnswers?.map((item: any, i: number) => (
             <TouchableOpacity
               key={i}
               activeOpacity={0.8}
@@ -242,13 +290,15 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
           <>
             <Slider
               style={styles.slider}
-              minimumValue={currentQ?.Risk_profile_answers[0]?.range_min}
-              maximumValue={currentQ?.Risk_profile_answers.at(-1)?.range_max}
+              minimumValue={currentQ?.RiskProfileAnswers?.[0]?.range_min ?? 0}
+              maximumValue={
+                currentQ?.RiskProfileAnswers?.at(-1)?.range_max ?? 100
+              }
               step={1}
               value={sliderRawValue}
               onValueChange={handleSliderChange}
-              minimumTrackTintColor={colors.purpleShades5}
-              maximumTrackTintColor="#FFFFFF"
+              minimumTrackTintColor={colors.gray}
+              maximumTrackTintColor={colors.gray}
               thumbTintColor={colors.purpleShades5}
             />
             {renderMarkers()}
@@ -256,7 +306,7 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
               keyboardType="numeric"
               value={sliderValue}
               width={100}
-              onChange={(val: string) => handleSliderChange(Number(val))}
+              onChange={(val: any) => handleSliderChange(Number(val))}
             />
           </>
         )}
@@ -267,9 +317,12 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
             value={type3Answer}
             onChangeText={(text: string) => {
               const val = Number(text);
-              const match = currentQ.Risk_profile_answers.find(
-                (item: any) => val >= item.range_min && val < item.range_max,
-              );
+              const match = currentQ?.RiskProfileAnswers?.length
+                ? currentQ.RiskProfileAnswers.find(
+                    (item: any) =>
+                      val >= item.range_min && val < item.range_max,
+                  )
+                : null;
               if (match) {
                 const updated = [...questionList];
                 updated[currentIndex].selectAns = text;
@@ -299,17 +352,18 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
           title="Back"
           width={responsiveWidth(35)}
           onPress={() =>
-            setCurrentIndex(
-              currentIndex === 0 ? () => setIndex('1') : currentIndex - 1,
-            )
+            currentIndex === 0
+              ? setIndex('1')
+              : setCurrentIndex(currentIndex - 1)
           }
           color={colors.transparent}
+          textcolor={colors.black}
         />
 
         <CusButton
           width={responsiveWidth(35)}
           radius={borderRadius.ring}
-          color={isNextEnabled ? colors.primary : colors.gray}
+          color={isNextEnabled ? colors.orange : colors.gray}
           title={
             currentIndex === questionList.length - 1 ? 'Finish' : 'Continue'
           }

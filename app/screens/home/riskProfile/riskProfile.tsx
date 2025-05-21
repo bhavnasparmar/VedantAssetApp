@@ -10,13 +10,17 @@ import {
   getRiskObjectData,
   RISK_PROFILE_FINAL,
   setLoginUserDetails,
+  setRiskObject,
   updateObjectKey,
   USER_DATA,
 } from '../../../utils/Commanutils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useIsFocused} from '@react-navigation/native';
+import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import Header from '../../../shared/components/Header/Header';
-import {getAllRiskQuestionAPi, getRiskProfileInvestorAPi} from '../../../api/homeapi';
+import {
+  getAllRiskQuestionAPi,
+  getRiskProfileInvestorAPi,
+} from '../../../api/homeapi';
 
 const RiskProfile = () => {
   const [index, setindex] = useState('1');
@@ -25,14 +29,19 @@ const RiskProfile = () => {
   const [queList, setqueList] = useState<any[]>([]);
   const [flag, setflag] = useState(false);
   const isFocused = useIsFocused();
-  useEffect(() => {
-    if (getRiskObjectData() === null) {
-      setindex('1');
-      setfinalScreen(null);
-    }
-    getData();
-    getRiskProfile();
-  }, [isFocused]);
+ useFocusEffect(
+      React.useCallback(() => {
+        if (getRiskObjectData() === null) {
+          setindex('1');
+          setfinalScreen(null);
+        }
+        getData();
+        getRiskProfile();
+        return () => {
+           setindex('1');
+        };
+      }, [isFocused]),
+    );
   const getData = async () => {
     const data: any = await AsyncStorage.getItem(RISK_PROFILE_FINAL);
     console.log('RISK_PROFILE_FINAL data', data);
@@ -49,7 +58,18 @@ const RiskProfile = () => {
       const [result, error]: any = await getRiskProfileInvestorAPi();
       console.log('getRiskProfileInvestorAPi result', result);
       if (result != null) {
-        if (getRiskObjectData() !== null) {
+        console.log('getRiskObjectData()--', getRiskObjectData());
+        if (result?.data != null) {
+          if (flag) {
+            setindex('1');
+            setfinalScreen(null);
+            getQuestionListForList();
+          } else {
+            setindex('3');
+            setfinalScreen(result?.data);
+            setRiskObject(result?.data);
+          }
+        } else if (getRiskObjectData() !== null) {
           if (flag) {
             setfinalScreen(null);
           }
@@ -62,7 +82,7 @@ const RiskProfile = () => {
           if (result?.data) {
             setqueList(result?.data);
           } else {
-            getQuestionListForList()
+            getQuestionListForList();
           }
         }
       } else {
@@ -113,6 +133,7 @@ const RiskProfile = () => {
         <SecondScreen
           setIndex={(val: any) => {
             setindex(val);
+          //  setflag(prev => false)
           }}
           queList={queList}
           setdata={(data: any) => {
@@ -121,6 +142,25 @@ const RiskProfile = () => {
         />
       ) : // <></>
       null}
+      {index == '3' || finalScreen ? (
+        <FinalScreen
+          setIndex={(val: any) => {
+            if (val == '1') {
+              setflag(prev=>true);
+              getRiskProfile();
+               setfinalScreen(null);
+
+            }
+            // if (val == '3') {
+            //   console.log('val 3: ', val);
+            //   setflag(true);
+            //   setfinalScreen(null);
+            // }
+            setindex(val);
+          }}
+          data={finalScreen}
+        />
+      ) : null}
 
       {/* {index == '2' && !finalScreen ? (
         <FirstScreen
@@ -153,7 +193,8 @@ const RiskProfile = () => {
                         setfinalScreen(null)
                     }
                     setindex(val)
-                }} data={finalScreen} /> : null} */}
+                }} data={finalScreen} /> : null}
+                  */}
     </>
   );
 };

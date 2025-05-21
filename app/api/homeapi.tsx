@@ -20,3 +20,8 @@ export const getAllRiskQuestionAPi = () => {
     const promise = API.get(`${API_URL}${endPoints.getAllRiskQuestion}`);
     return promiseHandler(promise);
 };
+export const addRiskProfileQuestionAnswerApi = (payload :any) => {
+
+    const promise = API.post(`${API_URL}${endPoints.addRiskProfileQuestionAnswer}`,payload);
+    return promiseHandler(promise);
+};

@@ -42,14 +42,14 @@ export const styles = StyleSheet.create({
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: colors.black,
         marginBottom: 5,
       },
       activeMarker: {
         backgroundColor: colors.purpleShades,
       },
       markerLabel: {
-        color: '#FFFFFF',
+        color: colors.darkGray,
         fontSize: 12,
       },
     radioList: {
@@ -68,10 +68,10 @@ export const styles = StyleSheet.create({
       scoreText: {
         fontSize: 48,
         fontWeight: 'bold',
-        color: '#fff',
+        color: colors.black,
       },
       label: {
         fontSize: 16,
-        color: '#fff',
+        color: colors.black,
       },
 });

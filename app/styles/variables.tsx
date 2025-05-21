@@ -245,11 +245,11 @@ const colors: any = {
   //Modal
   modalHeaderBg: reptativeColors.darkGray,
   modalHeaderBg2: reptativeColors.darkGray,
-  modalBg: reptativeColors.black,
+  modalBg: reptativeColors.white,
   modalBorder: reptativeColors.white,
 
   //Card
-  cardBg: reptativeColors.black,
+  cardBg: reptativeColors.white,
   cardBorder: reptativeColors.black,
   darkCardBg: reptativeColors.black,
   cardHeaderBg: reptativeColors.card,

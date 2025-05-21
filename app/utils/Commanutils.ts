@@ -27,8 +27,8 @@ const endPoints = {
   //home api
   getAllGoalType: 'goal-plan/getAllGoalType',
   getRiskProfileInvestor: 'risk-profile/get-risk-profile-investor',
-  getAllRiskQuestion :'risk-profile/getAllRiskQuestion'
-  
+  getAllRiskQuestion :'risk-profile/getAllRiskQuestion',
+  addRiskProfileQuestionAnswer : 'risk-profile/add-question-answer'
 };
 
 export {endPoints};

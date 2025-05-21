@@ -102,7 +102,7 @@ export function DrawerContent(props: any) {
             <DrawerItem
               icon={({}) => (
                 <IonIcon
-                  name="lock-closed"
+                  name="golf"
                   color={colors.black}
                   size={19}
                   style={styles.menuIcon}
@@ -122,7 +122,7 @@ export function DrawerContent(props: any) {
             <DrawerItem
               icon={({}) => (
                 <IonIcon
-                  name="lock-closed"
+                  name="speedometer"
                   color={colors.black}
                   size={19}
                   style={styles.menuIcon}

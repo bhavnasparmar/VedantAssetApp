@@ -78,7 +78,7 @@ const StartProfile = ({ setIndex }: any) => {
                     <Spacer y="L" />
                     <CusText position='center' text={"Introducing OceanFinvest's Investor Personality."} color={colors.Hard_Black} size="S" />
                     <Spacer y="N" />
-                    <CusButton position="center"  title='Know Your Personality'
+                    <CusButton iconName='arrow-forward-outline' position="center"  title='Know Your Personality'
                         onPress={() => { setIndex('2') }} />
                     {/* <Wrapper position='center' customStyles={styles.lockContainer}>
                         <Animated.Text style={[styles.txt, { opacity: textOpacity, transform: [{ translateX: translateText }] }]}>

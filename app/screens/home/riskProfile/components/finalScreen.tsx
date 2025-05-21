@@ -19,6 +19,7 @@ const FinalScreen = ({ setIndex, data }: any) => {
   const { colors }: any = React.useContext(AppearanceContext);
   const navigation: any = useNavigation()
   const getColor = (score: any) => {
+    console.log("score",score)
     if (score < 20) return '#FF6347'; // Red for low score
     if (score < 30) return colors.green;
     if (score < 40) return '#FFA500'; // Orange for moderate score
@@ -26,7 +27,7 @@ const FinalScreen = ({ setIndex, data }: any) => {
   };
 
   const handleBack = () => {
-    setIndex('3')
+    setIndex('2')
   }
 
   return (
@@ -35,7 +36,7 @@ const FinalScreen = ({ setIndex, data }: any) => {
         <Wrapper position="center" color={colors.cardBg} width={responsiveWidth(94)} customStyles={{ borderRadius: borderRadius.large, marginVertical: responsiveWidth(3) }}>
           <Wrapper row justify="center" color={colors.cardBg1} customStyles={{ borderTopLeftRadius: borderRadius.large, borderTopRightRadius: borderRadius.large, padding: responsiveWidth(5) }}>
             <TouchableOpacity onPress={() => { handleBack() }}>
-              <Icon name='chevron-back-outline' color={colors.Hard_White} size={30} />
+              {/* <Icon name='chevron-back-outline' color={colors.Hard_Black} size={30} /> */}
             </TouchableOpacity>
             <CusText text={"Your Risk Profile is "} size="SL" medium position="center" />
             <CusText text={data?.porfile || '-'} size="SL" medium position="center" />
@@ -46,7 +47,8 @@ const FinalScreen = ({ setIndex, data }: any) => {
             </Wrapper>
             <CusText text={"Your Investment Style"} size="XL" semibold color={colors.primary} position="center" />
             <Spacer y="S" />
-            <AnimatedCircularProgress
+          {data !== null ? 
+          <AnimatedCircularProgress
               size={HALF_CIRCLE_SIZE}
               width={15}
               fill={data?.totalPoints} // Score between 0 and 100
@@ -63,16 +65,18 @@ const FinalScreen = ({ setIndex, data }: any) => {
                 </View>
               )}
             </AnimatedCircularProgress>
+          :null}
+            
             <Spacer y='S' />
-            <CusText text={data?.risk_desc || '-'} size="MS" medium position="center" />
+            <CusText text={data?.RiskCategory?.risk_desc || '-'} size="MS" medium position="center" />
             <Spacer y="S" />
             <Wrapper row justify="apart" position="center" width={responsiveWidth(84)}>
-              <CusButton radius={borderRadius.ring} title='Retake' width={responsiveWidth(35)} onPress={() => { setRiskObject(null), setIndex('1') }} color={colors.transparent} />
+              <CusButton textcolor="black" radius={borderRadius.ring} title='Retake' width={responsiveWidth(35)} onPress={() => { setIndex('1') ,setRiskObject(null)  }} color={colors.transparent} />
               <CusButton radius={borderRadius.ring} title='Finish' width={responsiveWidth(35)}
                 // onPress={() => { setIndex('4') }}
                 onPress={() => {
                   
-                  navigation.navigate('Dashboard')
+                  navigation.navigate('Tabs')
                 }}
               />
             </Wrapper>
