@@ -6,6 +6,7 @@ import {
 } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
+  Image,
   Text,
   TouchableOpacity,
   View
@@ -19,6 +20,9 @@ import {
 } from '../../../styles/variables';
 import Wrapper from '../../../ui/wrapper';
 import { styles } from './HeaderStyle';
+import Spacer from '../../../ui/spacer';
+import Container from '../../../ui/container';
+import CusText from '../../../ui/custom-text';
 
 const Header = ({
   name,
@@ -36,16 +40,16 @@ const Header = ({
   isShow,
 }: any) => {
   const [searchText, setSearchText] = useState('');
-  const {colors}: any = React.useContext(AppearanceContext);
+  const { colors }: any = React.useContext(AppearanceContext);
   const navigation: any = useNavigation();
-  const {signInAgain}: any = React.useContext(AuthContext);
+  const { signInAgain }: any = React.useContext(AuthContext);
   const [getuserData, setGetData] = useState<any>(null);
   const isFocused = useIsFocused();
 
   useFocusEffect(
     React.useCallback(() => {
       userData();
-      return () => {};
+      return () => { };
     }, [isFocused]),
   );
 
@@ -62,10 +66,52 @@ const Header = ({
 
   return (
     <>
-      <Wrapper customStyles={styles.headerView}>
-        <Wrapper
+      <Wrapper  height={responsiveWidth(13)} row align='center'
+        customStyles={{
+        }}
+      >
+        <Spacer x='S' />
+        <Wrapper align='center' row  >
+          {menubtn ? (
+            <TouchableOpacity
+              onPress={() => {
+                navigation.openDrawer();
+              }}>
+              <Wrapper align='center'>
+                <Image
+                  source={require('../../../assets/Images/drawermenu.png')}
+                  tintColor={colors.darkGray}
+                  style={{
+                    height: responsiveWidth(9),
+                    width: responsiveWidth(9)
+                  }}
+                />
+              </Wrapper>
+            </TouchableOpacity>
+          ) : null}
+
+          {backBtn ? (
+            <>
+              <IonIcon
+                onPress={() => {
+                  navigation.goBack();
+                }}
+                name="chevron-back-outline"
+                size={responsiveWidth(7)}
+                color={colors.black}
+                style={{
+                  padding: responsiveWidth(0.5),
+                }}
+              />
+            </>
+          ) : null}
+          <Spacer x='S' />
+          <CusText semibold color={colors.darkGray} text={name} size='L' />
+        </Wrapper>
+
+        {/* <Wrapper
+          color='red'
           row
-          justify="apart"
           align="center"
           customStyles={{
             paddingHorizontal: backBtn
@@ -78,13 +124,15 @@ const Header = ({
               onPress={() => {
                 navigation.openDrawer();
               }}>
-              <Text style={[styles.iconBtn, {backgroundColor: colors.iconBtn}]}>
-                <IonIcon
-                  name="menu"
-                  size={35}
-                  style={[styles.iconHeader, {color: colors.black}]}
+              <Wrapper align='center'>
+                <Image
+                  source={require('../../../assets/Images/drawermenu.png')}
+                  style={{
+                    height: responsiveWidth(9),
+                    width: responsiveWidth(9)
+                  }}
                 />
-              </Text>
+              </Wrapper>
             </TouchableOpacity>
           ) : null}
           {backBtn ? (
@@ -102,26 +150,10 @@ const Header = ({
               />
             </>
           ) : null}
-          <View
-              style={[styles.LogoBar, !name ? {justifyContent: 'center'} : {}]}>
-            
-                <TouchableOpacity
-                  //activeOpacity={showPageName ? 0.5 : 1}
-                  onPress={() => {
-                    // if (showPageName) {
-                    //   setShowName(true);
-                    // }
-                  }}>
-                  <Text
-                    numberOfLines={1}
-                    style={[styles.text, {color: colors.black}]}>
-                    {name ?  name : ""}
-                  </Text>
-                </TouchableOpacity>
-           
-            </View>
+          <Spacer x='S' />
+          <CusText position='center' text={name} size='M' />
+        </Wrapper> */}
 
-        </Wrapper>
       </Wrapper>
     </>
   );
