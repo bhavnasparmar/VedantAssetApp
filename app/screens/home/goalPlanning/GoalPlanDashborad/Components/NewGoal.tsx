@@ -8,6 +8,7 @@ import { borderRadius, colors, responsiveHeight, responsiveWidth } from '../../.
 import { Image, TouchableOpacity } from 'react-native';
 import { getGoalTypeImage } from '../../../../../utils/Commanutils';
 import NewGoalModal from './NewGoalModal';
+import Spacer from '../../../../../ui/spacer';
 
 const NewGoal = () => {
 
@@ -47,30 +48,28 @@ const NewGoal = () => {
 
     return (
         <>
-            <Wrapper position='center' row customStyles={{ flexWrap: 'wrap', marginHorizontal: responsiveWidth(5), marginVertical: responsiveWidth(2), paddingBottom: responsiveWidth(2) }}>
+            <Wrapper position='center' row customStyles={{ flexWrap: 'wrap', paddingBottom: responsiveWidth(2), gap: responsiveWidth(3), marginLeft: responsiveWidth(3) }}>
                 {goalTypesData?.map((item: any, i: number) =>
-                    <Wrapper width={"33%"} customStyles={{ flexWrap: 'wrap', marginVertical: responsiveWidth(1) }}>
+                    <Wrapper width={responsiveWidth(29)} customStyles={{ flexWrap: 'wrap'}}>
                         <TouchableOpacity style={{
-                            width: responsiveWidth(12),
-                            height: responsiveWidth(12),
+                            width: responsiveWidth(29),
+                            height: responsiveWidth(29),
                             borderColor: "rgba(226, 226, 226, 1)",
                             borderWidth: responsiveWidth(0.5),
-                            padding: responsiveWidth(10),
                             borderRadius: borderRadius.medium,
                             justifyContent: "center",
                             alignItems: "center",
-                            marginHorizontal: responsiveWidth(4),
-                            marginVertical: responsiveWidth(2),
                             backgroundColor:colors.white
                         }} onPress={() => { setGoalDetails(item) }}>
                             <Image resizeMode='contain' source={{ uri: getGoalTypeImage(item?.goal_icon) }} style={{
-                                height: responsiveHeight(10),
-                                width: responsiveWidth(10)
+                                height: responsiveWidth(26),
+                                width: responsiveWidth(26)
                             }}></Image>
                         </TouchableOpacity>
-                        <Wrapper >
-                            <CusText semibold position="center" text={item?.goal_name} size='S'
-                                customStyles={{ width: responsiveWidth(20) }} />
+                        <Spacer y='XXS' />
+                        <Wrapper position='center'>
+                            <CusText semibold position="center" text={item?.goal_name} size='SS' color={colors.primary}
+                                customStyles={{ width: responsiveWidth(21) }} />
                         </Wrapper>
                     </Wrapper>
                 )}

@@ -5,7 +5,7 @@ import {
 } from '@react-navigation/drawer';
 import { useIsFocused } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { Keyboard, Platform, StyleSheet, View } from 'react-native';
+import { Image, Keyboard, Platform, StyleSheet, View } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { AppearanceContext } from '../../../context/appearanceContext';
 import {
@@ -29,6 +29,7 @@ import {
   tokenExpiredflagChange,
 } from '../../../utils/Commanutils';
 import { useSelector } from 'react-redux';
+import LinearGradient from 'react-native-linear-gradient';
 
 export function DrawerContent(props: any) {
   const appState = useSelector((state: any) => state);
@@ -53,90 +54,170 @@ export function DrawerContent(props: any) {
 
   return (
     <>
-      <Container contentWidth="100%">
+      <Container bgcolor={colors.primary} contentWidth="100%">
+        <Wrapper position='center'>
+          <Image style={{
+            height: responsiveWidth(30),
+            width: responsiveWidth(90)
+          }} source={require('../../../assets/Images/FeatureGraphic.png')} />
+        </Wrapper>
         <DrawerContentScrollView
           style={{ paddingTop: 0 }}
-          contentContainerStyle={{ paddingTop: 30 }}>
-          <View style={[styles.menuItem, { borderColor: colors.gray }]}>
-            {/* <View style={styles.iconSet}></View> */}
+          contentContainerStyle={{ paddingTop: responsiveWidth(5) }}>
+          {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}
+          {/* <View style={styles.iconSet}></View> */}
+          <Wrapper>
             <DrawerItem
               icon={({ }) => (
                 <IonIcon
                   name="home"
-                  color={colors.black}
-                  size={19}
-                  style={styles.menuIcon}
+                  color={colors.white}
+                  size={responsiveWidth(7)}
+                // style={styles.menuIcon}
                 />
               )}
               label={({ }) => (
-                <CusText style={styles.menuTextstyle} text="Dashboard" />
+                <CusText customStyles={{ marginLeft: responsiveWidth(4) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Dashboard" />
               )}
+
               onPress={() => {
                 // props.navigation.navigate("Tabs");
                 props.navigation.navigate('Dashboard');
               }}
             />
-          </View>
-          <View style={[styles.menuItem, { borderColor: colors.gray }]}>
+            <LinearGradient
+              start={{ x: 1, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              colors={[
+                colors.transparent,
+                colors.Hard_White,
+                colors.transparent,
+              ]}
+              style={{ width: "100%", height: 1, opacity: 0.5 }}
+            ></LinearGradient>
+          </Wrapper>
+
+          {/* </View> */}
+          {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}
+          <Wrapper>
             {/* <View style={styles.iconSet}></View> */}
             <DrawerItem
               icon={({ }) => (
                 <IonIcon
                   name="lock-closed"
-                  color={colors.black}
-                  size={19}
-                  style={styles.menuIcon}
+                  color={colors.white}
+                  size={responsiveWidth(7)}
+                // style={styles.menuIcon}
                 />
               )}
               label={({ }) => (
-                <CusText style={styles.menuTextstyle} text="ChangePassword" />
+                <CusText customStyles={{ marginLeft: responsiveWidth(4) }} color={colors.white} size='N' style={styles.menuTextstyle} text="ChangePassword" />
               )}
               onPress={() => {
                 // props.navigation.navigate("Tabs");
                 props.navigation.navigate('ChangePassword');
               }}
             />
-          </View>
-          <View style={[styles.menuItem, { borderColor: colors.gray }]}>
+            <LinearGradient
+              start={{ x: 1, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              colors={[
+                colors.transparent,
+                colors.Hard_White,
+                colors.transparent,
+              ]}
+              style={{ width: "100%", height: 1, opacity: 0.5 }}
+            ></LinearGradient>
+          </Wrapper>
+          {/* </View> */}
+          {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}
+          <Wrapper>
             {/* <View style={styles.iconSet}></View> */}
             <DrawerItem
               icon={({ }) => (
                 <IonIcon
                   name="golf"
-                  color={colors.black}
-                  size={19}
-                  style={styles.menuIcon}
+                  color={colors.white}
+                  size={responsiveWidth(7)}
+                // style={styles.menuIcon}
                 />
               )}
               label={({ }) => (
-                <CusText style={styles.menuTextstyle} text="Goal Planning" />
+                <CusText customStyles={{ marginLeft: responsiveWidth(4) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Goal Planning" />
               )}
               onPress={() => {
                 // props.navigation.navigate("Tabs");
                 props.navigation.navigate('GoalPlanDashboard');
               }}
             />
-          </View>
-          <View style={[styles.menuItem, { borderColor: colors.gray }]}>
-            {/* <View style={styles.iconSet}></View> */}
+            <LinearGradient
+              start={{ x: 1, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              colors={[
+                colors.transparent,
+                colors.Hard_White,
+                colors.transparent,
+              ]}
+              style={{ width: "100%", height: 1, opacity: 0.5 }}
+            ></LinearGradient>
+          </Wrapper>
+          {/* </View> */}
+
+          {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}
+          {/* <View style={styles.iconSet}></View> */}
+          <Wrapper>
             <DrawerItem
               icon={({ }) => (
                 <IonIcon
                   name="speedometer"
-                  color={colors.black}
-                  size={19}
-                  style={styles.menuIcon}
+                  color={colors.white}
+                  size={responsiveWidth(7)}
+                // style={styles.menuIcon}
                 />
               )}
               label={({ }) => (
-                <CusText style={styles.menuTextstyle} text="Risk Profile" />
+                <CusText customStyles={{ marginLeft: responsiveWidth(4) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Risk Profile" />
               )}
               onPress={() => {
                 // props.navigation.navigate("Tabs");
                 props.navigation.navigate('RiskProfile');
               }}
             />
-          </View>
+            <LinearGradient
+              start={{ x: 1, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              colors={[
+                colors.transparent,
+                colors.Hard_White,
+                colors.transparent,
+              ]}
+              style={{ width: "100%", height: 1, opacity: 0.5 }}
+            ></LinearGradient>
+          </Wrapper>
+          {/* </View> */}
+          {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}
+          {/* <View style={styles.iconSet}></View> */}
+          <Wrapper>
+            <DrawerItem
+              icon={({ }) => (
+                <IonIcon
+                  name="power-outline"
+                  color={colors.white}
+                  size={responsiveWidth(7)}
+                // style={styles.menuIcon}
+                />
+              )}
+              label={({ }) => (
+                <CusText customStyles={{ marginLeft: responsiveWidth(4) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Logout" />
+              )}
+              onPress={() => {
+                // props.navigation.navigate("Tabs");
+                // props.navigation.navigate('RiskProfile');
+                setAlertVisible(true);
+              }}
+            />
+          </Wrapper>
+          {/* </View> */}
         </DrawerContentScrollView>
         <Alert
           AlertVisible={AlertVisible}
@@ -154,7 +235,7 @@ export function DrawerContent(props: any) {
         />
       </Container>
 
-      <Wrapper
+      {/* <Wrapper
         width={'100%'}
         position="end"
         justify="center"
@@ -173,7 +254,7 @@ export function DrawerContent(props: any) {
           iconName={'log-out-outline'}
           customStyle={{ paddingRight: 15 }}
         />
-      </Wrapper>
+      </Wrapper> */}
     </>
   );
 }
@@ -206,12 +287,12 @@ const styles = StyleSheet.create({
   },
   menuTextstyle: {
     fontFamily: fontFamily.semiBold,
-    color: colors.darkGray,
+    color: colors.white,
   },
   menuItem: {
     position: 'relative',
-    borderBottomWidth: 1,
-    borderStyle: 'solid',
+    // borderBottomWidth: 1,
+    // borderStyle: 'solid',
   },
   menuIcon: {
     // marginLeft: responsiveWidth(4),

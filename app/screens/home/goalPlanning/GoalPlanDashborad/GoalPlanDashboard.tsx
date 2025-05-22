@@ -49,25 +49,25 @@ const GoalPlanDashboard = () => {
 
             }}>
                 <TouchableOpacity onPress={() => setActiveComponent('NewGoal')}>
-                    <CusText color={activeComponent === 'NewGoal' ? colors.orange : colors.darkGray} text={'New Goal'} size={activeComponent === 'NewGoal' ? "M" : "SS"} />
+                    <CusText semibold color={activeComponent === 'NewGoal' ? colors.orange : colors.primary} text={'New Goal'} size={activeComponent === 'NewGoal' ? "M" : "SN"} />
                 </TouchableOpacity>
                 <Wrapper
-                    customStyles={{ marginHorizontal: responsiveWidth(1) }}
-                    width={responsiveWidth(5)}
+                    customStyles={{ marginHorizontal: responsiveWidth(2) }}
+                    width={responsiveWidth(7)}
                     height={responsiveWidth(0.3)}
-                    color="black"
+                    color={colors.primary}
                 />
                 <TouchableOpacity onPress={() => setActiveComponent('OnGoingGoal')}>
-                    <CusText color={activeComponent === 'OnGoingGoal' ? colors.orange : colors.darkGray} position="center" text={'Ongoing'} size={activeComponent === 'OnGoingGoal' ? "M" : "SS"} />
+                    <CusText semibold color={activeComponent === 'OnGoingGoal' ? colors.orange : colors.primary} position="center" text={'Ongoing'} size={activeComponent === 'OnGoingGoal' ? "M" : "SN"} />
                 </TouchableOpacity>
                 <Wrapper
-                    customStyles={{ marginHorizontal: responsiveWidth(1) }}
-                    width={responsiveWidth(5)}
+                    customStyles={{ marginHorizontal: responsiveWidth(2) }}
+                    width={responsiveWidth(7)}
                     height={responsiveWidth(0.3)}
-                    color="black"
+                    color={colors.primary}
                 />
                 <TouchableOpacity onPress={() => setActiveComponent('CompletedGoal')}>
-                    <CusText color={activeComponent === 'CompletedGoal' ? colors.orange : colors.darkGray} text={'Completed'} size={activeComponent === 'CompletedGoal' ? "M" : "SS"} />
+                    <CusText semibold color={activeComponent === 'CompletedGoal' ? colors.orange : colors.primary} text={'Completed'} size={activeComponent === 'CompletedGoal' ? "M" : "SN"} />
                 </TouchableOpacity>
             </Wrapper>
             <Spacer y="XS" />
