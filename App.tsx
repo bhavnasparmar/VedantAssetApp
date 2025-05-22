@@ -2,7 +2,7 @@
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
-import {Appearance, NativeModules, SafeAreaView} from 'react-native';
+import {Appearance, NativeModules, Platform,  StatusBar, View} from 'react-native';
 import {AppearanceContext} from './app/context/appearanceContext';
 import {AuthContext} from './app/context/AuthContext';
 import Login from './app/screens/auth/login/login';
@@ -21,6 +21,7 @@ import NetInfo from '@react-native-community/netinfo';
 import KycList from './app/screens/auth/kyc/kyclist/kyc';
 import PancardVerify from './app/screens/auth/pancardverify/pancardverify';
 import Kycvarification from './app/screens/auth/kycverification/kycvarification';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import {Provider} from 'react-redux';
 import {persistor, store} from './app/Redux/Store';
 import {PersistGate} from 'redux-persist/integration/react';
@@ -30,7 +31,7 @@ import Passwordrecovery from './app/screens/auth/passwordrecovery/passwordrecove
 import API from './app/utils/API';
 import Otp from './app/screens/auth/Otp/Otp';
 import SplashScreen from 'react-native-splash-screen';
-
+import {localStorageKeys} from './app/services/localStorageService';
 
 const {RootCheckModule} = NativeModules;
 const RootStack = createNativeStackNavigator();
@@ -61,7 +62,8 @@ export default function App() {
     const unsubscribe = NetInfo.addEventListener(state =>
       setNetworkModal(!state.isConnected),
     );
-setTimeout(() => {
+    setTimeout(() => {
+      appUser();
       SplashScreen.hide();
     }, 2000);
     return () => {
@@ -77,6 +79,31 @@ setTimeout(() => {
       // console.log(error, 'while fetching apperance');
     }
   };
+
+  const appUser = async () => {
+    try {
+      let initialRoute = 'Home';
+      const token = await AsyncStorage.getItem(localStorageKeys.TOKEN_PREFIX);
+      // console.log("company dataaaaaaaaa", companyData);
+      // dispatch({
+      //   type: 'RESTORE_TOKEN',
+      //   token: token,
+      //   isCompanyConfigured: !!companyData,
+      //   initialRoute,
+      // });
+      dispatch({
+        type: 'RESTORE_TOKEN',
+        userToken: token,
+        initialRoute: 'Home',
+        //initialRoute,
+        isLoading: false,
+        isSignout: false,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const toastConfig = {
     success: (props: any) => (
       <BaseToast
@@ -204,6 +231,7 @@ setTimeout(() => {
         } catch (error: any) {}
       },
       signIn: async (data: any) => {
+        console.log("data", data);
         try {
           await AsyncStorage.setItem(TOKEN_PREFIX, data?.token);
           await AsyncStorage.setItem(USER_DATA, JSON.stringify(data?.user));
@@ -272,7 +300,11 @@ setTimeout(() => {
   return (
     <>
       {/* <SafeAreaView style={{flex: 1}}> */}
-      <SafeAreaView style={{flex: 1, backgroundColor: '#FFFFFF'}}>
+    <SafeAreaProvider>
+      <SafeAreaView
+        style={{
+          flex: 1,}}
+      >
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <AuthContext.Provider value={authContext}>
@@ -301,7 +333,45 @@ setTimeout(() => {
             <CheckNetworkModal Visible={NetworkModal} />
           </PersistGate>
         </Provider>
-      </SafeAreaView>
+    </SafeAreaView>
+    </SafeAreaProvider>
     </>
   );
+  //  return (
+  //   <>
+  //     <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+  //     <View
+  //       style={{
+  //         flex: 1,
+  //         backgroundColor: '#FFFFFF',
+  //         paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  //       }}>
+  //       <Provider store={store}>
+  //         <PersistGate loading={null} persistor={persistor}>
+  //           <AuthContext.Provider value={authContext}>
+  //             <AppearanceContext.Provider
+  //               value={{
+  //                 colors: mode === LIGHT ? colors : darkColors,
+  //                 setloginnavigation,
+  //                 loginnavigation,
+  //               }}>
+  //               <NavigationContainer theme={mode === LIGHT ? _LightTheme : _DarkTheme}>
+  //                 <RootStack.Navigator screenOptions={options}>
+  //                   {state?.userToken != null ? (
+  //                     <RootStack.Screen name="App" component={SideDrawer} />
+  //                   ) : (
+  //                     <RootStack.Screen name="Auth" component={authstack} />
+  //                   )}
+  //                 </RootStack.Navigator>
+  //               </NavigationContainer>
+  //             </AppearanceContext.Provider>
+  //           </AuthContext.Provider>
+  //           <Toast config={toastConfig} />
+  //           <CheckNetworkModal Visible={NetworkModal} />
+  //         </PersistGate>
+  //       </Provider>
+  //     </View>
+  //   </>
+  // );
+
 }

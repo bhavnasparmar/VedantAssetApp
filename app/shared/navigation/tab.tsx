@@ -139,6 +139,7 @@ const Tabs = ({route}: any) => {
   return (
     <>
       <Tab.Navigator
+         backBehavior="history"
         screenOptions={screenOptions}
         tabBar={props => {
           const newRoutes = props.state.routes.slice(0, 4);
