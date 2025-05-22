@@ -13,6 +13,8 @@ const styles = StyleSheet.create({
   headerView: {
     // height:
     //   Platform.OS === 'ios' ? responsiveHeight(6) + 0 : responsiveHeight(18),
+    height:
+      Platform.OS === 'ios' ? 90 : 58,
     width: responsiveWidth(100),
     alignSelf: 'center',
     paddingTop: Platform.OS === 'ios' ? responsiveWidth(2) : 0,

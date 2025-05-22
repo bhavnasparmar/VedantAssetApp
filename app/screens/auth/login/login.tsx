@@ -47,8 +47,8 @@ const Login = () => {
     /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
   const CRED = {
-    email: '',
-    password: '',
+    email: 'bhavna@yopmail.com',
+    password: '123456',
   };
 
   const [Form, setForm] = useState(CRED);

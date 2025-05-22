@@ -142,6 +142,7 @@ let reptativeColors = {
 };
 
 const colors: any = {
+  lightGray :reptativeColors?.lightGray,
   gradient3: 'rgba(229, 75, 186, 0.4)',
   gradient4: 'rgba(243, 118, 124, 0.29)',
   gradient5: 'rgba(255, 151, 75, 0.2)',
@@ -244,11 +245,11 @@ const colors: any = {
   //Modal
   modalHeaderBg: reptativeColors.darkGray,
   modalHeaderBg2: reptativeColors.darkGray,
-  modalBg: reptativeColors.black,
+  modalBg: reptativeColors.white,
   modalBorder: reptativeColors.white,
 
   //Card
-  cardBg: reptativeColors.black,
+  cardBg: reptativeColors.white,
   cardBorder: reptativeColors.black,
   darkCardBg: reptativeColors.black,
   cardHeaderBg: reptativeColors.card,
