@@ -21,7 +21,8 @@ import Container from '../../../ui/container';
 import CusButton from '../../../ui/custom-button';
 import CusText from '../../../ui/custom-text';
 import Wrapper from '../../../ui/wrapper';
-import CommonModal from '../../components/CommonModal/commonModal';
+// import CommonModal from '../../components/CommonModal/commonModal';
+import CommonModal from '../../components/CommonAlert/commonModal';
 import { AuthContext } from '../../../context/AuthContext';
 import Alert from '../../components/Alert/Alert';
 import {
@@ -219,12 +220,29 @@ export function DrawerContent(props: any) {
           </Wrapper>
           {/* </View> */}
         </DrawerContentScrollView>
-        <Alert
+        {/* <Alert
           AlertVisible={AlertVisible}
           setAlertVisible={(value: any) => setAlertVisible(value)}
           alertMsgType="signOut"
           AlertMsg={'Are you sure want to Logout?'}
           navigation={props.navigation}
+        /> */}
+        <CommonModal
+          visible={AlertVisible}
+          onClose={() => { setAlertVisible(false) }}
+          iconName="power-outline"
+          iconColor={colors.red}
+          iconSize={responsiveWidth(20)}
+          title="Log Out"
+          // description={`Would You Like to create new activity ? if yes choose "Create New", it will mark previous activity as "Complete".`}
+          description={`Are you sure want to Logout?`}
+          button1Text="Stay"
+          onButton1Press={() => {
+            setAlertVisible(false)
+          }}
+          button2Text="Yes"
+          onButton2Press={async () => { await signOut(setloggingOut); }}
+
         />
         <Alert
           AlertVisible={tokenExpiredToggles}
