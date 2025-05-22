@@ -1,13 +1,13 @@
 import CryptoJS from 'crypto-js';
-import {tokenExpiredToggle} from '../Redux/Actions/TokenAction';
-import {store} from '../Redux/Store';
-import {parseJSON} from 'date-fns';
-import {getRiskObject, getuserDetails} from '../Redux/Actions/userAction';
+import { tokenExpiredToggle } from '../Redux/Actions/TokenAction';
+import { store } from '../Redux/Store';
+import { parseJSON } from 'date-fns';
+import { getRiskObject, getuserDetails } from '../Redux/Actions/userAction';
 
 //live server base url
-export const API_URL = 'http://192.168.1.35:9065/';
+export const API_URL = 'http://192.168.1.33:9065/';
 export const IMAGE_URL = `${API_URL}static/`;
-export const IMAGE_URL_GOAL = 'http://192.168.1.35:9065/static';
+export const IMAGE_URL_GOAL = 'http://192.168.1.33:9065/static';
 export const TOKEN_PREFIX = 'TOKEN_PREFIX';
 export const REFRESH_TOKEN_PREFIX = 'REFRESH_TOKEN_PREFIX';
 export const FCM_TOKEN = 'FCM_TOKEN';
@@ -27,11 +27,11 @@ const endPoints = {
   //home api
   getAllGoalType: 'goal-plan/getAllGoalType',
   getRiskProfileInvestor: 'risk-profile/get-risk-profile-investor',
-  getAllRiskQuestion :'risk-profile/getAllRiskQuestion',
-  addRiskProfileQuestionAnswer : 'risk-profile/add-question-answer'
+  getAllRiskQuestion: 'risk-profile/getAllRiskQuestion',
+  addRiskProfileQuestionAnswer: 'risk-profile/add-question-answer'
 };
 
-export {endPoints};
+export { endPoints };
 
 export const promiseHandler = async (promise: Promise<any>) => {
   try {
@@ -142,5 +142,5 @@ export const updateObjectKey = (obj: any, keyPath: any, value: any) => {
   // Update the value at the specified key
   nestedObj[lastKey] = value;
 
-  return {...obj}; // Return a new object
+  return { ...obj }; // Return a new object
 };

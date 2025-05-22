@@ -7,6 +7,7 @@ import GoalDashboard from '../../../screens/home/goalPlanning/goaltabview/goalDa
 import RiskProfile from '../../../screens/home/riskProfile/riskProfile';
 import { Dimensions } from 'react-native';
 import { responsiveWidth } from '../../../styles/variables';
+import GoalPlanDashboard from '../../../screens/home/goalPlanning/GoalPlanDashborad/GoalPlanDashboard';
 
 const Drawer = createDrawerNavigator();
 
@@ -34,7 +35,8 @@ function SideDrawer() {
       drawerContent={(props: any) => <DrawerContent {...props} />}>
       <Drawer.Screen name="Tabs" component={Tabs} />
       <Drawer.Screen name="ChangePassword" component={ChangePassword} />
-      <Drawer.Screen name='GoalDashboard' component={GoalDashboard} />
+      {/* <Drawer.Screen name='GoalDashboard' component={GoalDashboard} /> */}
+      <Drawer.Screen name='GoalPlanDashboard' component={GoalPlanDashboard} />
       <Drawer.Screen name='RiskProfile' component={RiskProfile} />
     </Drawer.Navigator>
   );

@@ -3,11 +3,11 @@ import {
   DrawerItem,
   useDrawerStatus,
 } from '@react-navigation/drawer';
-import {useIsFocused} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
-import {Keyboard, Platform, StyleSheet, View} from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { Keyboard, Platform, StyleSheet, View } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import {AppearanceContext} from '../../../context/appearanceContext';
+import { AppearanceContext } from '../../../context/appearanceContext';
 import {
   borderRadius,
   colors,
@@ -22,7 +22,7 @@ import CusButton from '../../../ui/custom-button';
 import CusText from '../../../ui/custom-text';
 import Wrapper from '../../../ui/wrapper';
 import CommonModal from '../../components/CommonModal/commonModal';
-import {AuthContext} from '../../../context/AuthContext';
+import { AuthContext } from '../../../context/AuthContext';
 import Alert from '../../components/Alert/Alert';
 import {
   getTokenExpiredflagChange,
@@ -31,17 +31,17 @@ import {
 import { useSelector } from 'react-redux';
 
 export function DrawerContent(props: any) {
-    const appState = useSelector((state: any) => state);
+  const appState = useSelector((state: any) => state);
   const tokenExpiredToggles = appState.tokenReducer.tokenExpiredFlag;
 
-  const {signOut}: any = React.useContext(AuthContext);
-  const {colors}: any = React.useContext(AppearanceContext);
+  const { signOut }: any = React.useContext(AuthContext);
+  const { colors }: any = React.useContext(AppearanceContext);
   const [loggingOut, setloggingOut] = useState(false);
   const [AlertVisible, setAlertVisible] = useState(false);
   const isDrawerOpen = useDrawerStatus() === 'open';
   const isFocused = useIsFocused();
   useEffect(() => {
-    console.log("---",getTokenExpiredflagChange())
+    console.log("---", getTokenExpiredflagChange())
     Keyboard.dismiss();
   }, [isDrawerOpen, isFocused]);
 
@@ -55,12 +55,12 @@ export function DrawerContent(props: any) {
     <>
       <Container contentWidth="100%">
         <DrawerContentScrollView
-          style={{paddingTop: 0}}
-          contentContainerStyle={{paddingTop: 30}}>
-          <View style={[styles.menuItem, {borderColor: colors.gray}]}>
+          style={{ paddingTop: 0 }}
+          contentContainerStyle={{ paddingTop: 30 }}>
+          <View style={[styles.menuItem, { borderColor: colors.gray }]}>
             {/* <View style={styles.iconSet}></View> */}
             <DrawerItem
-              icon={({}) => (
+              icon={({ }) => (
                 <IonIcon
                   name="home"
                   color={colors.black}
@@ -68,7 +68,7 @@ export function DrawerContent(props: any) {
                   style={styles.menuIcon}
                 />
               )}
-              label={({}) => (
+              label={({ }) => (
                 <CusText style={styles.menuTextstyle} text="Dashboard" />
               )}
               onPress={() => {
@@ -77,10 +77,10 @@ export function DrawerContent(props: any) {
               }}
             />
           </View>
-          <View style={[styles.menuItem, {borderColor: colors.gray}]}>
+          <View style={[styles.menuItem, { borderColor: colors.gray }]}>
             {/* <View style={styles.iconSet}></View> */}
             <DrawerItem
-              icon={({}) => (
+              icon={({ }) => (
                 <IonIcon
                   name="lock-closed"
                   color={colors.black}
@@ -88,7 +88,7 @@ export function DrawerContent(props: any) {
                   style={styles.menuIcon}
                 />
               )}
-              label={({}) => (
+              label={({ }) => (
                 <CusText style={styles.menuTextstyle} text="ChangePassword" />
               )}
               onPress={() => {
@@ -97,10 +97,10 @@ export function DrawerContent(props: any) {
               }}
             />
           </View>
-           <View style={[styles.menuItem, {borderColor: colors.gray}]}>
+          <View style={[styles.menuItem, { borderColor: colors.gray }]}>
             {/* <View style={styles.iconSet}></View> */}
             <DrawerItem
-              icon={({}) => (
+              icon={({ }) => (
                 <IonIcon
                   name="golf"
                   color={colors.black}
@@ -108,19 +108,19 @@ export function DrawerContent(props: any) {
                   style={styles.menuIcon}
                 />
               )}
-              label={({}) => (
+              label={({ }) => (
                 <CusText style={styles.menuTextstyle} text="Goal Planning" />
               )}
               onPress={() => {
                 // props.navigation.navigate("Tabs");
-                props.navigation.navigate('GoalDashboard');
+                props.navigation.navigate('GoalPlanDashboard');
               }}
             />
           </View>
-           <View style={[styles.menuItem, {borderColor: colors.gray}]}>
+          <View style={[styles.menuItem, { borderColor: colors.gray }]}>
             {/* <View style={styles.iconSet}></View> */}
             <DrawerItem
-              icon={({}) => (
+              icon={({ }) => (
                 <IonIcon
                   name="speedometer"
                   color={colors.black}
@@ -128,7 +128,7 @@ export function DrawerContent(props: any) {
                   style={styles.menuIcon}
                 />
               )}
-              label={({}) => (
+              label={({ }) => (
                 <CusText style={styles.menuTextstyle} text="Risk Profile" />
               )}
               onPress={() => {
@@ -146,10 +146,10 @@ export function DrawerContent(props: any) {
           navigation={props.navigation}
         />
         <Alert
-            AlertVisible={tokenExpiredToggles}
+          AlertVisible={tokenExpiredToggles}
           setAlertVisible={(value: any) => tokenExpiredflagChange(false)}
-          onConfirm={()=>{submit()}}
-          alertMsgType ={'SessionExpired'}
+          onConfirm={() => { submit() }}
+          alertMsgType={'SessionExpired'}
           AlertMsg={'Your Session is expired, Please login again'}
         />
       </Container>
@@ -171,7 +171,7 @@ export function DrawerContent(props: any) {
             setAlertVisible(true);
           }}
           iconName={'log-out-outline'}
-          customStyle={{paddingRight: 15}}
+          customStyle={{ paddingRight: 15 }}
         />
       </Wrapper>
     </>
