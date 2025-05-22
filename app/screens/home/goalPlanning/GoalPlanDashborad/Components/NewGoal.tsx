@@ -4,14 +4,17 @@ import { showToast, toastTypes } from '../../../../../services/toastService';
 import { getAllGoalTypeApi } from '../../../../../api/homeapi';
 import { useIsFocused } from '@react-navigation/native';
 import Wrapper from '../../../../../ui/wrapper';
-import { responsiveWidth } from '../../../../../styles/variables';
-import { Image } from 'react-native';
+import { borderRadius, colors, responsiveHeight, responsiveWidth } from '../../../../../styles/variables';
+import { Image, TouchableOpacity } from 'react-native';
 import { getGoalTypeImage } from '../../../../../utils/Commanutils';
+import NewGoalModal from './NewGoalModal';
 
 const NewGoal = () => {
 
     const isFocused = useIsFocused();
     const [goalTypesData, setGoalTypesData] = useState<any[]>([]);
+    const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const [goalDetailsObj, setGoalDetailsObj] = useState<any>({});
     useEffect(() => {
         goalTypes();
     }, [isFocused]);
@@ -19,7 +22,6 @@ const NewGoal = () => {
     const goalTypes = async () => {
         try {
             const [result, error]: any = await getAllGoalTypeApi();
-            console.log('result--**--', result);
             console.log('result?.data----', result?.data);
             console.log('result?.error----', error);
             if (result) {
@@ -38,28 +40,46 @@ const NewGoal = () => {
         }
     };
 
+    const setGoalDetails = (goal: any) => {
+        setGoalDetailsObj(goal)
+        setModalVisible(true)
+    }
+
     return (
         <>
-            <Wrapper row color='yellow' position='center' customStyles={{ flexWrap: 'wrap', paddingHorizontal: responsiveWidth(5) }}>
-                {
-                    goalTypesData?.map((goal: any) => {
-                        return (
-                            <>
-                                <Wrapper customStyles={{ flexWrap: 'wrap' }}>
-                                    <Image
-                                        resizeMode="contain"
-                                        source={{ uri: getGoalTypeImage(goal?.goal_icon) }}
-                                        style={{
-                                            height:responsiveWidth(5),
-                                            width:responsiveWidth(5)
-                                        }}></Image>
-                                    <CusText text={goal?.goal_name} />
-                                </Wrapper>
-                            </>
-                        )
-                    })
-                }
+            <Wrapper position='center' row customStyles={{ flexWrap: 'wrap', marginHorizontal: responsiveWidth(5), marginVertical: responsiveWidth(2), paddingBottom: responsiveWidth(2) }}>
+                {goalTypesData?.map((item: any, i: number) =>
+                    <Wrapper width={"33%"} customStyles={{ flexWrap: 'wrap', marginVertical: responsiveWidth(1) }}>
+                        <TouchableOpacity style={{
+                            width: responsiveWidth(12),
+                            height: responsiveWidth(12),
+                            borderColor: "rgba(226, 226, 226, 1)",
+                            borderWidth: responsiveWidth(0.5),
+                            padding: responsiveWidth(10),
+                            borderRadius: borderRadius.medium,
+                            justifyContent: "center",
+                            alignItems: "center",
+                            marginHorizontal: responsiveWidth(4),
+                            marginVertical: responsiveWidth(2),
+                            backgroundColor:colors.white
+                        }} onPress={() => { setGoalDetails(item) }}>
+                            <Image resizeMode='contain' source={{ uri: getGoalTypeImage(item?.goal_icon) }} style={{
+                                height: responsiveHeight(10),
+                                width: responsiveWidth(10)
+                            }}></Image>
+                        </TouchableOpacity>
+                        <Wrapper >
+                            <CusText semibold position="center" text={item?.goal_name} size='S'
+                                customStyles={{ width: responsiveWidth(20) }} />
+                        </Wrapper>
+                    </Wrapper>
+                )}
             </Wrapper>
+            <NewGoalModal
+                visible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                goalName={goalDetailsObj?.goal_name}
+            />
         </>
     )
 }
