@@ -121,6 +121,7 @@ const RiskProfile = () => {
   return (
     <>
       <Header menubtn name={'Risk Profile'} />
+   
       {index == '1' && !finalScreen ? (
         <StartProfile
           setIndex={(val: any) => {
@@ -133,7 +134,6 @@ const RiskProfile = () => {
         <SecondScreen
           setIndex={(val: any) => {
             setindex(val);
-          //  setflag(prev => false)
           }}
           queList={queList}
           setdata={(data: any) => {
@@ -146,10 +146,8 @@ const RiskProfile = () => {
         <FinalScreen
           setIndex={(val: any) => {
             if (val == '1') {
-              setflag(prev=>true);
+              setflag(true);
               getRiskProfile();
-               setfinalScreen(null);
-
             }
             // if (val == '3') {
             //   console.log('val 3: ', val);
