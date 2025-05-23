@@ -72,13 +72,13 @@ const StartProfile = ({ setIndex }: any) => {
                             height: responsiveHeight(28)
                         }}></Image> */}
                     </Wrapper>
-                    <CusText position='center' semibold text={"To Make Better Decisions. You Need to Understand Yourself."} color={colors.Hard_Black} size="L" />
+                    <CusText position='center' semibold text={"To Make Better Decisions. You Need to Understand Yourself."} color={colors.Hard_Black} size="M" />
                     <Spacer y="XS" />
                     <CusText position='center' text={"Introducing Inxits Investor Personality, a tool to help you understand your investing behaviour."} color={colors.Hard_Black} size="XS" customStyles={{ opacity: 0.6 }} />
                     <Spacer y="L" />
                     <CusText position='center' text={"Introducing OceanFinvest's Investor Personality."} color={colors.Hard_Black} size="S" />
                     <Spacer y="N" />
-                    <CusButton iconName='arrow-forward-outline' position="center"  title='Know Your Personality'
+                    <CusButton iconName='arrow-forward-outline' position="center"  title='Know Your Personality' textSize='M' width={responsiveWidth(80)}
                         onPress={() => { setIndex('2') }} />
                     {/* <Wrapper position='center' customStyles={styles.lockContainer}>
                         <Animated.Text style={[styles.txt, { opacity: textOpacity, transform: [{ translateX: translateText }] }]}>
