@@ -22,6 +22,7 @@ function SideDrawer() {
       screenOptions={{
         headerShown: false,
         swipeEnabled: false,
+        
         drawerStyle: {
           // width: Dimensions.get('window').width / 1.25,
           // width: Dimensions.get('window').width,

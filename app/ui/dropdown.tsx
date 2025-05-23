@@ -103,18 +103,18 @@ const DropDown = ({
               <Wrapper
                 row
                 customStyles={{ paddingTop: marginHorizontal.extraSmall }}>
-              <CusText
-                customStyles={{
-                  paddingLeft: marginHorizontal.extraSmall,
-                  paddingTop: marginHorizontal.extraSmall,
-                  ...labelStyle,
-                }}
-                text={labelText}
-                size="S"
-                color={colors.inputLabel}
-                // semibold
-                medium
-              />
+                <CusText
+                  customStyles={{
+                    paddingLeft: marginHorizontal.extraSmall,
+                    paddingTop: marginHorizontal.extraSmall,
+                    ...labelStyle,
+                  }}
+                  text={labelText}
+                  size="S"
+                  color={colors.inputLabel}
+                  // semibold
+                  medium
+                />
               </Wrapper>
             )}
           </>
@@ -122,7 +122,8 @@ const DropDown = ({
         <View
           style={{
             paddingVertical: responsiveHeight(0.5),
-            marginTop: innerLable ? spaceVertical.small : spaceVertical.XXS,
+            // marginTop: innerLable ? spaceVertical.small : spaceVertical.XXS,
+            marginTop: innerLable ? spaceVertical.small : 0,
             borderWidth: IsFocus || error ? 1 : 1,
             borderRadius: borderRadius.medium,
             borderColor: ''
@@ -140,7 +141,7 @@ const DropDown = ({
                 : error
                   ? colors.red
                   : colors.inputBorder,
-            backgroundColor: fieldColor?fieldColor: colors.inputBg,
+            backgroundColor: fieldColor ? fieldColor : colors.inputBg,
             shadowColor: '#000000',
             shadowOffset: {
               width: 0,
@@ -260,7 +261,7 @@ const DropDown = ({
               paddingVertical: responsiveWidth(2),
               height: isIpad() ? responsiveWidth(7) : responsiveWidth(10),
             }}
-            
+
             renderRightIcon={() => (
               <>
                 {!value ?
@@ -293,7 +294,7 @@ const DropDown = ({
               shadowOpacity: 0,
               shadowRadius: 0,
               elevation: 0,
- }}
+            }}
           />
         </View>
         {error ? (
