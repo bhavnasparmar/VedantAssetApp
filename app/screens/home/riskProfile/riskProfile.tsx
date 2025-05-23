@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
 import StartProfile from './components/startProfile';
 import FirstScreen from './components/firstScreen';
@@ -15,7 +15,7 @@ import {
   USER_DATA,
 } from '../../../utils/Commanutils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useFocusEffect, useIsFocused} from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import Header from '../../../shared/components/Header/Header';
 import {
   getAllRiskQuestionAPi,
@@ -29,19 +29,20 @@ const RiskProfile = () => {
   const [queList, setqueList] = useState<any[]>([]);
   const [flag, setflag] = useState(false);
   const isFocused = useIsFocused();
- useFocusEffect(
-      React.useCallback(() => {
-        if (getRiskObjectData() === null) {
-          setindex('1');
-          setfinalScreen(null);
-        }
-        getData();
+  useFocusEffect(
+    React.useCallback(() => {
+      if (getRiskObjectData() === null) {
+        setindex('1');
+        setfinalScreen(null);
         getRiskProfile();
-        return () => {
-           setindex('1');
-        };
-      }, [isFocused]),
-    );
+      }
+      getData();
+      getRiskProfile();
+      return () => {
+        //  setindex('1');
+      };
+    }, [isFocused]),
+  );
   const getData = async () => {
     const data: any = await AsyncStorage.getItem(RISK_PROFILE_FINAL);
     console.log('RISK_PROFILE_FINAL data', data);
@@ -66,8 +67,9 @@ const RiskProfile = () => {
             getQuestionListForList();
           } else {
             setindex('3');
-            setfinalScreen(result?.data);
             setRiskObject(result?.data);
+            setfinalScreen(result?.data);
+
           }
         } else if (getRiskObjectData() !== null) {
           if (flag) {
@@ -105,7 +107,14 @@ const RiskProfile = () => {
         //   result?.data?.userRiskProfileData,
         // );
         // setLoginUserDetails(updatedUser);
-        setqueList(result?.data);
+        const savedData = getRiskObjectData();
+        if (savedData) {
+          setqueList(result?.data);
+          setRiskObject(null)
+        } else {
+          setqueList(result?.data);
+        }
+
 
         await AsyncStorage.setItem(
           RISK_PROFILE_FINAL,
@@ -121,7 +130,7 @@ const RiskProfile = () => {
   return (
     <>
       <Header menubtn name={'Risk Profile'} />
-   
+
       {index == '1' && !finalScreen ? (
         <StartProfile
           setIndex={(val: any) => {
@@ -141,7 +150,7 @@ const RiskProfile = () => {
           }}
         />
       ) : // <></>
-      null}
+        null}
       {index == '3' || finalScreen ? (
         <FinalScreen
           setIndex={(val: any) => {

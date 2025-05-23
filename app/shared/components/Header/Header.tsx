@@ -80,7 +80,7 @@ const Header = ({
               <Wrapper align='center'>
                 <Image
                   source={require('../../../assets/Images/drawermenu.png')}
-                  tintColor={colors.darkGray}
+                  tintColor={colors.primary}
                   style={{
                     height: responsiveWidth(9),
                     width: responsiveWidth(9)
@@ -98,7 +98,7 @@ const Header = ({
                 }}
                 name="chevron-back-outline"
                 size={responsiveWidth(7)}
-                color={colors.black}
+               color={colors.primary}
                 style={{
                   padding: responsiveWidth(0.5),
                 }}
@@ -106,7 +106,7 @@ const Header = ({
             </>
           ) : null}
           <Spacer x='S' />
-          <CusText semibold color={colors.darkGray} text={name} size='L' />
+          <CusText semibold color={colors.primary} text={name} size='L' />
         </Wrapper>
 
         {/* <Wrapper

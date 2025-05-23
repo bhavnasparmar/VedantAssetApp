@@ -35,10 +35,11 @@ import {
   addRiskProfileQuestionAnswerApi,
   getAllRiskQuestionAPi,
 } from '../../../../api/homeapi';
+import { useFocusEffect } from '@react-navigation/native';
 
 const SecondScreen = ({setIndex, queList, setdata}: any) => {
   const {colors}: any = useContext(AppearanceContext);
-
+   console.log("queList",queList)
   const [currentIndex, setCurrentIndex] = useState(0);
   const [questionList, setQuestionList] = useState<any[]>(queList);
   const [selectedAns, setSelectedAns] = useState('');
@@ -54,8 +55,9 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
     {min: 51, max: 60, points: 2},
   ];
 
-  useEffect(() => {
+ /*  useEffect(() => {
     const savedData = getRiskObjectData();
+    console.log("save",savedData)
     if (savedData) {
       const lastIndex = savedData.length - 1;
       setCurrentIndex(lastIndex);
@@ -64,15 +66,27 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
       setQuestionList(queList);
       setCurrentIndex(0);
     }
-  }, []);
-
+  }, []); */
+useFocusEffect(
+  React.useCallback(() => {
+     const savedData = getRiskObjectData();
+    if (savedData) {
+      const lastIndex = savedData.length - 1;
+      setCurrentIndex(lastIndex);
+      setQuestionList(savedData);
+    } else {
+      setQuestionList(queList);
+      setCurrentIndex(0);
+    }
+  }, [queList])
+);
   useEffect(() => {
     const current = questionList[currentIndex];
     if (current?.question_type === 3) {
       const allRangeValues = current?.RiskProfileAnswers?.flatMap(
         (item: any) => [item.range_min, item.range_max],
       );
-      const uniqueSorted = [...new Set(allRangeValues)].sort((a, b) => a - b);
+      const uniqueSorted = [...new Set(allRangeValues)].sort((a:any, b:any) => a - b);
       setSliderMarkers(uniqueSorted);
     }
   }, [questionList, currentIndex]);
@@ -95,10 +109,27 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
     }
     return 0;
   };
-
-  const handleAnswerChange = (item: any, index: number) => {
+  const toggel = (item:any,i:any) => {
     const updatedList = [...questionList];
-    if (item.answer === selectedAns) {
+
+    updatedList[i].toggle = !updatedList[i].toggle
+    setQuestionList(updatedList);
+  }
+  const handleAnswerChange = (item: any, index: number,i:number ,items:any) => {
+    const updatedList = [...questionList];
+    if(items?.selectAns){
+   if (item.answer === selectedAns) {
+      updatedList[i].selectAns = '';
+      updatedList[i].Points = null;
+      setSelectedAns('');
+    } else {
+      updatedList[i].selectAns = item.answer;
+      updatedList[i].Points = item.point;
+      setSelectedAns(item.answer);
+    }
+    setQuestionList(updatedList);
+    }else{
+  if (item.answer === selectedAns) {
       updatedList[index].selectAns = '';
       updatedList[index].Points = null;
       setSelectedAns('');
@@ -108,6 +139,28 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
       setSelectedAns(item.answer);
     }
     setQuestionList(updatedList);
+    
+     const isNextEnabled = !!currentQ?.selectAns;
+    
+  if (!isNextEnabled) {
+              showToast(
+                toastTypes.error,
+                currentQ?.question_type === 1
+                  ? 'Please select an option'
+                  : 'Please enter a valid value',
+              );
+              return;
+            }
+
+            if (currentIndex === questionList.length - 1) {
+             // handleSubmit();
+            } else {
+              setCurrentIndex(currentIndex + 1);
+            }
+    
+    }
+  
+    
   };
 
   const handleSliderChange = (val: number) => {
@@ -231,8 +284,131 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
   const isNextEnabled = !!currentQ?.selectAns;
 
   return (
-    <Container Xcenter>
-      <Wrapper
+    <Container Xcenter contentWidth={responsiveWidth(100)}>
+      {/* sample */}
+       {questionList?.map((items:any,ini:number)=>
+      <Wrapper customStyles={{gap: 20, marginBottom: responsiveWidth(2), borderBottomWidth: 1, paddingLeft: responsiveWidth(0), paddingVertical: responsiveWidth(2)}} borderColor={colors.gray}>
+        <TouchableOpacity onPress={()=>{toggel(items,ini)}}>
+      <Wrapper row align="center" customStyles={{gap: 20, paddingLeft: responsiveWidth(5)}}>
+        {/* <Wrapper justify="center" align="center" width={responsiveWidth(10)} height={responsiveWidth(10)} customStyles={{borderRadius: borderRadius.ring}}>
+          <CusText text={"1"} color={colors.Hard_Black} size="M" />
+        </Wrapper> */}
+        <Wrapper customStyles={{flex: 1}}>
+          <CusText text={items?.question} color={colors.Hard_Black} size={items.selectAns ? "S" : "M"} />
+          { items.selectAns ?
+          <CusText text={items.selectAns} color={colors.Hard_Black} size="M" />
+          : null }
+        </Wrapper>
+        <Wrapper justify="center" align="center" width={responsiveWidth(10)} height={responsiveWidth(10)} customStyles={{borderRadius: borderRadius.ring}}>
+          <IonIcon
+                  name={items?.question == currentQ?.question ? 'chevron-up-outline' : 'chevron-down-outline'}
+                  size={24}
+                  color={colors.secondary}
+                />
+        </Wrapper>
+      </Wrapper>
+      </TouchableOpacity>
+      {items?.question == currentQ?.question || items?.toggle?
+      <>
+       {currentQ?.question_type === 1 &&
+          items?.RiskProfileAnswers?.map((item: any, i: number) => (
+            <TouchableOpacity
+              key={i}
+              activeOpacity={0.8}
+              style={[
+                // styles.radioList,
+                {
+                  paddingLeft: responsiveWidth(5),
+                  borderColor:
+                    items.selectAns === item.answer
+                      ? colors.primary
+                      : colors.gray,
+                },
+              ]}
+              onPress={() => handleAnswerChange(item, currentIndex,ini,items)}>
+              <Wrapper row>
+                <IonIcon
+                  name={
+                    items.selectAns === item.answer
+                      ? 'checkmark-circle'
+                      : 'checkmark-circle'
+                  }
+                  size={28}
+                  color={
+                    items.selectAns === item.answer
+                      ? colors.green
+                      : colors.gray
+                  }
+                  style={{marginRight: responsiveWidth(3)}}
+                />
+                <CusText
+                  text={item.answer}
+                  size="SN"
+                  customStyles={{width: responsiveWidth(67)}}
+                />
+              </Wrapper>
+            </TouchableOpacity>
+          ))}
+          </>:null}
+      </Wrapper>)}
+
+      {/* <Wrapper customStyles={{gap: 20, marginBottom: responsiveWidth(2), borderBottomWidth: 1, paddingLeft: responsiveWidth(5), paddingVertical: responsiveWidth(4)}} borderColor={colors.gray}>
+      <Wrapper row align="center" customStyles={{gap: 20}}> */}
+        {/* <Wrapper justify="center" align="center" width={responsiveWidth(10)} height={responsiveWidth(10)} customStyles={{borderRadius: borderRadius.ring}}>
+          <CusText text={"2"} color={colors.Hard_Black} size="M" />
+        </Wrapper> */}
+        {/* <Wrapper customStyles={{flex: 1}}>
+          <CusText text={"Your Income?"} color={colors.Hard_Black} size="M" />
+        </Wrapper>
+        <Wrapper justify="center" align="center" width={responsiveWidth(10)} height={responsiveWidth(10)} customStyles={{borderRadius: borderRadius.ring}}>
+          <IonIcon
+                  name={'chevron-down-outline'}
+                  size={24}
+                  color={colors.secondary}
+                />
+        </Wrapper>
+      </Wrapper>
+      {currentQ?.question_type === 1 &&
+          currentQ?.RiskProfileAnswers?.map((item: any, i: number) => (
+            <TouchableOpacity
+              key={i}
+              activeOpacity={0.8}
+              style={[
+                // styles.radioList,
+                {
+                  borderColor:
+                    currentQ.selectAns === item.answer
+                      ? colors.primary
+                      : colors.gray,
+                },
+              ]}
+              onPress={() => handleAnswerChange(item, currentIndex)}>
+              <Wrapper row>
+                <IonIcon
+                  name={
+                    currentQ.selectAns === item.answer
+                      ? 'checkmark-circle'
+                      : 'checkmark-circle'
+                  }
+                  size={28}
+                  color={
+                    currentQ.selectAns === item.answer
+                      ? colors.green
+                      : colors.gray
+                  }
+                  style={{marginRight: responsiveWidth(3)}}
+                />
+                <CusText
+                  text={item.answer}
+                  size="SN"
+                  customStyles={{width: responsiveWidth(67)}}
+                />
+              </Wrapper>
+            </TouchableOpacity>
+          ))}
+      </Wrapper> */}
+      {/* sample */}
+      {/* <Wrapper
         color={colors.cardBg1}
         customStyles={{
           borderTopLeftRadius: borderRadius.large,
@@ -240,14 +416,14 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
           padding: responsiveWidth(5),
         }}>
         <CusText text={currentQ?.question} size="SL" medium position="center" />
-      </Wrapper>
+      </Wrapper> */}
 
-      <Wrapper
+      {/* <Wrapper
         customStyles={{
           padding: responsiveWidth(5),
           minHeight: responsiveHeight(45),
-        }}>
-        {currentQ?.question_type === 1 &&
+        }}> */}
+        {/* {currentQ?.question_type === 1 &&
           currentQ?.RiskProfileAnswers?.map((item: any, i: number) => (
             <TouchableOpacity
               key={i}
@@ -280,13 +456,13 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
                 <CusText
                   text={item.answer}
                   size="SN"
-                  customStyles={{width: responsiveWidth(70)}}
+                  customStyles={{width: responsiveWidth(67)}}
                 />
               </Wrapper>
             </TouchableOpacity>
-          ))}
+          ))} */}
 
-        {currentQ?.question_type === 3 && (
+        {/* {currentQ?.question_type === 3 && (
           <>
             <Slider
               style={styles.slider}
@@ -337,8 +513,8 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
               }
             }}
           />
-        )}
-      </Wrapper>
+        )} */}
+      {/* </Wrapper> */}
 
       <Spacer y="S" />
 
@@ -352,18 +528,18 @@ const SecondScreen = ({setIndex, queList, setdata}: any) => {
           title="Back"
           width={responsiveWidth(35)}
           onPress={() =>
-            currentIndex === 0
-              ? setIndex('1')
-              : setCurrentIndex(currentIndex - 1)
+            setIndex('1')
           }
           color={colors.transparent}
           textcolor={colors.black}
+          textSize='M'
         />
 
         <CusButton
           width={responsiveWidth(35)}
           radius={borderRadius.ring}
           color={isNextEnabled ? colors.orange : colors.gray}
+          textSize='M'
           title={
             currentIndex === questionList.length - 1 ? 'Finish' : 'Continue'
           }

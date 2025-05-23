@@ -3,10 +3,10 @@ import { borderRadius, colors, fontFamily, fontSize, marginHorizontal, responsiv
 
 const styles = StyleSheet.create({
     mainModal: {
-        margin: 0,
-        flexDirection: 'row',
+        margin: responsiveWidth(50),
+        // flexDirection: 'row',
         alignItems: "center",
-        height: responsiveHeight(100)
+        // height: responsiveHeight(100)
 
     },
 

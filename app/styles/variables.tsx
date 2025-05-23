@@ -93,7 +93,7 @@ let reptativeColors = {
   darkGrayShades: '#313131',
   gray: '#999999',
   lightGray: '#eeeeee',
-  primary: '#233B74',
+  primary: 'rgba(35, 59, 116, 1)',
   primarylow: '#8505B41F',
   primary1: '#3498DB',
   primary2: '#FF6207',

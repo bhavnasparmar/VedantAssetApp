@@ -1,26 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CusText from "../../../../ui/custom-text";
 import Header from "../../../../shared/components/Header/Header";
 import Container from "../../../../ui/container";
 import Wrapper from "../../../../ui/wrapper";
-import { responsiveWidth } from "../../../../styles/variables";
+import { colors, responsiveWidth } from "../../../../styles/variables";
 import Spacer from "../../../../ui/spacer";
 import { Text, TouchableOpacity } from "react-native";
 import NewGoal from "./Components/NewGoal";
+import OnGoingGoal from "./Components/OnGoingGoal";
+import CompletedGoal from "./Components/CompletedGoal";
+import { useIsFocused } from "@react-navigation/native";
 
 
 const getComponent = (key: string) => {
     const timestamp = new Date().getTime(); // Unique key to force re-render
     switch (key) {
         case 'NewGoal':
-            const Component1 = require('./Components/NewGoal').default;
-            return <NewGoal key={`Component1-${timestamp}`} />;
-        // case 'Component2':
-        //     const Component2 = require('./Component2').default;
-        //     return <Component2 key={`Component2-${timestamp}`} />;
-        // case 'Component3':
-        //     const Component3 = require('./Component3').default;
-        //     return <Component3 key={`Component3-${timestamp}`} />;
+            const NewGoal = require('./Components/NewGoal').default;
+            return <NewGoal key={`NewGoal-${timestamp}`} />;
+        case 'OnGoingGoal':
+            const OnGoingGoal = require('./Components/OnGoingGoal').default;
+            return <OnGoingGoal key={`OnGoingGoal-${timestamp}`} />;
+        case 'CompletedGoal':
+            const CompletedGoal = require('./Components/CompletedGoal').default;
+            return <CompletedGoal key={`CompletedGoal-${timestamp}`} />;
         default:
             return <Text>Select a component</Text>;
     }
@@ -28,7 +31,14 @@ const getComponent = (key: string) => {
 
 const GoalPlanDashboard = () => {
 
+    const isFocused: any = useIsFocused()
     const [activeComponent, setActiveComponent] = useState<string>('NewGoal');
+
+    useEffect(() => {
+        setActiveComponent('NewGoal')
+    }, [isFocused])
+
+
 
     return (
         <>
@@ -39,22 +49,26 @@ const GoalPlanDashboard = () => {
 
             }}>
                 <TouchableOpacity onPress={() => setActiveComponent('NewGoal')}>
-                    <CusText text={'New Goal'} size="SS" />
+                    <CusText semibold color={activeComponent === 'NewGoal' ? colors.orange : colors.primary} text={'New Goal'} size={activeComponent === 'NewGoal' ? "M" : "SN"} />
                 </TouchableOpacity>
                 <Wrapper
-                    customStyles={{ marginHorizontal: responsiveWidth(1) }}
-                    width={responsiveWidth(5)}
+                    customStyles={{ marginHorizontal: responsiveWidth(2) }}
+                    width={responsiveWidth(7)}
                     height={responsiveWidth(0.3)}
-                    color="black"
+                    color={colors.primary}
                 />
-                <CusText text={'Ongoing Goal'} size="SS" />
+                <TouchableOpacity onPress={() => setActiveComponent('OnGoingGoal')}>
+                    <CusText semibold color={activeComponent === 'OnGoingGoal' ? colors.orange : colors.primary} position="center" text={'Ongoing'} size={activeComponent === 'OnGoingGoal' ? "M" : "SN"} />
+                </TouchableOpacity>
                 <Wrapper
-                    customStyles={{ marginHorizontal: responsiveWidth(1) }}
-                    width={responsiveWidth(5)}
+                    customStyles={{ marginHorizontal: responsiveWidth(2) }}
+                    width={responsiveWidth(7)}
                     height={responsiveWidth(0.3)}
-                    color="black"
+                    color={colors.primary}
                 />
-                <CusText text={'Completed Goal'} size="SS" />
+                <TouchableOpacity onPress={() => setActiveComponent('CompletedGoal')}>
+                    <CusText semibold color={activeComponent === 'CompletedGoal' ? colors.orange : colors.primary} text={'Completed'} size={activeComponent === 'CompletedGoal' ? "M" : "SN"} />
+                </TouchableOpacity>
             </Wrapper>
             <Spacer y="XS" />
             <Wrapper
@@ -64,7 +78,7 @@ const GoalPlanDashboard = () => {
                 color="rgba(226, 226, 226, 1)"
             />
             <Spacer y="XS" />
-            <Wrapper color="red">
+            <Wrapper >
                 {getComponent(activeComponent)}
             </Wrapper>
 
