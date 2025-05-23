@@ -28,7 +28,8 @@ const endPoints = {
   getAllGoalType: 'goal-plan/getAllGoalType',
   getRiskProfileInvestor: 'risk-profile/get-risk-profile-investor',
   getAllRiskQuestion: 'risk-profile/getAllRiskQuestion',
-  addRiskProfileQuestionAnswer: 'risk-profile/add-question-answer'
+  addRiskProfileQuestionAnswer: 'risk-profile/add-question-answer',
+  getFundPickerListData : 'fund-picker/getFundPickerData'
 };
 
 export { endPoints };
@@ -71,6 +72,17 @@ export const REGEX = {
   name: /^[a-zA-Z0-9 ]*$/,
 };
 const key = 'va*proses';
+
+ export const toFixedDataForReturn = (number: number) => {
+    return number ? `${number?.toFixed(2)}%` : "--";
+  };
+
+  export const convertToCrores = (amount: number) => {
+  const crores = amount / 10000000;
+  return `${crores.toFixed(2)}`;
+}
+  
+
 
 export const getNew_User = () => {
   return null; //store?.getState()?.userReducer?.New_User;

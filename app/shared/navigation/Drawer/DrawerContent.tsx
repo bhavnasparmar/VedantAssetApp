@@ -97,6 +97,36 @@ export function DrawerContent(props: any) {
               style={{ width: "100%", height: 1, opacity: 0.5 }}
             ></LinearGradient>
           </Wrapper>
+             <Wrapper>
+            <DrawerItem
+              icon={({ }) => (
+                <IonIcon
+                  name="cash"
+                  color={colors.white}
+                  size={responsiveWidth(7)}
+                // style={styles.menuIcon}
+                />
+              )}
+              label={({ }) => (
+                <CusText customStyles={{ marginLeft: responsiveWidth(4) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Fund Picker" />
+              )}
+
+              onPress={() => {
+                // props.navigation.navigate("Tabs");
+                props.navigation.navigate('FundPicker');
+              }}
+            />
+            <LinearGradient
+              start={{ x: 1, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              colors={[
+                colors.transparent,
+                colors.Hard_White,
+                colors.transparent,
+              ]}
+              style={{ width: "100%", height: 1, opacity: 0.5 }}
+            ></LinearGradient>
+          </Wrapper>
 
           {/* </View> */}
           {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}

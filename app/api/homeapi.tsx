@@ -25,3 +25,9 @@ export const addRiskProfileQuestionAnswerApi = (payload :any) => {
     const promise = API.post(`${API_URL}${endPoints.addRiskProfileQuestionAnswer}`,payload);
     return promiseHandler(promise);
 };
+
+// fund picker Api
+export const getFundPickerListDataApi = (payload :any) => {
+    const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}`,payload);
+    return promiseHandler(promise);
+};
