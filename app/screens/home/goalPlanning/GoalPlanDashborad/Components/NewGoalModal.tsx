@@ -11,13 +11,14 @@ import Slider from "@react-native-community/slider";
 import DropDown from "../../../../../ui/dropdown";
 import CusButton from "../../../../../ui/custom-button";
 import { TouchableOpacity } from "react-native";
-import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused, useNavigation } from "@react-navigation/native";
 import { showToast } from "../../../../../services/toastService";
 import { toastTypes } from "../../../../../constant/constants";
 
 
-const NewGoalModal = ({ visible, onClose, goalName }: any) => {
+const NewGoalModal = ({ visible, onClose, goalName, riskDetailsData }: any) => {
     const isFocused: any = useIsFocused()
+    const navigation: any = useNavigation()
     const [isFocus, setIsFocus] = useState(false);
     const [isInflation, setIsInflation] = useState(false);
     const [isSubmited, setisSubmited] = useState<boolean>(false);
@@ -135,6 +136,10 @@ const NewGoalModal = ({ visible, onClose, goalName }: any) => {
 
     const submit = async () => {
         try {
+
+            navigation?.navigate('SelectScheme', { riskId: riskDetailsData?.riskProfileId })
+
+            return
             const submited = true;
             setisSubmited(submited);
             const isValid = handleValidate(submited, null);
@@ -282,14 +287,14 @@ const NewGoalModal = ({ visible, onClose, goalName }: any) => {
                         <Spacer y="XXS" />
                         <Wrapper row align="center" justify="apart" >
                             <InputField
-                                value={''}
+                                value={Form.months}
                                 width={responsiveWidth(35)}
                                 placeholder={MYType === 1 ? "Enter Month" : "Enter Year"}
                                 onChangeText={(value: string) => {
                                     handleFormChange({ key: 'months', value })
                                 }}
                                 borderColor={colors.placeholderColor}
-                                 error={FormError.months}
+                                error={FormError.months}
                             />
                             <DropDown
                                 data={months}

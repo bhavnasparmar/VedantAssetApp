@@ -5,9 +5,9 @@ import { parseJSON } from 'date-fns';
 import { getRiskObject, getuserDetails } from '../Redux/Actions/userAction';
 
 //live server base url
-export const API_URL = 'http://192.168.1.33:9065/';
+export const API_URL = 'http://192.168.1.7:9065/';
 export const IMAGE_URL = `${API_URL}static/`;
-export const IMAGE_URL_GOAL = 'http://192.168.1.33:9065/static';
+export const IMAGE_URL_GOAL = 'http://192.168.1.7:9065/static';
 export const TOKEN_PREFIX = 'TOKEN_PREFIX';
 export const REFRESH_TOKEN_PREFIX = 'REFRESH_TOKEN_PREFIX';
 export const FCM_TOKEN = 'FCM_TOKEN';
@@ -26,6 +26,7 @@ const endPoints = {
   changePassword: 'user/changePassword',
   //home api
   getAllGoalType: 'goal-plan/getAllGoalType',
+  getRiskCatWiseSchemeData: 'goal-plan/getRiskCatWiseSchemeData',
   getRiskProfileInvestor: 'risk-profile/get-risk-profile-investor',
   getAllRiskQuestion: 'risk-profile/getAllRiskQuestion',
   addRiskProfileQuestionAnswer: 'risk-profile/add-question-answer'

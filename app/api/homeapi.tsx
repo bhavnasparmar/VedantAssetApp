@@ -20,8 +20,15 @@ export const getAllRiskQuestionAPi = () => {
     const promise = API.get(`${API_URL}${endPoints.getAllRiskQuestion}`);
     return promiseHandler(promise);
 };
-export const addRiskProfileQuestionAnswerApi = (payload :any) => {
+export const addRiskProfileQuestionAnswerApi = (payload: any) => {
 
-    const promise = API.post(`${API_URL}${endPoints.addRiskProfileQuestionAnswer}`,payload);
+    const promise = API.post(`${API_URL}${endPoints.addRiskProfileQuestionAnswer}`, payload);
+    return promiseHandler(promise);
+};
+
+
+export const getRiskCatWiseSchemeDataAPi = (payload: any) => {
+    console.log('get Risk Scheme API ',`${API_URL}${endPoints.getRiskCatWiseSchemeData}/${payload}`)
+    const promise = API.get(`${API_URL}${endPoints.getRiskCatWiseSchemeData}/${payload}`);
     return promiseHandler(promise);
 };

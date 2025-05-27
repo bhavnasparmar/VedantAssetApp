@@ -8,6 +8,7 @@ import RiskProfile from '../../../screens/home/riskProfile/riskProfile';
 import { Dimensions } from 'react-native';
 import { responsiveWidth } from '../../../styles/variables';
 import GoalPlanDashboard from '../../../screens/home/goalPlanning/GoalPlanDashborad/GoalPlanDashboard';
+import SelectScheme from '../../../screens/home/SelectScheme/SelectScheme';
 
 const Drawer = createDrawerNavigator();
 
@@ -22,7 +23,7 @@ function SideDrawer() {
       screenOptions={{
         headerShown: false,
         swipeEnabled: false,
-        
+
         drawerStyle: {
           // width: Dimensions.get('window').width / 1.25,
           // width: Dimensions.get('window').width,
@@ -39,6 +40,7 @@ function SideDrawer() {
       {/* <Drawer.Screen name='GoalDashboard' component={GoalDashboard} /> */}
       <Drawer.Screen name='GoalPlanDashboard' component={GoalPlanDashboard} />
       <Drawer.Screen name='RiskProfile' component={RiskProfile} />
+      <Drawer.Screen name='SelectScheme' component={SelectScheme} />
     </Drawer.Navigator>
   );
 }
