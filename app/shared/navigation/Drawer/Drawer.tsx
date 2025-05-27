@@ -9,6 +9,8 @@ import { Dimensions } from 'react-native';
 import { responsiveWidth } from '../../../styles/variables';
 import GoalPlanDashboard from '../../../screens/home/goalPlanning/GoalPlanDashborad/GoalPlanDashboard';
 import SelectScheme from '../../../screens/home/SelectScheme/SelectScheme';
+import fundpicker from '../../../screens/home/fundpicker/fundpicker';
+import FundPicker from '../../../screens/home/fundpicker/fundpicker';
 
 const Drawer = createDrawerNavigator();
 
@@ -41,6 +43,7 @@ function SideDrawer() {
       <Drawer.Screen name='GoalPlanDashboard' component={GoalPlanDashboard} />
       <Drawer.Screen name='RiskProfile' component={RiskProfile} />
       <Drawer.Screen name='SelectScheme' component={SelectScheme} />
+      <Drawer.Screen name='FundPicker' component={FundPicker} />
     </Drawer.Navigator>
   );
 }

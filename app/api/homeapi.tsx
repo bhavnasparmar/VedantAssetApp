@@ -32,3 +32,9 @@ export const getRiskCatWiseSchemeDataAPi = (payload: any) => {
     const promise = API.get(`${API_URL}${endPoints.getRiskCatWiseSchemeData}/${payload}`);
     return promiseHandler(promise);
 };
+
+// fund picker Api
+export const getFundPickerListDataApi = (payload :any) => {
+    const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}`,payload);
+    return promiseHandler(promise);
+};
