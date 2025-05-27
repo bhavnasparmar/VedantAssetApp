@@ -14,8 +14,9 @@ import CusButton from '../../../../ui/custom-button';
 import Spacer from '../../../../ui/spacer';
 import {useIsFocused} from '@react-navigation/native';
 import {Switch, TouchableOpacity, ScrollView, View} from 'react-native';
-import {styles} from './fundPickerFilterStyle';
+
 import { MultiSelect } from 'react-native-element-dropdown';
+import { styles } from './fundPickerFilterStyle';
 
 const FundPickerFilter = ({
   isVisible,
