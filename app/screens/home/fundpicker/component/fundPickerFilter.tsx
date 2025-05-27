@@ -13,189 +13,85 @@ import DropDown from '../../../../ui/dropdown';
 import CusButton from '../../../../ui/custom-button';
 import Spacer from '../../../../ui/spacer';
 import {useIsFocused} from '@react-navigation/native';
-import {Switch, TouchableOpacity} from 'react-native';
-import InputField from '../../../../ui/InputField';
-import Slider from '@react-native-community/slider';
+import {Switch, TouchableOpacity, ScrollView, View} from 'react-native';
 
-// import { getGoalPlanning, getLoginUserDetails, setGoalPlanningDetails } from '../../../../utils/Commanutils';
-import API from '../../../../utils/API';
-import {showToast, toastTypes} from '../../../../services/toastService';
-// import { showToast, toastTypes } from '../../../../service/toastService';
-
-const FundPickerFilter = ({isVisible, setisVisible}: any) => {
+const FundPickerFilter = ({
+  isVisible,
+  setisVisible,
+  categoryData,
+  natureList,
+}: any) => {
+  const [selectCategory, setSelectCategory] = useState<any>([]);
+  const [selectSubCategory, setSelectSubCategory] = useState<any>([]);
+  const [selectNature, setSelectNature] = useState<number | null>(null);
   const [isFocus, setIsFocus] = useState(false);
   const [isSubmited, setisSubmited] = useState<boolean>(false);
   const [loader, setLoader] = useState<boolean>(false);
-  const [slidervalue, setsliderValue] = useState(0);
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
-  const [EditedData, setEditedData] = useState<any>({});
-  const [months, setmonths] = useState<any>([
-    {
-      id: 1,
-      Name: 'Months',
-    },
-    {
-      id: 2,
-      Name: 'Year',
-    },
-  ]);
   const [MYType, setMYType] = useState<any>('');
-  const [Form, setForm] = useState({
-    title: '',
-    targetammount: '',
-    inflation: 0,
-    months: '',
-  });
-  const [FormError, setFormError] = useState({
-    title: '',
-    targetammount: '',
-    inflation: '',
-    months: '',
-  });
-  const isFocused = useIsFocused();
 
-  useEffect(() => {
-    return () => {
-      setForm({
-        title: '',
-        targetammount: '',
-        inflation: 0,
-        months: '',
-      });
-      setFormError({
-        title: '',
-        targetammount: '',
-        inflation: '',
-        months: '',
-      });
-    };
-  }, [isFocused]);
+  const months = [
+    {id: 1, Name: 'Months'},
+    {id: 2, Name: 'Year'},
+  ];
 
-  const toggleSwitch = () => {
-    setIsEnabled(previousState => !previousState);
-    if (isEnabled == false) {
-    } else {
-    }
-  };
-
-  const clearData = () => {
+  const clearModal = () => {
     setisVisible(false);
+    setMYType('');
   };
 
-  const clearFomrData = () => {
-    setForm({
-      title: '',
-      targetammount: '',
-      inflation: 0,
-      months: '',
-    });
-    setFormError({
-      title: '',
-      targetammount: '',
-      inflation: '',
-      months: '',
-    });
-    setisVisible(false);
-  };
+  const handleCategoryChange = (categoryId: number) => {
+    const category = categoryData.find(
+      (cat: any) => Number(cat.ID) === categoryId,
+    );
+    const subCategoryIds =
+      category?.SchemeSubcategories?.map((sub: any) => Number(sub.Id)) || [];
 
-  const getEditDetails = async (goal_plan_id: any) => {
-    try {
-      const result: any = await API.get(
-        `goal-plans/goal-details/${goal_plan_id}`,
+    if (selectCategory.includes(categoryId)) {
+      // Deselect category and its subcategories
+      setSelectCategory(
+        selectCategory.filter((id: number) => id !== categoryId),
       );
-      if (result?.code === 200) {
-        setEditedData(result?.data?.goal);
-        handleFormChange({key: 'title', value: result?.data?.goal?.goal_label});
-        handleFormChange({
-          key: 'targetammount',
-          value: String(result?.data?.goal?.target_amt),
-        });
-        if (result?.data?.goal?.inflation_perc !== 0) {
-          setIsEnabled(true);
-          handleFormChange({
-            key: 'inflation',
-            value: result?.data?.goal?.inflation_perc,
-          });
-        }
-        handleFormChange({
-          key: 'months',
-          value: String(result?.data?.goal?.duration_mts),
-        });
-      } else {
-        // showToast(toastTypes.info, result?.msg)
-      }
-    } catch (error: any) {
-      console.log('getEditDetails Catch Error', error);
-      showToast(toastTypes.error, error[0].msg);
+
+      setSelectSubCategory(
+        selectSubCategory.filter((id: number) => !subCategoryIds.includes(id)),
+      );
+    } else {
+      // Select category and its subcategories
+      setSelectCategory([...selectCategory, categoryId]);
+      setSelectSubCategory([
+        ...new Set([...selectSubCategory, ...subCategoryIds]),
+      ]);
     }
   };
 
-  const handleFormChange = (values: any) => {
-    const {key, value} = values;
-    setForm((prev: any) => ({...prev, [key]: value}));
-    handleValidate(isSubmited, values);
-  };
+  const handleSubCategoryChange = (subCategoryId: number) => {
+    let updatedSubCategories;
+    if (selectSubCategory.includes(subCategoryId)) {
+      // Deselect subcategory
+      updatedSubCategories = selectSubCategory.filter(
+        (id: number) => id !== subCategoryId,
+      );
+      setSelectSubCategory(updatedSubCategories);
+    } else {
+      // Select subcategory
+      updatedSubCategories = [...selectSubCategory, subCategoryId];
+      setSelectSubCategory(updatedSubCategories);
 
-  const submit = async () => {};
+      // Auto-select parent category if not selected
+      const parentCategory = categoryData.find((cat: any) =>
+        cat.SchemeSubcategories?.some(
+          (sub: any) => Number(sub.Id) === subCategoryId,
+        ),
+      );
 
-  function isMonthBetweenSixAndTwelve(month: any) {
-    return month >= 6 && month <= 12;
-  }
-
-  const handleValidate = (flag = false, values: any) => {
-    if (!flag) return;
-    let isValid = true;
-    let data = Form;
-
-    if (values) {
-      const {key, value} = values;
-      data = {...data, [key]: value};
-    }
-    let title = '';
-    if (!data?.title) {
-      isValid = false;
-      title = 'title is required';
-    }
-
-    let targetammount = '';
-    if (!data?.targetammount) {
-      isValid = false;
-      targetammount = 'target ammount is required';
-    }
-    if (data?.targetammount && Number(data?.targetammount) < 9999) {
-      isValid = false;
-      targetammount = 'target ammount should be 10,000 or more ';
-    }
-    let inflation = '';
-    if (isEnabled) {
-      if (!data?.inflation) {
-        isValid = false;
-        inflation = 'inflation is required';
+      if (
+        parentCategory &&
+        !selectCategory.includes(Number(parentCategory.ID))
+      ) {
+        setSelectCategory([...selectCategory, Number(parentCategory.ID)]);
       }
     }
-
-    let months = '';
-    if (!data?.months) {
-      isValid = false;
-      months = 'months is required';
-    }
-
-    if (data?.months) {
-      if (MYType === 1) {
-        if (!isMonthBetweenSixAndTwelve(Number(data?.months))) {
-          isValid = false;
-          months = 'The month is not between 6 and 12.';
-        }
-      }
-    }
-
-    setFormError({
-      title,
-      targetammount,
-      inflation,
-      months,
-    });
-    return isValid;
   };
 
   return (
@@ -205,103 +101,187 @@ const FundPickerFilter = ({isVisible, setisVisible}: any) => {
       animationOut="fadeOut"
       backdropTransitionOutTiming={0}
       backdropTransitionInTiming={0}
-      useNativeDriver={true}>
+      useNativeDriver={true}
+      style={{margin: 0}}>
       <Wrapper
-        width={responsiveWidth(90)}
-        align="center"
         customStyles={{
+          flex: 1,
           backgroundColor: colors.Hard_White,
           borderRadius: borderRadius.normal,
+          paddingBottom: responsiveHeight(2),
         }}>
+        {/* Header */}
         <Wrapper
           row
           justify="apart"
+          align="center"
           customStyles={{
-            paddingVertical: responsiveWidth(3),
-            borderBottomWidth: 0.3,
-            borderBottomColor: colors.inputLabel,
+            paddingHorizontal: responsiveWidth(4),
+            paddingVertical: responsiveHeight(2),
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
           }}>
-          <CusText
-           // position="center"
-            customStyles={{
-              paddingLeft: responsiveWidth(3),
-              width: responsiveWidth(85),
-            }}
-            text={'Business'}
-          />
-
-          <IonIcon
+          <CusText size="N" text="Filter" semibold />
+          <TouchableOpacity
             onPress={() => {
-              clearData();
-            }}
-            name="close-outline"
-            color={colors.Hard_White}
-            size={25}></IonIcon>
+              clearModal();
+            }}>
+            <IonIcon
+              name="close-outline"
+              size={30}
+              color={colors.blackd}
+              onPress={clearModal}
+            />
+          </TouchableOpacity>
         </Wrapper>
 
-        <Spacer y="S" />
+        {/* Content */}
+        <ScrollView
+          contentContainerStyle={{
+            paddingHorizontal: responsiveWidth(4),
+            paddingTop: responsiveHeight(1),
+          }}
+          showsVerticalScrollIndicator={false}>
+          {/* Asset Class */}
+          <CusText semibold size="N" text="Asset Class" />
 
-        <Wrapper row justify="apart" width={responsiveWidth(85)}>
-          <InputField
-            // label='When do you need these funds for Business ?'
-            value={Form.months}
-            width={responsiveWidth(50)}
-            inputMode="numeric"
-            placeholder={MYType === 1 ? 'Enter Month' : 'Enter Year'}
-            onChangeText={(value: string) => {
-              handleFormChange({key: 'months', value});
-            }}
-            labelStyle={{
-              color: colors.inputLabel,
-              width: responsiveWidth(50),
-            }}
-            keyboardType="email-address"
-            borderColor={colors.placeholderColor}
-            suffixColor={colors.placeholderColor}
-            error={FormError.months}
-          />
+          <Wrapper>
+            {categoryData.map((category: any) => (
+              <>
+                <Wrapper row>
+                  <TouchableOpacity
+                    activeOpacity={0.6}
+                    onPress={() => {
+                      handleCategoryChange(Number(category.ID));
+                    }}>
+                    <IonIcon
+                      name={
+                        selectCategory.includes(Number(category.ID))
+                          ? 'checkmark-circle'
+                          : 'ellipse-outline'
+                      }
+                      size={responsiveWidth(6)}
+                      color={
+                        selectCategory.includes(Number(category.ID))
+                          ? colors.primary1
+                          : colors.gray
+                      }></IonIcon>
+                  </TouchableOpacity>
+                  <Spacer x="XS" />
+                  <CusText size="SS" semibold text={category?.Name || ''} />
+                </Wrapper>
+                {/* <Spacer y='XXS' /> */}
+                {category?.SchemeSubcategories?.length > 0 && (
+                  <Wrapper row customStyles={{flexWrap: 'wrap'}}>
+                    {category.SchemeSubcategories.map((subCategory: any) => (
+                      <Wrapper row width={responsiveWidth(46)}>
+                        <TouchableOpacity
+                          activeOpacity={0.6}
+                          onPress={() => {
+                            handleSubCategoryChange(Number(subCategory.Id));
+                          }}>
+                          <IonIcon
+                            name={
+                              selectSubCategory.includes(Number(subCategory.Id))
+                                ? 'checkmark-circle'
+                                : 'ellipse-outline'
+                            }
+                            size={responsiveWidth(5)}
+                            color={
+                              selectSubCategory.includes(Number(subCategory.Id))
+                                ? colors.primary1
+                                : colors.gray
+                            }></IonIcon>
+                        </TouchableOpacity>
+                        <Spacer x="XS" />
+                        <CusText text={subCategory?.Name || ''} />
+                      </Wrapper>
+                    ))}
+                  </Wrapper>
+                )}
+                <Spacer y="XXS" />
+              </>
+            ))}
+          </Wrapper>
+          <Spacer y="S" />
+
+          {/* Nature */}
+          <CusText semibold size="N" text="Nature" />
+          <Spacer y="XS" />
+          <Wrapper row>
+            {natureList.map((item: any) => (
+              <TouchableOpacity
+                onPress={() => {
+                  if (item?.id == selectNature) {
+                    setSelectNature(null);
+                  } else {
+                    setSelectNature(item.id);
+                  }
+                }}>
+                <Wrapper
+                  color={
+                    item?.id == selectNature
+                      ? colors.primary1
+                      : colors.transparent
+                  }
+                  row
+                  customStyles={{
+                    borderWidth: 1,
+                    paddingHorizontal: responsiveWidth(4),
+                    paddingVertical: responsiveWidth(2),
+                    marginRight: responsiveWidth(2),
+                    borderRadius: borderRadius.medium,
+                    borderColor: colors.lightGray,
+                  }}>
+                  <CusText color={
+                    item?.id == selectNature
+                      ? colors.Hard_White
+                      : colors.Hard_Black
+                  }text={item.option} />
+                </Wrapper>
+              </TouchableOpacity>
+            ))}
+          </Wrapper>
+          <Spacer y="S" />
+
+          {/* AMC Dropdown */}
+          <CusText semibold size="N" text="AMC" />
+          <Spacer y="XS" />
           <DropDown
+            search
             data={months}
-            placeholder={'Months'}
-            width={responsiveWidth(30)}
+            placeholder="Select AMC"
+            width={'100%'}
             placeholdercolor={colors.gray}
             value={MYType}
             fieldColor={colors.inputBg}
-            onFocus={() => {
-              setIsFocus(true);
-            }}
-            onBlur={() => setIsFocus(false)}
             valueField="id"
-            labelField={'Name'}
-            onChange={(item: any) => {
-              console.log(item?.id);
-              setMYType(item?.id);
-            }}
-            onClear={() => {
-              setIsFocus(false);
-            }}
+            labelField="Name"
+            onFocus={() => setIsFocus(true)}
+            onBlur={() => setIsFocus(false)}
+            onChange={(item: any) => setMYType(item?.id)}
+            onClear={() => setMYType('')}
           />
-        </Wrapper>
-        <Spacer y="S" />
+          <Spacer y="S" />
+        </ScrollView>
+
+        {/* Apply Button */}
         <CusButton
           loading={loader}
-          width={responsiveWidth(40)}
-          height={responsiveHeight(5)}
-          title="Calculate"
+          width={'90%'}
+          height={responsiveHeight(6)}
+          title="Apply"
           lgcolor1={colors.primary}
-          lgcolor2={colors.secondary}
+          lgcolor2={colors.primary}
           position="center"
           radius={borderRadius.ring}
           onPress={() => {
-            setisVisible(false)
-           // submit();
+            setisVisible(false);
           }}
         />
-        <Spacer y="S" />
       </Wrapper>
     </Modal>
   );
 };
 
 export default FundPickerFilter;
-const styles = {};

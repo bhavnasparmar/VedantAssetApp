@@ -35,7 +35,12 @@ import InputField from '../../../ui/InputField';
 import CusButton from '../../../ui/custom-button';
 import {showToast, toastTypes} from '../../../services/toastService';
 import Header from '../../../shared/components/Header/Header';
-import {getFundPickerListDataApi} from '../../../api/homeapi';
+import {
+  getAmcApi,
+  getCategoryWithSubCategoryApi,
+  getFundPickerListDataApi,
+  getNatureApi,
+} from '../../../api/homeapi';
 import moment from 'moment';
 import {
   convertToCrores,
@@ -45,7 +50,7 @@ import FundPickerFilter from './component/fundPickerFilter';
 
 const FundPicker = () => {
   const isFocused: any = useIsFocused();
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [schemeFilters, setSchemeFilter] = useState<any[]>([]);
   const [data, setdata] = useState<any[]>([]);
   const [schemeFiltersText, setSchemeFilterText] = useState<any[]>([]);
@@ -53,38 +58,14 @@ const FundPicker = () => {
   const [gaugeValue, setGaugeValue] = useState<any[]>([]);
   const [search, setsearch] = useState<any>('');
   const [filterSearch, setFIlterSearch] = useState<any>('');
-  const [filterList, setfilterList] = useState<any[]>([
-    {
-      id: 1,
-      Name: 'Return(%) 3M',
-      key: 'Return(%) 3M',
-    },
-    {
-      id: 2,
-      Name: 'Return(%) 6M',
-      key: 'Return(%) 6M',
-    },
-    {
-      id: 3,
-      Name: 'Return(%) 1Y',
-      key: 'Return(%) 1Y',
-    },
-    {
-      id: 4,
-      Name: 'Return(%) 10Y',
-      key: 'Return(%) 10Y',
-    },
-    {
-      id: 5,
-      Name: 'AUM(Cr.)',
-      key: 'AUM(Cr.)',
-    },
-  ]);
   const debouncedGetFundPickerScheme = useMemo(
     () => debounce((value: string) => getFundPickerscheme(value), 500),
     [],
   );
   const scrollIndex = React.useRef<number>(1);
+  const [categoryData, setCategoryData] = useState<any[]>([]);
+  const [natureList, setNatureList] = useState<any[]>([]);
+  const [amcList, setAmcList] = useState<any>([]);
   const [listEnd, setlistEnd] = React.useState<boolean>(false);
   const [isFilterShow, setIsFilterShow] = React.useState<boolean>(false);
   const [isSubFilterShow, setIsSubFilterShow] = React.useState<boolean>(false);
@@ -92,17 +73,13 @@ const FundPicker = () => {
   // const [selectedSubs, setSelectedSubs] = useState<{ [key: number]: number[] }>({});
   const [selectedSubs, setSelectedSubs] = useState<any>({});
   const [schemeCat, setSchemeCat] = useState<any>(null);
-  const [totalcount, settotalcount] = useState<any>(null);
-  const [Apitotalcout, setApitotalcout] = useState<any>(null);
-  const [filtertoggle, setfiltertoggle] = React.useState<boolean>(false);
-  const slideAnim = useRef(new Animated.Value(0)).current;
-  const [selectedfilter, setselectedfilter] =
-    React.useState<any>('Return(%) 1Y');
   const [loader, setloader] = React.useState<boolean>(false);
   const pagesize = 50;
   useEffect(() => {
     getFundPickerscheme(search);
-
+    getCategories();
+    getNatureList();
+    getAmcList();
     return () => {
       scrollIndex.current = 1;
       setlistEnd(true);
@@ -149,6 +126,47 @@ const FundPicker = () => {
     } catch (error: any) {
       console.log('getSchemesFilter Catch Error ; ', error[0].msg);
       showToast(toastTypes.info, error[0].msg);
+    }
+  };
+  const getCategories = async () => {
+    try {
+      const [result, error]: any = await getCategoryWithSubCategoryApi();
+      console.log('getCategoryWithSubCategoryApi result', result);
+      if (result != null) {
+        setCategoryData(result?.data);
+      } else {
+        console.log('getCategoryWithSubCategoryApi error', error);
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
+  const getNatureList = async () => {
+    try {
+      const [result, error]: any = await getNatureApi();
+      console.log('getNatureApi result', result);
+      if (result != null) {
+        setNatureList(result?.data);
+      } else {
+        console.log('getNatureApi error', error);
+      }
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
+
+  const getAmcList = async () => {
+    try {
+      const [result, error]: any = await getAmcApi();
+      console.log('getAmcList result', result);
+      if (result != null) {
+        setAmcList(result?.data);
+      } else {
+        console.log('getAmcList error', error);
+      }
+    } catch (error) {
+      console.log('error', error);
     }
   };
   const getFundPickerscheme = async (search: any) => {
@@ -435,12 +453,12 @@ const FundPicker = () => {
                 )}
 
                 <CusText
-                  bold
+                  semibold
+                  color={colors.gray}
                   text={toFixedDataForReturn(
                     item?.SchemePerformances?.[0]?.Return1yr,
                   )}
                   size="N"
-                  color={colors.gray}
                 />
               </Wrapper>
               <Spacer y="XS" />
@@ -477,12 +495,12 @@ const FundPicker = () => {
                 />
 
                 <CusText
-                  bold
+                  semibold
+                  color={colors.gray}
                   text={toFixedDataForReturn(
                     item?.SchemePerformances?.[0]?.Returns5yr,
                   )}
                   size="N"
-                  color={colors.gray}
                 />
               </Wrapper>
             </Wrapper>
@@ -520,7 +538,7 @@ const FundPicker = () => {
                 />
 
                 <CusText
-                  bold
+                  semibold
                   text={toFixedDataForReturn(
                     item?.SchemePerformances?.[0]?.Returns2yr,
                   )}
@@ -562,7 +580,7 @@ const FundPicker = () => {
                 />
 
                 <CusText
-                  bold
+                  semibold
                   text={toFixedDataForReturn(
                     item?.SchemePerformances?.[0]?.Returns10yr,
                   )}
@@ -605,7 +623,7 @@ const FundPicker = () => {
                 />
 
                 <CusText
-                  bold
+                  semibold
                   text={toFixedDataForReturn(
                     item?.SchemePerformances?.[0]?.Returns3yr,
                   )}
@@ -625,7 +643,7 @@ const FundPicker = () => {
                 align="center"
                 customStyles={{gap: responsiveWidth(1)}}>
                 <CusText
-                  bold
+                  semibold
                   text={convertToCrores(
                     item?.SchemePerformances?.[0]?.AUM
                       ? item?.SchemePerformances?.[0]?.AUM
@@ -674,9 +692,9 @@ const FundPicker = () => {
         />
         <Spacer x="XXS" />
         <CusButton
-        onPress={()=>{
-            setIsVisible(true)
-        }}
+          onPress={() => {
+            setIsVisible(true);
+          }}
           iconFirst
           iconName="filter-outline"
           width={responsiveWidth(13)}
@@ -712,7 +730,22 @@ const FundPicker = () => {
             // }}
           />
         </Wrapper>
-        <FundPickerFilter isVisible={isVisible} setisVisible={(value: boolean | ((prevState: boolean) => boolean))=>setIsVisible(value)} />
+        <FundPickerFilter
+          isVisible={isVisible}
+          setisVisible={(value: any) => setIsVisible(value)}
+          categoryData={categoryData}
+          natureList={natureList}
+          setCategoryData={(value: any[]) => {
+            setCategoryData(value);
+          }}
+          setNatureList={(value: any[]) => {
+            setNatureList(value);
+          }}
+          amcList={amcList}
+          setAmcList={(value: any[]) => {
+            setAmcList(value);
+          }}
+        />
       </Container>
     </>
   );

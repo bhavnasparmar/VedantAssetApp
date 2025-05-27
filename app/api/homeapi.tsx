@@ -38,3 +38,17 @@ export const getFundPickerListDataApi = (payload :any) => {
     const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}`,payload);
     return promiseHandler(promise);
 };
+
+export const getCategoryWithSubCategoryApi = () => {
+    const promise = API.get(`${API_URL}${endPoints.getCategoryWithSubCategoryData}`);
+    return promiseHandler(promise);
+};
+
+export const getNatureApi = () => {
+    const promise = API.get(`${API_URL}${endPoints.getNatureData}`);
+    return promiseHandler(promise);
+};
+export const getAmcApi = () => {
+    const promise = API.get(`${API_URL}${endPoints.getAmcListData}`);
+    return promiseHandler(promise);
+};

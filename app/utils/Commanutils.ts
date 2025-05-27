@@ -30,7 +30,10 @@ const endPoints = {
   getRiskProfileInvestor: 'risk-profile/get-risk-profile-investor',
   getAllRiskQuestion: 'risk-profile/getAllRiskQuestion',
   addRiskProfileQuestionAnswer: 'risk-profile/add-question-answer',
-  getFundPickerListData : 'fund-picker/getFundPickerData'
+  getFundPickerListData : 'fund-picker/getFundPickerData',
+  getCategoryWithSubCategoryData : 'fund-picker/get-category-with-subCategory',
+  getNatureData : 'fund-picker/get-nature-list',
+  getAmcListData : 'fund-picker/get-AMC',
 };
 
 export { endPoints };
