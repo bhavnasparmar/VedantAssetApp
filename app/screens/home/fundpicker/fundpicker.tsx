@@ -745,6 +745,9 @@ const FundPicker = () => {
           setAmcList={(value: any[]) => {
             setAmcList(value);
           }}
+          applyFilter ={()=>{
+            
+          }}
         />
       </Container>
     </>

@@ -14,12 +14,17 @@ import CusButton from '../../../../ui/custom-button';
 import Spacer from '../../../../ui/spacer';
 import {useIsFocused} from '@react-navigation/native';
 import {Switch, TouchableOpacity, ScrollView, View} from 'react-native';
+import {styles} from './fundPickerFilterStyle';
+import { MultiSelect } from 'react-native-element-dropdown';
 
 const FundPickerFilter = ({
   isVisible,
   setisVisible,
   categoryData,
   natureList,
+  amcList,
+  setAmcList,
+  applyFilter,
 }: any) => {
   const [selectCategory, setSelectCategory] = useState<any>([]);
   const [selectSubCategory, setSelectSubCategory] = useState<any>([]);
@@ -28,8 +33,9 @@ const FundPickerFilter = ({
   const [isSubmited, setisSubmited] = useState<boolean>(false);
   const [loader, setLoader] = useState<boolean>(false);
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
-  const [MYType, setMYType] = useState<any>('');
+  const [selectAmc, setSelectAmc] = useState<any>(null);
 
+  console.log('amcList----', amcList);
   const months = [
     {id: 1, Name: 'Months'},
     {id: 2, Name: 'Year'},
@@ -37,7 +43,6 @@ const FundPickerFilter = ({
 
   const clearModal = () => {
     setisVisible(false);
-    setMYType('');
   };
 
   const handleCategoryChange = (categoryId: number) => {
@@ -233,11 +238,14 @@ const FundPickerFilter = ({
                     borderRadius: borderRadius.medium,
                     borderColor: colors.lightGray,
                   }}>
-                  <CusText color={
-                    item?.id == selectNature
-                      ? colors.Hard_White
-                      : colors.Hard_Black
-                  }text={item.option} />
+                  <CusText
+                    color={
+                      item?.id == selectNature
+                        ? colors.Hard_White
+                        : colors.Hard_Black
+                    }
+                    text={item.option}
+                  />
                 </Wrapper>
               </TouchableOpacity>
             ))}
@@ -247,21 +255,77 @@ const FundPickerFilter = ({
           {/* AMC Dropdown */}
           <CusText semibold size="N" text="AMC" />
           <Spacer y="XS" />
-          <DropDown
+          {/* <DropDown
+            multiSelection
             search
-            data={months}
+            data={amcList}
             placeholder="Select AMC"
             width={'100%'}
             placeholdercolor={colors.gray}
-            value={MYType}
+            value={selectAmc}
             fieldColor={colors.inputBg}
-            valueField="id"
+            valueField="Name"
             labelField="Name"
             onFocus={() => setIsFocus(true)}
             onBlur={() => setIsFocus(false)}
             onChange={(item: any) => setMYType(item?.id)}
             onClear={() => setMYType('')}
+          /> */}
+
+          <DropDown
+            suffixIcon={selectAmc ? 'close-outline' : null}
+            suffixColor={colors.primary}
+            suffixPress={() => {
+              if (selectAmc) {
+                setSelectAmc([]);
+              }
+            }}
+            suffixStyle={[
+              styles.clear,
+              {
+                backgroundColor: 'transparent',
+                height: responsiveWidth(9),
+                position: 'absolute',
+                right: 30,
+              },
+            ]}
+            multiSelection={true}
+           // label="AMC"
+            width={responsiveWidth(90)}
+            placeholder={'Select AMC'}
+            data={amcList}
+            valueField="Name"
+            labelField="Name"
+            value={selectAmc}
+            // disable={!FieldsEdit}
+            onChange={(item: any) => {
+              console.log("item----",item)
+              setSelectAmc(item);
+              //console.log(item);
+              //setForm({...Form, organizationId: item});
+            }}
           />
+
+          {/* <MultiSelect
+          style={styles.dropdown}
+          placeholderStyle={styles.placeholderStyle}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          search
+          data={amcList}
+          labelField="Name"
+          valueField="id"
+          placeholder="Select item"
+          searchPlaceholder="Search..."
+          value={selectAmc}
+          onChange={item => {
+            setSelectAmc(item);
+          }}
+        
+          selectedStyle={styles.selectedStyle}
+        /> */}
+
           <Spacer y="S" />
         </ScrollView>
 
