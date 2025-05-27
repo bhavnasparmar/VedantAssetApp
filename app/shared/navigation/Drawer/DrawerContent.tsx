@@ -248,6 +248,36 @@ export function DrawerContent(props: any) {
               }}
             />
           </Wrapper>
+            <Wrapper>
+            {/* <View style={styles.iconSet}></View> */}
+            <DrawerItem
+              icon={({ }) => (
+                <IonIcon
+                  name="golf"
+                  color={colors.white}
+                  size={responsiveWidth(7)}
+                // style={styles.menuIcon}
+                />
+              )}
+              label={({ }) => (
+                <CusText customStyles={{ marginLeft: responsiveWidth(4) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Scheme Edit" />
+              )}
+              onPress={() => {
+                // props.navigation.navigate("Tabs");
+                props.navigation.navigate('SchemeEdit');
+              }}
+            />
+            <LinearGradient
+              start={{ x: 1, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              colors={[
+                colors.transparent,
+                colors.Hard_White,
+                colors.transparent,
+              ]}
+              style={{ width: "100%", height: 1, opacity: 0.5 }}
+            ></LinearGradient>
+          </Wrapper>
           {/* </View> */}
         </DrawerContentScrollView>
         {/* <Alert
