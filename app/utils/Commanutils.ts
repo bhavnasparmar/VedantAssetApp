@@ -5,9 +5,10 @@ import { parseJSON } from 'date-fns';
 import { getRiskObject, getuserDetails } from '../Redux/Actions/userAction';
 
 //live server base url
-export const API_URL = 'http://192.168.1.7:9065/';
+export const API_URL = 'https://prosesenv.com:9065/';
+// export const API_URL = 'http://192.168.1.23:9065/';
 export const IMAGE_URL = `${API_URL}static/`;
-export const IMAGE_URL_GOAL = 'http://192.168.1.7:9065/static';
+export const IMAGE_URL_GOAL = `${API_URL}static/`;
 export const TOKEN_PREFIX = 'TOKEN_PREFIX';
 export const REFRESH_TOKEN_PREFIX = 'REFRESH_TOKEN_PREFIX';
 export const FCM_TOKEN = 'FCM_TOKEN';
@@ -23,7 +24,7 @@ const endPoints = {
   registerVerify: 'user/register-otp',
   resendOTP: 'user/resend-otp',
   forgotPassword: 'user/forgotPassword',
-  changePassword: 'user/changePassword',
+  changePassword: 'user/changePassword',  
   //home api
   getAllGoalType: 'goal-plan/getAllGoalType',
   getRiskCatWiseSchemeData: 'goal-plan/getRiskCatWiseSchemeData',
@@ -160,3 +161,22 @@ export const updateObjectKey = (obj: any, keyPath: any, value: any) => {
 
   return { ...obj }; // Return a new object
 };
+
+  export const showArraow = (returnNumber: number, categoryNumber: number) => {
+    let ratio: any =
+      categoryNumber && categoryNumber > 0
+        ? ((returnNumber - categoryNumber) / categoryNumber) * 100
+        : returnNumber;
+    ratio = ratio?.toFixed(2);
+    if (ratio >= 10) {
+      return '#056106';
+    } else if (5 <= ratio || ratio >= 9.99) {
+      return '#00ff00';
+    } else if (0 <= ratio || ratio >= 4.99) {
+      return '#ffff00';
+    } else if (-5 <= ratio || ratio >= -0.99) {
+      return '#f79b00';
+    } else if (ratio < -5) {
+      return '#ff0000';
+    }
+  };

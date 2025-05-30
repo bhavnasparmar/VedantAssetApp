@@ -15,17 +15,17 @@ import Spacer from '../../../../ui/spacer';
 import {useIsFocused} from '@react-navigation/native';
 import {Switch, TouchableOpacity, ScrollView, View} from 'react-native';
 
-import { MultiSelect } from 'react-native-element-dropdown';
-import { styles } from './fundPickerFilterStyle';
+import {MultiSelect} from 'react-native-element-dropdown';
+import {styles} from './fundPickerFilterStyle';
 
 const FundPickerFilter = ({
+  filterObj,
   isVisible,
   setisVisible,
   categoryData,
   natureList,
   amcList,
-  setAmcList,
-  applyFilter,
+  onFilterApply,
 }: any) => {
   const [selectCategory, setSelectCategory] = useState<any>([]);
   const [selectSubCategory, setSelectSubCategory] = useState<any>([]);
@@ -35,12 +35,16 @@ const FundPickerFilter = ({
   const [loader, setLoader] = useState<boolean>(false);
   const [isEnabled, setIsEnabled] = useState<boolean>(false);
   const [selectAmc, setSelectAmc] = useState<any>(null);
+  const [activeList, setActiveList] = useState<any>(null);
 
-  console.log('amcList----', amcList);
-  const months = [
-    {id: 1, Name: 'Months'},
-    {id: 2, Name: 'Year'},
-  ];
+  useEffect(() => {
+  if (isVisible && filterObj) {
+    setSelectCategory(filterObj?.categoryid || []);
+    setSelectSubCategory(filterObj?.subcategory_id || []);
+    setSelectAmc(filterObj?.amc_id || []);
+    setSelectNature(filterObj?.option_id || null);
+  }
+}, [isVisible]);
 
   const clearModal = () => {
     setisVisible(false);
@@ -99,6 +103,12 @@ const FundPickerFilter = ({
       }
     }
   };
+const resetFilter = () => {
+  setSelectAmc([]);
+  setSelectCategory([]);
+  setSelectNature(null);
+  setSelectSubCategory([]);
+};
 
   return (
     <Modal
@@ -178,7 +188,7 @@ const FundPickerFilter = ({
                 </Wrapper>
                 {/* <Spacer y='XXS' /> */}
                 {category?.SchemeSubcategories?.length > 0 && (
-                  <Wrapper row customStyles={{flexWrap: 'wrap'}}>
+                  <Wrapper row customStyles={{flexWrap: 'wrap',marginLeft : responsiveWidth(2)}}>
                     {category.SchemeSubcategories.map((subCategory: any) => (
                       <Wrapper row width={responsiveWidth(46)}>
                         <TouchableOpacity
@@ -291,7 +301,7 @@ const FundPickerFilter = ({
               },
             ]}
             multiSelection={true}
-           // label="AMC"
+            // label="AMC"
             width={responsiveWidth(90)}
             placeholder={'Select AMC'}
             data={amcList}
@@ -300,7 +310,7 @@ const FundPickerFilter = ({
             value={selectAmc}
             // disable={!FieldsEdit}
             onChange={(item: any) => {
-              console.log("item----",item)
+              console.log('item----', item);
               setSelectAmc(item);
               //console.log(item);
               //setForm({...Form, organizationId: item});
@@ -331,19 +341,38 @@ const FundPickerFilter = ({
         </ScrollView>
 
         {/* Apply Button */}
-        <CusButton
-          loading={loader}
-          width={'90%'}
-          height={responsiveHeight(6)}
-          title="Apply"
-          lgcolor1={colors.primary}
-          lgcolor2={colors.primary}
-          position="center"
-          radius={borderRadius.ring}
-          onPress={() => {
-            setisVisible(false);
-          }}
-        />
+        <Wrapper row justify="center">
+          <CusButton
+            width={responsiveWidth(40)}
+            height={responsiveHeight(6)}
+            title="Reset"
+            lgcolor1={colors.gray}
+            lgcolor2={colors.gray}
+            position="center"
+            radius={borderRadius.ring}
+            onPress={resetFilter}
+          />
+          <Spacer x="S" />
+          <CusButton
+            loading={loader}
+            width={responsiveWidth(40)}
+            height={responsiveHeight(6)}
+            title="Apply"
+            lgcolor1={colors.primary}
+            lgcolor2={colors.primary}
+            position="center"
+            radius={borderRadius.ring}
+            onPress={() => {
+              onFilterApply({
+                categoryid: selectCategory,
+                subcategory_id: selectSubCategory,
+                amc_id: selectAmc,
+                option_id: selectNature,
+              });
+              setisVisible(false);
+            }}
+          />
+        </Wrapper>
       </Wrapper>
     </Modal>
   );

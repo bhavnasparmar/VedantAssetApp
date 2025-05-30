@@ -228,27 +228,7 @@ export function DrawerContent(props: any) {
           {/* </View> */}
           {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}
           {/* <View style={styles.iconSet}></View> */}
-          <Wrapper>
-            <DrawerItem
-              icon={({ }) => (
-                <IonIcon
-                  name="power-outline"
-                  color={colors.white}
-                  size={responsiveWidth(7)}
-                // style={styles.menuIcon}
-                />
-              )}
-              label={({ }) => (
-                <CusText customStyles={{ marginLeft: responsiveWidth(4) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Logout" />
-              )}
-              onPress={() => {
-                // props.navigation.navigate("Tabs");
-                // props.navigation.navigate('RiskProfile');
-                setAlertVisible(true);
-              }}
-            />
-          </Wrapper>
-            <Wrapper>
+           <Wrapper>
             {/* <View style={styles.iconSet}></View> */}
             <DrawerItem
               icon={({ }) => (
@@ -278,6 +258,27 @@ export function DrawerContent(props: any) {
               style={{ width: "100%", height: 1, opacity: 0.5 }}
             ></LinearGradient>
           </Wrapper>
+          <Wrapper>
+            <DrawerItem
+              icon={({ }) => (
+                <IonIcon
+                  name="power-outline"
+                  color={colors.white}
+                  size={responsiveWidth(7)}
+                // style={styles.menuIcon}
+                />
+              )}
+              label={({ }) => (
+                <CusText customStyles={{ marginLeft: responsiveWidth(4) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Logout" />
+              )}
+              onPress={() => {
+                // props.navigation.navigate("Tabs");
+                // props.navigation.navigate('RiskProfile');
+                setAlertVisible(true);
+              }}
+            />
+          </Wrapper>
+           
           {/* </View> */}
         </DrawerContentScrollView>
         {/* <Alert

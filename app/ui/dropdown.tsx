@@ -115,7 +115,7 @@ const DropDown = ({
   const renderDataItem = (item: any) => {
     return (
       <View style={styles.item} key={item?.id}>
-        <Text style={styles.selectedTextStyle}>{item[labelField]}</Text>
+         <CusText text={item[labelField]} size="S" color={colors.black} />
        
       </View>
     );
@@ -167,7 +167,7 @@ const DropDown = ({
                   backgroundColor: fieldColor ? fieldColor : colors.inputBg,
                   borderRadius: 12,
                   paddingHorizontal: responsiveWidth(2),
-                  paddingVertical : responsiveWidth(1)
+                  paddingVertical : responsiveWidth(3)
                 },
               ]}
               selectedTextStyle={[styles.selected, {color: colors.black}]}

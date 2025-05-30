@@ -122,17 +122,17 @@ const NewGoal = () => {
                 // //setAlertClose={setAlertVisible}
                 visible={AlertVisible}
                 onClose={() => { setAlertVisible(false) }}
-                iconName="power-outline"
+                iconName="alert-circle-outline"
                 iconColor={colors.red}
                 iconSize={responsiveWidth(20)}
-                title="Log Out"
+                // title="Log Out"
                 // description={`Would You Like to create new activity ? if yes choose "Create New", it will mark previous activity as "Complete".`}
-                description={`Are you sure want to Logout?`}
-                button1Text="Stay"
-                onButton1Press={() => {
-                    setAlertVisible(false)
-                }}
-                button2Text="Yes"
+                description={`Your Risk Profile process is pending, please click on continue to proceed.`}
+                // button1Text="Stay"
+                // onButton1Press={() => {
+                //     setAlertVisible(false)
+                // }}
+                button2Text="Continue"
                 onButton2Press={async () => { navigation.navigate('RiskProfile') }}
             />
         </>

@@ -1,134 +1,76 @@
-import {
-  Alert,
-  Animated,
-  FlatList,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
-import Container from '../../../ui/container';
-import CusText from '../../../ui/custom-text';
-import Wrapper from '../../../ui/wrapper';
-import {styles} from './fundpickerStyles';
-import {Dimensions} from 'react-native';
-import {
-  borderRadius,
-  colors,
-  fontSize,
-  responsiveHeight,
-  responsiveWidth,
-} from '../../../styles/variables';
-import IonIcon from 'react-native-vector-icons/Ionicons';
-import Spacer from '../../../ui/spacer';
-import {useEffect, useRef, useState} from 'react';
-import API from '../../../utils/API';
 import {useIsFocused} from '@react-navigation/native';
-import LinearGradient from 'react-native-linear-gradient';
 import {debounce} from 'lodash';
-import React, {useMemo} from 'react';
-// import * as echarts from 'echarts/core';
-// import { BarChart } from 'echarts/charts';
-// import { GridComponent } from 'echarts/components';
-// import { SVGRenderer, SvgChart } from '@wuba/react-native-echarts';
-// import RNFS from 'react-native-fs';
-import InputField from '../../../ui/InputField';
-import CusButton from '../../../ui/custom-button';
-import {showToast, toastTypes} from '../../../services/toastService';
-import Header from '../../../shared/components/Header/Header';
+import moment from 'moment';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {ActivityIndicator, FlatList, Image} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import IonIcon from 'react-native-vector-icons/Ionicons';
 import {
   getAmcApi,
   getCategoryWithSubCategoryApi,
   getFundPickerListDataApi,
   getNatureApi,
 } from '../../../api/homeapi';
-import moment from 'moment';
+import {showToast, toastTypes} from '../../../services/toastService';
+import Header from '../../../shared/components/Header/Header';
+import {borderRadius, colors, responsiveWidth} from '../../../styles/variables';
+import InputField from '../../../ui/InputField';
+import Container from '../../../ui/container';
+import CusButton from '../../../ui/custom-button';
+import CusText from '../../../ui/custom-text';
+import Spacer from '../../../ui/spacer';
+import Wrapper from '../../../ui/wrapper';
+import API from '../../../utils/API';
 import {
   convertToCrores,
+  showArraow,
   toFixedDataForReturn,
 } from '../../../utils/Commanutils';
 import FundPickerFilter from './component/fundPickerFilter';
-
+import {styles} from './fundpickerStyles';
 
 const FundPicker = () => {
   const isFocused: any = useIsFocused();
-  const [isVisible, setIsVisible] = useState(true);
-  const [schemeFilters, setSchemeFilter] = useState<any[]>([]);
+  const [isVisible, setIsVisible] = useState(false);
   const [data, setdata] = useState<any[]>([]);
-  const [schemeFiltersText, setSchemeFilterText] = useState<any[]>([]);
   const [fundPickerList, setfundPickerList] = useState<any[]>([]);
-  const [gaugeValue, setGaugeValue] = useState<any[]>([]);
   const [search, setsearch] = useState<any>('');
-  const [filterSearch, setFIlterSearch] = useState<any>('');
-  const debouncedGetFundPickerScheme = useMemo(
-    () => debounce((value: string) => getFundPickerscheme(value), 500),
-    [],
-  );
   const scrollIndex = React.useRef<number>(1);
   const [categoryData, setCategoryData] = useState<any[]>([]);
   const [natureList, setNatureList] = useState<any[]>([]);
   const [amcList, setAmcList] = useState<any>([]);
   const [listEnd, setlistEnd] = React.useState<boolean>(false);
-  const [isFilterShow, setIsFilterShow] = React.useState<boolean>(false);
-  const [isSubFilterShow, setIsSubFilterShow] = React.useState<boolean>(false);
   const [filterObj, setFilterObj] = React.useState<any>({});
-  // const [selectedSubs, setSelectedSubs] = useState<{ [key: number]: number[] }>({});
-  const [selectedSubs, setSelectedSubs] = useState<any>({});
-  const [schemeCat, setSchemeCat] = useState<any>(null);
   const [loader, setloader] = React.useState<boolean>(false);
-  const pagesize = 50;
+  const pagesize = 1000;
+  const [page, setPage] = useState(1);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  //const [hasMoreData, setHasMoreData] = useState(true);
+
+  const debouncedGetFundPickerScheme = useCallback(
+    debounce((text: string) => {
+      // setPage(1);
+      getFundPickerscheme(text, filterObj, 1);
+    }, 500),
+    [filterObj],
+  );
+
   useEffect(() => {
     getFundPickerscheme(search);
     getCategories();
     getNatureList();
     getAmcList();
     return () => {
-      scrollIndex.current = 1;
-      setlistEnd(true);
+      // scrollIndex.current = 1;
+      // setlistEnd(true);
     };
   }, [isFocused]);
-  const showArraow = (returnNumber: number, categoryNumber: number) => {
-    let ratio: any =
-      categoryNumber && categoryNumber > 0
-        ? ((returnNumber - categoryNumber) / categoryNumber) * 100
-        : returnNumber;
-    ratio = ratio?.toFixed(2);
-    if (ratio >= 10) {
-      return '#056106';
-    } else if (5 <= ratio || ratio >= 9.99) {
-      return '#00ff00';
-    } else if (0 <= ratio || ratio >= 4.99) {
-      return '#ffff00';
-    } else if (-5 <= ratio || ratio >= -0.99) {
-      return '#f79b00';
-    } else if (ratio < -5) {
-      return '#ff0000';
-    }
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    setPage(1);
+    getFundPickerscheme(search, filterObj, 1, true);
   };
 
-  const getSchemesFilter = async () => {
-    try {
-      const result: any = await API.get(
-        'schemes/get-category-with-subCategory',
-      );
-      if (result?.code === 200) {
-        const data: any = result?.data;
-        // console.log('Data : ',data)
-        setSchemeFilterText(data);
-        setSchemeFilter(data);
-        const firstCat = data[0];
-        const subIds =
-          firstCat.scheme_subcategories?.map((sub: any) => sub.id) || [];
-        setSchemeCat(firstCat);
-        setSelectedSubs({[firstCat.ID]: subIds});
-        //  setSchemeCat(data[0]);
-      } else {
-        showToast(toastTypes.info, result.msg);
-      }
-    } catch (error: any) {
-      console.log('getSchemesFilter Catch Error ; ', error[0].msg);
-      showToast(toastTypes.info, error[0].msg);
-    }
-  };
   const getCategories = async () => {
     try {
       const [result, error]: any = await getCategoryWithSubCategoryApi();
@@ -170,52 +112,59 @@ const FundPicker = () => {
       console.log('error', error);
     }
   };
-  const getFundPickerscheme = async (search: any) => {
+  const getFundPickerscheme = async (
+    searchValue = '',
+    filterVal: any = null,
+    pageNumber = 1,
+    isRefresh = false,
+  ) => {
     try {
+      // if (!isRefresh) setloader(true);
       setloader(true);
-      let data: any = {};
+      let filter = {};
+      if ((searchValue || '').trim() && filterVal) {
+        filter = {name: searchValue.trim(), ...filterVal};
+      } else if ((searchValue || '').trim()) {
+        filter = {name: searchValue.trim()};
+      } else if (filterVal) {
+        filter = filterVal;
+      }
 
-      const pagenumber = scrollIndex.current || 1;
-      data = {
-        page: pagenumber,
+      const payload = {
+        page: pageNumber,
         limit: pagesize,
-        filters: false,
+        filters: filter,
         sort: false,
       };
-      if (search) {
-        data.search = search || '';
-      }
-
+      console.log('payload', payload);
       const [result, error]: any = await getFundPickerListDataApi({
-        params: data,
+        params: payload,
       });
-      console.log('getFundPickerListDataApi result', result?.data?.rows);
-      if (result != null) {
-        setfundPickerList(result?.data?.rows);
+      console.log('getFundPickerListDataApi=======', error);
+      if (result?.data?.rows) {
+        const fetchedData = result.data.rows;
+        setfundPickerList(prev => [...fetchedData]);
         setloader(false);
-        setlistEnd(result?.data?.rows?.length < pagesize);
+        // setHasMoreData(fetchedData.length === pagesize);
       } else {
-        if (error.msg) {
-          setloader(false);
-          showToast(`${toastTypes.error}`, error.msg);
-        } else {
-          showToast(`${toastTypes.error}`, error[0].msg);
-        }
+        showToast(`${toastTypes.error}`, error?.msg || error?.[0]?.msg);
       }
-    } catch (error) {
-      console.log('error', error);
+    } catch (err) {
+      setloader(false);
+      console.log('Error fetching fund picker:', err);
+    } finally {
+      setloader(false);
+      setIsRefreshing(false);
     }
   };
-  //  echarts.use([SVGRenderer, BarChart, GridComponent]);
-  const svgRef = useRef<any>(null);
+  // const loadMore = useCallback(() => {
+  //   if (loader || !hasMoreData) return;
 
-  const loadMore = () => {
-    if (loader || listEnd) {
-      return;
-    }
-    scrollIndex.current++;
-    getFundPickerscheme(search);
-  };
+  //   const nextPage = page + 1;
+  //   getFundPickerscheme(search, filterObj, nextPage);
+  //   setPage(nextPage);
+  // }, [loader, hasMoreData, page, search, filterObj]);
+
   const INRupees = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
@@ -304,28 +253,7 @@ const FundPicker = () => {
                         color={colors.black}
                       />
                     </Wrapper>
-                    {/* <IonIcon
-                      name="person"
-                      color={colors.gray}
-                      size={responsiveWidth(2)}
-                    />
-                    <CusText text={'Ramananda'} size="XS" color={colors.gray} /> */}
                   </Wrapper>
-                  {/* <Wrapper row>
-                    {[1, 2, 3, 4, 5].map((items: any, i: number) => (
-                      <>
-                        <IonIcon
-                          name="star"
-                          size={responsiveWidth(2)}
-                          color={
-                            i > item?.SchemePerformances[0]?.OverallRating
-                              ? colors.gray
-                              : '#F9BD36'
-                          }
-                        />
-                      </>
-                    ))}
-                  </Wrapper> */}
                 </Wrapper>
                 <Wrapper
                   row
@@ -675,28 +603,30 @@ const FundPicker = () => {
           width={responsiveWidth(80)}
           placeholder="Search Here"
           value={search}
-          onChangeText={(value: string) => {
-            //   handleFormChange({ key: 'bankName', value })
-            setsearch(value);
-            //  schemewithholding(selectScheme1, value, schemesort, '')
+          //onChangeText={debouncedGetFundPickerScheme}
+          onChangeText={(text: string) => {
+            setsearch(text);
+            debouncedGetFundPickerScheme(text);
           }}
           borderColor={colors.gray}
           suffixIcon={search ? 'close' : 'search'}
           suffixPress={() => {
             if (search) {
+              setPage(1);
               setsearch('');
-              //setschemeswithholding([])
-
-              //schemewithholding(selectScheme1, '', schemesort, '')
+              getFundPickerscheme('', filterObj, 1, true);
             }
           }}
         />
         <Spacer x="XXS" />
         <CusButton
           onPress={() => {
-            setIsVisible(true);
+          //  setIsVisible(true);
           }}
           iconFirst
+          iconPress={()=>{
+            //setIsVisible(true);
+          }}
           iconName="filter-outline"
           width={responsiveWidth(13)}
         />
@@ -705,33 +635,29 @@ const FundPicker = () => {
       <Container Xcenter contentWidth={responsiveWidth(95)}>
         <Wrapper customStyles={{}}>
           <FlatList
-            keyExtractor={(item, index) => index.toString()}
             data={fundPickerList}
+            keyExtractor={(item, index) => index.toString()}
             renderItem={renderItem}
-            initialNumToRender={5}
             // onEndReached={loadMore}
-            // onEndReachedThreshold={2}
-            // ListFooterComponent={() => loader && <ActivityIndicator />}
-            // refreshing={loader}
+            //onEndReachedThreshold={0.5}
+            //refreshing={isRefreshing}
             // onRefresh={onRefresh}
-            //  removeClippedSubviews={true}
-            // ItemSeparatorComponent={() => {
-            //   return (
-            //     <>
-            //     <Spacer y='N' />
-            //       {/* <Wrapper
-            //         customStyles={{
-            //           borderColor: 'rgba(153, 153, 153, 0.6)',
-            //           borderWidth: responsiveWidth(0.07),
-            //         }}
-            //         color="rgba(153, 153, 153, 0.6)"
-            //       /> */}
-            //     </>
-            //   );
-            // }}
+            ListFooterComponent={loader ? <ActivityIndicator /> : null}
+            // ListEmptyComponent={
+            //   !loader && (
+            //     <Wrapper align="center" customStyles={{ marginVertical : responsiveWidth(5)}}>
+            //       <CusText
+            //         text="No funds found."
+            //         size="N"
+            //         color={colors.gray}
+            //       />
+            //     </Wrapper>
+            //   )
+            // }
           />
         </Wrapper>
         <FundPickerFilter
+          filterObj={filterObj}
           isVisible={isVisible}
           setisVisible={(value: any) => setIsVisible(value)}
           categoryData={categoryData}
@@ -746,9 +672,18 @@ const FundPicker = () => {
           setAmcList={(value: any[]) => {
             setAmcList(value);
           }}
-          applyFilter ={()=>{
-            
+          onFilterApply={(newFilters: any) => {
+            setFilterObj(newFilters);
+            setPage(1);
+            getFundPickerscheme(search, newFilters, 1, true);
           }}
+          ListEmptyComponent={
+            !loader && (
+              <Wrapper align="center">
+                <CusText text="No data found." />
+              </Wrapper>
+            )
+          }
         />
       </Container>
     </>

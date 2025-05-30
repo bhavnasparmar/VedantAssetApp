@@ -197,7 +197,7 @@ const Alert = ({
                     </Wrapper>
                 </Wrapper> */}
                 <Wrapper
-                    width={responsiveWidth(80)}
+                    width={responsiveWidth(90)}
                     color={colors.white}
                     align='center'
                     customStyles={styles.modalContainer}>
@@ -220,7 +220,7 @@ const Alert = ({
                     {description && <CusText size={"S"} color={colors.primary} semibold customStyles={styles.description} text={description} />}
 
                     {/* Buttons */}
-                    <Wrapper width={responsiveWidth(70)} customStyles={styles.buttonContainer}>
+                    <Wrapper width={responsiveWidth(70)} position="center" justify="center" customStyles={styles.buttonContainer}>
                         {button1Text && (
                             // <TouchableOpacity style={styles.button} onPress={onButton1Press}>
                             //     <CusText bold customStyles={styles.buttonText} text={button1Text} />
@@ -237,6 +237,7 @@ const Alert = ({
                                 />
                             </Wrapper>
                         )}
+                        <Spacer x="S" />
                         {button2Text && (
                             // <TouchableOpacity style={styles.button} onPress={onButton2Press}>
                             //     {/* <Text style={styles.buttonText}>{button2Text}</Text> */}

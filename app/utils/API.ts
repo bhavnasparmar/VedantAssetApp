@@ -86,7 +86,7 @@ const fetchClient = (): AxiosInstance => {
   instance.interceptors.request.use(async config => {
     try {
       const token = await getData(TOKEN_PREFIX);
-      console.log('Token : ', token)
+      console.log('config : ', config)
       if (token) config.headers.Authorization = token;
     } catch (error) {
       console.log('Token fetch error:', error);
@@ -107,7 +107,7 @@ const fetchClient = (): AxiosInstance => {
     },
     async (error: AxiosError) => {
       const status = error?.response?.status;
-
+//console.log("error api -----",JSON.parse(error?.response))
       console.log('API Error Response:', {
         statusCode: status,
         endpoint: error?.config?.url,
