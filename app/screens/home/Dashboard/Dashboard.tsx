@@ -23,7 +23,7 @@ const Dashboard = () => {
   const [desc, setDesc] = useState<any>('');
 
   useEffect(() => {
-    getRiskProfile();
+    //getRiskProfile();
   }, [isFocused]);
 
   const getRiskProfile = async () => {

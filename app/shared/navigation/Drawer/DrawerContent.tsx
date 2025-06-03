@@ -108,7 +108,7 @@ export function DrawerContent(props: any) {
                 />
               )}
               label={({ }) => (
-                <CusText customStyles={{ marginLeft: responsiveWidth(4) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Fund Picker" />
+                <CusText customStyles={{ marginLeft: responsiveWidth(4) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Fund Explore" />
               )}
 
               onPress={() => {

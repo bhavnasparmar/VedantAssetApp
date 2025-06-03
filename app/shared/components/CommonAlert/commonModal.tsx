@@ -61,7 +61,7 @@ const CommonModal = ({
                     {description && <CusText size={"S"} color={colors.primary} semibold customStyles={styles.description} text={description} />}
 
                     {/* Buttons */}
-                    <Wrapper width={responsiveWidth(70)} customStyles={styles.buttonContainer}>
+                    <Wrapper width={responsiveWidth(70)} customStyles={{...styles.buttonContainer,...{justifyContent :( button1Text && button2Text) ? "space-between" : "center"}}}>
                         {button1Text && (
                             // <TouchableOpacity style={styles.button} onPress={onButton1Press}>
                             //     <CusText bold customStyles={styles.buttonText} text={button1Text} />

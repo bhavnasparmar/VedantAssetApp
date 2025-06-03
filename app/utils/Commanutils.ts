@@ -5,8 +5,8 @@ import { parseJSON } from 'date-fns';
 import { getRiskObject, getuserDetails } from '../Redux/Actions/userAction';
 
 //live server base url
-export const API_URL = 'https://prosesenv.com:9065/';
-// export const API_URL = 'http://192.168.1.23:9065/';
+// export const API_URL = 'https://prosesenv.com:9065/';
+export const API_URL = 'http://192.168.1.26:9065/';
 export const IMAGE_URL = `${API_URL}static/`;
 export const IMAGE_URL_GOAL = `${API_URL}static/`;
 export const TOKEN_PREFIX = 'TOKEN_PREFIX';
