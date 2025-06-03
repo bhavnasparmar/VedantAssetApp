@@ -233,7 +233,7 @@ export default function App() {
       signIn: async (data: any) => {
         console.log("data", data);
         try {
-          await AsyncStorage.setItem(TOKEN_PREFIX, data?.token);
+          await AsyncStorage.setItem(TOKEN_PREFIX, data?.token ?  data?.token : "");
           await AsyncStorage.setItem(USER_DATA, JSON.stringify(data?.user));
 
           showToast(toastTypes.success, 'Login SuccessFully');
