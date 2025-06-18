@@ -28,6 +28,7 @@ const endPoints = {
   changePassword: 'user/changePassword',  
   //home api
   getAllGoalType: 'goal-plan/getAllGoalType',
+  getAllGoalPalnList:'goal-plan/getAllGoalPalnList',
   goalcalss:'goal-plan/calculator/goal',
   getRiskCatWiseSchemeData: 'goal-plan/getRiskCatWiseSchemeData',
   getRiskProfileInvestor: 'risk-profile/get-risk-profile-investor',

@@ -11,10 +11,10 @@ import Chartshow from '../component/chartShow';
 import NewGoalpopup from '../component/newGoalpopup';
 import RecommendedPlan from '../component/recomendedPlan';
 import CompletedGoal from './components/completedGoal';
-import OnGoingGoal from './components/onGoingGoal';
 import Header from '../../../../shared/components/Header/Header';
 import {AppearanceContext} from '../../../../context/appearanceContext';
 import NewGoal from './Components/NewGoal';
+import OnGoingGoal from './Components/OnGoingGoal';
 
 const GoalDashboard = () => {
   const {colors}: any = useContext(AppearanceContext);
@@ -48,12 +48,11 @@ const GoalDashboard = () => {
         );
       case 'ongoinggoal':
         return (
-          <></>
-          // <OnGoingGoal
-          //     setVisible={setIsVisible}
-          //     setgoalId={setGoalId}
-          //     setGoalPlanID={setGoalPlanID}
-          // />
+         <OnGoingGoal
+                    setVisible={(value: boolean) => setIsVisible(value)}
+                    setgoalId={(value: any) => setGoalId(value)}
+                    setGoalPlanID={(value: any) => setGoalPlanID(value)}
+                />
         );
       case 'completedgoal':
         return <></>;

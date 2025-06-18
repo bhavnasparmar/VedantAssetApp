@@ -9,6 +9,12 @@ export const getAllGoalTypeApi = () => {
     return promiseHandler(promise);
 };
 
+export const getAllongoingGoal = () => {
+
+    const promise = API.get(`${API_URL}${endPoints.getAllGoalPalnList}`);
+    return promiseHandler(promise);
+};
+
 export const getRiskProfileInvestorAPi = () => {
 
     const promise = API.get(`${API_URL}${endPoints.getRiskProfileInvestor}`);

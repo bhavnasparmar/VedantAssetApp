@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
     width: responsiveWidth(15),
   },
   card: {
-      backgroundColor: colors.darkGray,
+      backgroundColor: colors.Hard_White,
       // backgroundColor: colors.red,
       width: responsiveWidth(50),
       padding: responsiveWidth(2),
