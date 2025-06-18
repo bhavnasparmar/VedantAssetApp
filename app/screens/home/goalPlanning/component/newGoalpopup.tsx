@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Modal from "react-native-modal";
 import Wrapper from '../../../../ui/wrapper';
 import CusText from '../../../../ui/custom-text';
-import { borderRadius, colors, responsiveHeight, responsiveWidth } from '../../../../styles/variables';
+import { borderRadius, colors, fontSize, responsiveHeight, responsiveWidth } from '../../../../styles/variables';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import DropDown from '../../../../ui/dropdown';
 import CusButton from '../../../../ui/custom-button';
@@ -12,12 +12,13 @@ import { Switch, TouchableOpacity } from 'react-native';
 import InputField from '../../../../ui/InputField';
 import Slider from '@react-native-community/slider';
 import { styles } from '../goaltabview/goalDashboardStyle';
-// import { getGoalPlanning, getLoginUserDetails, setGoalPlanningDetails } from '../../../../utils/Commanutils';
+import { getLoginUserDetails, setGoalPlanningDetails, USER_DATA } from '../../../../utils/Commanutils';
 import API from '../../../../utils/API';
 import { showToast, toastTypes } from '../../../../services/toastService';
-// import { showToast, toastTypes } from '../../../../service/toastService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { goalcal } from '../../../../api/homeapi';
 
-const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID }: any) => {
+const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalPlanName,riskProfileData }: any) => {
 
 
     const [isFocus, setIsFocus] = useState(false);
@@ -101,9 +102,8 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID }: any
             months: '',
         })
         setisVisible(false)
-        flag(true)
+                  flag(true) 
     }
-
 
     const getEditDetails = async (goal_plan_id: any) => {
         try {
@@ -134,7 +134,53 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID }: any
 
     const submit = async () => {
 
-     
+        try {
+            const submited = true;
+            setisSubmited(submited);
+            const isValid = handleValidate(submited, null);
+            if (!isValid) return;
+ const useretail: any = await AsyncStorage.getItem(USER_DATA);
+
+    let useretail1 = JSON.parse(useretail);
+            let payload = {        
+    user_id: useretail1?.id,
+    target_amount: Form.targetammount,
+    months:  MYType === 1 ? Form.months : 12 * Number(Form.months),
+    risk_category_id: riskProfileData?.riskProfileId,
+    inflation_rate:Form.inflation,
+     goal_type_id:goalPlanID
+
+            }
+            console.log('Payload : ', payload)
+            setLoader(true)
+            const result: any = await goalcal(payload);
+console.log(result[0].data,"result?.data")
+            // if (result?.code === 200) {
+                setGoalPlanningDetails(null)
+                setLoader(false)
+                
+                let data =result[0].data
+                data.months = MYType === 1 ? Form.months : 12 * Number(Form.months)
+                data.inflation_rate = Form.inflation
+                data.title = Form.title
+                data.targetammount = Form.targetammount
+                data.goal_type_id = goalPlanID !== '' ? EditedData?.goal_type_id : goalID
+                setGoalPlanningDetails(data)
+                
+                clearFomrData()
+                showToast(toastTypes.success, result?.msg)
+            // }
+            /*  else {
+                setLoader(false)
+                showToast(toastTypes.info, result?.msg)
+
+            } */
+
+        } catch (error: any) {
+            setLoader(false)
+            console.log('submit catch Error : ', error)
+            showToast(toastTypes.error, error[0]?.msg)
+        }
     };
 
     function isMonthBetweenSixAndTwelve(month: any) {
@@ -210,63 +256,68 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID }: any
             backdropTransitionOutTiming={0}
             backdropTransitionInTiming={0}
             useNativeDriver={true}>
-            <Wrapper width={responsiveWidth(90)} align='center'
+            <Wrapper position='center' width={responsiveWidth(95)} align='center'
                 customStyles={{
-                    backgroundColor: colors.darkGray,
+                    backgroundColor: colors.Hard_White,
                     borderRadius: borderRadius.normal
                 }}>
-                <Wrapper row justify='apart' customStyles={{
-                    paddingVertical: responsiveWidth(3),
-                    borderBottomWidth: 0.3, borderBottomColor: colors.inputLabel
+                <Spacer y='XXS' />
+                <Wrapper width={responsiveWidth(90)} row justify='apart' align='center' customStyles={{
+                    paddingVertical: responsiveWidth(1.5),
+                    paddingHorizontal: responsiveWidth(3)
                 }}>
-                    <CusText position='center' customStyles={{
-                        paddingLeft: responsiveWidth(3)
-                        , width: responsiveWidth(85),
-                    }}
-                        text={'Business'} />
 
-                    <IonIcon onPress={() => { clearData() }} name='close-outline' color={colors.Hard_White} size={25} ></IonIcon>
+                    <CusText semibold size='M' position='center'
+                        text={goalPlanName || 'Goal Plan'} />
+
+                    <IonIcon onPress={() => { clearData() }} name='close-outline' color={colors.black} size={25} ></IonIcon>
                 </Wrapper>
-
+                <Spacer y='XXS' />
+                <Wrapper
+                    customStyles={{
+                        height: responsiveHeight(0.1),
+                        width: responsiveWidth(90),
+                        backgroundColor: colors.lineColor,
+                    }}
+                />
                 <InputField
 
                     label='Title'
                     value={Form.title}
-                    width={responsiveWidth(85)}
+                    width={responsiveWidth(90)}
                     placeholder="Enter Title"
                     onChangeText={(value: string) => {
                         handleFormChange({ key: 'title', value })
                     }}
-                    labelStyle={{ color: colors.inputLabel }}
+                    labelStyle={{ color: colors.inputLabel, fontSize: fontSize.semiSmall }}
                     keyboardType="email-address"
-                    borderColor={colors.placeholderColor}
+                    borderColor={colors.disablebtn}
                     suffixColor={colors.placeholderColor}
                     error={FormError.title}
+                    fieldColor={colors.disablebtn}
                 />
                 <InputField
                     label='How much money do you need to start your goal Business?'
                     value={Form.targetammount}
-                    width={responsiveWidth(85)}
+                    width={responsiveWidth(90)}
                     placeholder="Enter Amount"
                     inputMode='numeric'
                     onChangeText={(value: string) => {
                         handleFormChange({ key: 'targetammount', value })
                     }}
-                    labelStyle={{
-                        color: colors.inputLabel,
-                        width: responsiveWidth(85)
-                    }}
+                    labelStyle={{ color: colors.inputLabel, fontSize: fontSize.semiSmall }}
                     keyboardType="email-address"
-                    borderColor={colors.placeholderColor}
+                    borderColor={colors.disablebtn}
                     suffixColor={colors.placeholderColor}
                     error={FormError.targetammount}
+                    fieldColor={colors.disablebtn}
                 />
                 <Spacer y='XS' />
-                <Wrapper row width={responsiveWidth(85)} justify='apart'>
-                    <CusText medium text={'Do you want to adjust the goal amount for inflation ?'}
-                        size="S" color={colors.inputLabel} customStyles={{ width: responsiveWidth(50) }} />
-                    <Wrapper row >
-                        <CusText text={'No'} size="S" color={colors.inputLabel} medium customStyles={{ paddingRight: responsiveWidth(3) }} />
+                <Wrapper row align='center' width={responsiveWidth(85)} justify='apart'>
+                    <CusText  text={'Do you want to adjust the goal amount for inflation ?'}
+                        size="SS" color={colors.inputLabel} customStyles={{ width: responsiveWidth(50) }} />
+                    <Wrapper row align='center'>
+                        <CusText text={'No'} size="SS" color={colors.inputLabel} medium customStyles={{ paddingRight: responsiveWidth(3) }} />
                         <Switch
                             trackColor={{
                                 false: colors.gray,
@@ -277,45 +328,50 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID }: any
                             onValueChange={toggleSwitch}
                             value={isEnabled}
                         />
-                        <CusText text={'Yes'} size="S" color={colors.inputLabel} medium customStyles={{ paddingRight: responsiveWidth(3) }} />
+                        <CusText text={'Yes'} size="SS" color={colors.inputLabel} medium customStyles={{ paddingRight: responsiveWidth(3) }} />
                     </Wrapper>
                 </Wrapper>
-                <Spacer y='S' />
-                {isEnabled ?
-                    <Wrapper row customStyles={{ marginLeft: responsiveWidth(-15) }}>
 
-                        <CusText text={1} size="S" color={colors.inputLabel} medium />
-                        <Slider
-                            style={styles.slider}
-                            minimumValue={1}
-                            maximumValue={9}
-                            step={1}
-                            // value={slidervalue}
-                            value={Form.inflation}
-                            onValueChange={(val: any) => {
-                                setsliderValue(val)
-                                handleFormChange({ key: 'inflation', value: val })
-                            }}
-                            minimumTrackTintColor={colors.primary}
-                            maximumTrackTintColor="#FFFFFF"
-                            thumbTintColor={colors.primary}
-                        />
-                        <CusText text={9} size="S" color={colors.inputLabel} medium customStyles={{ marginRight: responsiveWidth(5) }} />
-                        <Wrapper customStyles={styles.sectralfield}>
-                            <CusText
-                                // text={slidervalue}
-                                text={Form.inflation}
-                                size="S" color={colors.inputLabel} medium />
+                {isEnabled ?
+                    <>
+                        <Spacer y='S' />
+                        <Wrapper align='center' justify='apart' width={responsiveWidth(85)} row customStyles={{ }}>
+                            <Wrapper position='center' width={responsiveWidth(70)}  row align='center'>
+                                <CusText text={1} size="SS" color={colors.inputLabel} medium />
+                                <Slider 
+                                    style={styles.slider}
+                                    minimumValue={1}
+                                    maximumValue={9}
+                                    step={1}
+                                    // value={slidervalue}
+                                    value={Form.inflation}
+                                    onValueChange={(val: any) => {
+                                        setsliderValue(val)
+                                        handleFormChange({ key: 'inflation', value: val })
+                                    }}
+                                    minimumTrackTintColor={colors.primary}
+                                    maximumTrackTintColor="#FFFFFF"
+                                    thumbTintColor={colors.primary}
+                                />
+                                <CusText text={9} size="SS" color={colors.inputLabel} medium customStyles={{ marginRight: responsiveWidth(5) }} />
+                            </Wrapper>
+
+                            <Wrapper customStyles={styles.sectralfield}>
+                                <CusText
+                                    // text={slidervalue}
+                                    text={Form.inflation}
+                                    size="S" color={colors.inputLabel} medium />
+                            </Wrapper>
                         </Wrapper>
-                    </Wrapper>
+                    </>
                     : null
                 }
 
-                <Spacer y='S' />
-                <Wrapper row justify="apart" width={responsiveWidth(85)}>
+                <Spacer y='XS' />
+                <Wrapper row justify="apart" width={responsiveWidth(87)}>
                     <CusText position="left" text={'When do you need these funds for Business ?'} />
                 </Wrapper>
-                <Wrapper row justify="apart" width={responsiveWidth(85)}>
+                <Wrapper row justify="apart" width={responsiveWidth(90)}>
                     <InputField
                         // label='When do you need these funds for Business ?'
                         value={Form.months}
@@ -330,9 +386,10 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID }: any
                             width: responsiveWidth(50)
                         }}
                         keyboardType="email-address"
-                        borderColor={colors.placeholderColor}
+                        borderColor={colors.disablebtn}
                         suffixColor={colors.placeholderColor}
                         error={FormError.months}
+                        fieldColor={colors.disablebtn}
                     />
                     <DropDown
                         data={months}
@@ -340,7 +397,7 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID }: any
                         width={responsiveWidth(30)}
                         placeholdercolor={colors.Hard_White}
                         value={MYType}
-                        fieldColor={colors.primary}
+                        fieldColor={colors.disablebtn}
                         onFocus={() => {
                             setIsFocus(true);
                         }}
@@ -363,7 +420,7 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID }: any
                 <Wrapper row width={responsiveWidth(85)} align='start'>
                     <CusText text={'Risk Profile'} size="N" color={colors.inputLabel} medium />
                     <Wrapper customStyles={styles.riskfield}>
-                        <CusText text={'Moderately Low'} size="S" color={'#E59F39'} medium />
+                        <CusText text={riskProfileData?.RiskCategory?.risk_type} size="S" color={'#E59F39'} medium />
                     </Wrapper>
                 </Wrapper>
                 <Spacer y='S' />
@@ -372,11 +429,10 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID }: any
                     width={responsiveWidth(40)}
                     height={responsiveHeight(5)}
                     title="Calculate"
-                    lgcolor1={colors.primary}
-                    lgcolor2={colors.secondary}
+                    color={colors.secondary}
                     position="center"
-                    radius={borderRadius.ring}
-                    
+                    radius={borderRadius.medium}
+                  
                     onPress={() => {
 
                         submit()
@@ -390,7 +446,3 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID }: any
 }
 
 export default NewGoalpopup;
-
-function getLoginUserDetails() {
-    throw new Error('Function not implemented.');
-}

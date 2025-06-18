@@ -14,14 +14,21 @@ import { TouchableOpacity } from "react-native";
 import { useFocusEffect, useIsFocused, useNavigation } from "@react-navigation/native";
 import { showToast } from "../../../../../services/toastService";
 import { toastTypes } from "../../../../../constant/constants";
+import { getLoginUserDetails, setGoalPlanningDetails } from "../../../../../utils/Commanutils";
+import API from "../../../../../utils/API";
+import { localStorageKeys } from "../../../../../services/localStorageService";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
-const NewGoalModal = ({ visible, onClose, goalName, riskDetailsData }: any) => {
+const NewGoalModal = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalPlanName,riskProfileData }: any) => {
     const isFocused: any = useIsFocused()
     const navigation: any = useNavigation()
     const [isFocus, setIsFocus] = useState(false);
     const [isInflation, setIsInflation] = useState(false);
+    const [isEnabled, setIsEnabled] = useState<boolean>(false);
     const [isSubmited, setisSubmited] = useState<boolean>(false);
+     const [loader, setLoader] = useState<boolean>(false);
+     const [EditedData, setEditedData] = useState<any>({});
     const [months, setmonths] = useState<any>([
         {
             id: 1,
@@ -40,6 +47,13 @@ const NewGoalModal = ({ visible, onClose, goalName, riskDetailsData }: any) => {
         inflation: 1,
         months: '',
     });
+    const toggleSwitch = () => {
+        setIsEnabled(previousState => !previousState);
+        if (isEnabled == false) {
+        } else {
+        }
+    };
+ 
     const [FormError, setFormError] = useState({
         title: '',
         targetammount: '',
@@ -47,6 +61,10 @@ const NewGoalModal = ({ visible, onClose, goalName, riskDetailsData }: any) => {
         months: '',
     });
     useEffect(() => {
+         if (goalID !== '') {
+            getEditDetails(goalID)
+        }
+
         return () => {
             setForm({
                 title: '',
@@ -73,7 +91,27 @@ const NewGoalModal = ({ visible, onClose, goalName, riskDetailsData }: any) => {
         return month >= 6 && month <= 12;
     }
 
-
+ const getEditDetails = async (goal_plan_id: any) => {
+        try {
+            const result: any = await API.get(`goal-plans/goal-details/${goal_plan_id}`);
+            if (result?.code === 200) {
+                setEditedData(result?.data?.goal)
+                handleFormChange({ key: 'title', value: result?.data?.goal?.goal_label })
+                handleFormChange({ key: 'targetammount', value: String(result?.data?.goal?.target_amt) })
+                if (result?.data?.goal?.inflation_perc !== 0) {
+                    setIsEnabled(true)
+                    handleFormChange({ key: 'inflation', value: result?.data?.goal?.inflation_perc })
+                }
+                handleFormChange({ key: 'months', value: String(result?.data?.goal?.duration_mts) })
+            } else {
+                // showToast(toastTypes.info, result?.msg)
+            }
+        } catch (error: any) {
+            console.log('getEditDetails Catch Error', error)
+            showToast(toastTypes.error, error[0].msg)
+        }
+    }
+    
     const handleValidate = (flag = false, values: any) => {
         if (!flag) return;
         let isValid = true;
@@ -99,7 +137,7 @@ const NewGoalModal = ({ visible, onClose, goalName, riskDetailsData }: any) => {
             targetammount = 'target ammount should be 10,000 or more ';
         }
         let inflation = '';
-        if (isInflation) {
+        if (isEnabled) {
             if (!data?.inflation) {
                 isValid = false;
                 inflation = 'inflation is required';
@@ -132,28 +170,72 @@ const NewGoalModal = ({ visible, onClose, goalName, riskDetailsData }: any) => {
         });
         return isValid;
     };
-
-
-    const submit = async () => {
+const clearFomrData = () => {
+        setForm({
+            title: '',
+            targetammount: '',
+            inflation: 0,
+            months: '',
+        });
+        setFormError({
+            title: '',
+            targetammount: '',
+            inflation: '',
+            months: '',
+        })
+        setisVisible(false)
+        flag(true)
+    }
+    
+     const submit = async () => {
         try {
-
-            navigation?.navigate('SelectScheme', { riskId: riskDetailsData?.riskProfileId })
-
-            return
+             const data: any = await AsyncStorage.getItem(localStorageKeys.USER_DATA);
+             const userData: any = JSON.parse(data);
             const submited = true;
             setisSubmited(submited);
             const isValid = handleValidate(submited, null);
             if (!isValid) return;
-        } catch (error: any) {
-            console.log('submit catch Error : ', error)
-            showToast(toastTypes.error, error)
-        }
-    }
 
+            let payload = {
+                user_id: userData?.id,
+                target_amount: Form.targetammount,
+                months: MYType === 1 ? Form.months : 12 * Number(Form.months),
+                risk_category_id: riskProfileData?.riskProfileId,
+                inflation_rate: Form.inflation,
+                goal_type_id:goalPlanID
+            }
+
+            console.log('Payload : ', payload)
+            setLoader(true)
+            const result: any = await API.post('goal-plan/calculator/goal', payload);
+            if (result?.code === 200) {
+               setGoalPlanningDetails(null)
+                setLoader(false)
+                let data = result?.data
+                data.months = MYType === 1 ? Form.months : 12 * Number(Form.months)
+                data.inflation_rate = Form.inflation
+                data.title = Form.title
+                data.targetammount = Form.targetammount
+                data.goal_type_id = goalPlanID !== '' ? EditedData?.goal_type_id : goalPlanID
+                setGoalPlanningDetails(data)
+                clearFomrData()
+                showToast(toastTypes.success, result?.msg)
+            } else {
+                setLoader(false)
+                showToast(toastTypes.info, result?.msg)
+
+            }
+
+        } catch (error: any) {
+            setLoader(false)
+            console.log('submit catch Error : ', error)
+            showToast(toastTypes.error, error[0]?.msg)
+        }
+    };
 
     return (
         <Modal
-            isVisible={visible}
+            isVisible={isVisible}
 
             useNativeDriver={true}>
             <>
@@ -162,11 +244,11 @@ const NewGoalModal = ({ visible, onClose, goalName, riskDetailsData }: any) => {
                     borderRadius: borderRadius.medium
                 }}>
                     <Wrapper row justify="apart" align="center" customStyles={{ paddingHorizontal: responsiveWidth(2) }}>
-                        <CusText text={goalName || 'Name'} semibold size="M" />
+                        <CusText text={goalPlanName || 'Name'} semibold size="M" />
                         <Wrapper row align="center">
                             <CusText text={'Risk Profile - Moderate'} />
                             <Spacer x="XXS" />
-                            <TouchableOpacity activeOpacity={0.6} onPress={() => { onClose() }}>
+                            <TouchableOpacity activeOpacity={0.6} onPress={() => { setisVisible(false) }}>
                                 <IonIcon name={'close-outline'} color={colors.black} size={responsiveWidth(6)} />
                             </TouchableOpacity>
                         </Wrapper>
@@ -202,7 +284,7 @@ const NewGoalModal = ({ visible, onClose, goalName, riskDetailsData }: any) => {
                     />
                     <Spacer y="XXS" />
                     <Wrapper justify="apart" customStyles={{ paddingHorizontal: responsiveWidth(2) }}>
-                        <CusText text={`How much money do you need to start your goal ${goalName}?`} size="N" />
+                        <CusText text={`How much money do you need to start your goal ${goalPlanName}?`} size="N" />
                         <Spacer y="XXS" />
                         <InputField
                             value={Form.targetammount}
@@ -283,7 +365,7 @@ const NewGoalModal = ({ visible, onClose, goalName, riskDetailsData }: any) => {
                     />
                     <Spacer y="XXS" />
                     <Wrapper justify="center" customStyles={{ paddingHorizontal: responsiveWidth(2) }}>
-                        <CusText text={`When do you need these funds for ${goalName}?`} size="N" />
+                        <CusText text={`When do you need these funds for ${goalPlanName}?`} size="N" />
                         <Spacer y="XXS" />
                         <Wrapper row align="center" justify="apart" >
                             <InputField

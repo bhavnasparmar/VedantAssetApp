@@ -2,11 +2,12 @@ import CryptoJS from 'crypto-js';
 import { tokenExpiredToggle } from '../Redux/Actions/TokenAction';
 import { store } from '../Redux/Store';
 import { parseJSON } from 'date-fns';
-import { getRiskObject, getuserDetails } from '../Redux/Actions/userAction';
+import { getGoalPlanningDetails, getRiskObject, getuserDetails } from '../Redux/Actions/userAction';
 
 //live server base url
 // export const API_URL = 'https://prosesenv.com:9065/';
-export const API_URL = 'http://192.168.1.26:9065/';
+//export const API_URL = 'http://192.168.1.26:9065/';
+export const API_URL = 'https://vedant.prosesenv.com:9065/';
 export const IMAGE_URL = `${API_URL}static/`;
 export const IMAGE_URL_GOAL = `${API_URL}static/`;
 export const TOKEN_PREFIX = 'TOKEN_PREFIX';
@@ -27,6 +28,7 @@ const endPoints = {
   changePassword: 'user/changePassword',  
   //home api
   getAllGoalType: 'goal-plan/getAllGoalType',
+  goalcalss:'goal-plan/calculator/goal',
   getRiskCatWiseSchemeData: 'goal-plan/getRiskCatWiseSchemeData',
   getRiskProfileInvestor: 'risk-profile/get-risk-profile-investor',
   getAllRiskQuestion: 'risk-profile/getAllRiskQuestion',
@@ -128,7 +130,9 @@ export const getTokenExpiredflagChange = async () => {
   console.log('token---', store?.getState()?.tokenReducer?.tokenExpiredFlag);
   return store?.getState()?.tokenReducer?.tokenExpiredFlag;
 };
-
+export const setGoalPlanningDetails = (data: any) => {
+  store.dispatch(getGoalPlanningDetails(data));
+};
 export const setRiskObject = (data: any) => {
   store.dispatch(getRiskObject(data));
 };
@@ -143,7 +147,9 @@ export const getLoginUserDetails = () => {
 export const setLoginUserDetails = (data: any) => {
   store.dispatch(getuserDetails(data));
 };
-
+export const getGoalPlanning = () => {
+  return store?.getState()?.userReducer?.GoalPlanningDetails;
+};
 export const updateObjectKey = (obj: any, keyPath: any, value: any) => {
   const keys = keyPath.split('.');
   const lastKey = keys.pop();

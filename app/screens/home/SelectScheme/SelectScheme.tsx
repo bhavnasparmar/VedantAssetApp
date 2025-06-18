@@ -9,10 +9,9 @@ import Container from "../../../ui/container"
 import { getRiskCatWiseSchemeDataAPi } from "../../../api/homeapi"
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { FlatList } from "react-native"
-import { borderRadius, colors, responsiveHeight, responsiveWidth } from "../../../styles/variables"
+import { borderRadius, colors,  responsiveWidth } from "../../../styles/variables"
 import LinearGradient from "react-native-linear-gradient"
 import Spacer from "../../../ui/spacer"
-
 
 
 const SelectScheme = () => {

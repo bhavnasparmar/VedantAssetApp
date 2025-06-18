@@ -74,7 +74,6 @@ export const styles = StyleSheet.create({
     marginLeft: responsiveWidth(4),
   },
   gender: {
-    width: responsiveWidth(25),
     borderRadius: borderRadius.medium,
     padding: 2,
     marginHorizontal: responsiveWidth(2),

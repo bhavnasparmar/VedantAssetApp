@@ -52,3 +52,9 @@ export const getAmcApi = () => {
     const promise = API.get(`${API_URL}${endPoints.getAmcListData}`);
     return promiseHandler(promise);
 };
+
+export const goalcal = (payload:any) => {
+
+    const promise = API.post(`${API_URL}${endPoints.goalcalss}`,payload);
+   return promiseHandler(promise);
+};

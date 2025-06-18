@@ -16,7 +16,7 @@ import OnGoingGoal from './components/onGoingGoal';
 import Header from '../../../../shared/components/Header/Header';
 import {AppearanceContext} from '../../../../context/appearanceContext';
 
-const GoalDashboard = () => {
+const GoalDashboards = () => {
   const {colors}: any = useContext(AppearanceContext);
   const layout = Dimensions.get('window');
 
@@ -32,15 +32,18 @@ const GoalDashboard = () => {
   const [goalID, setGoalId] = useState<any>('');
   const [goalPlanID, setGoalPlanID] = useState<any>('');
   const [recommended, setRecommended] = useState(false);
-
+  const [riskProfileData, setriskProfileData] = useState<any>({})
+ const [goalPlanName, setGoalPlanName] = useState<any>('')
   const renderScene = ({route}: any) => {
     switch (route.key) {
       case 'newgoal':
         return (
           <NewGoal
-            setisVisible={setIsVisible}
-            setgoalId={setGoalId}
-            setGoalPlanID={setGoalPlanID}
+           setisVisible={(value: boolean) => setIsVisible(value)}
+                    setgoalId={(value: any) => setGoalId(value)}
+                    setGoalPlanID={(value: any) => setGoalPlanID(value)}
+                    setGoalName={(value: any) => setGoalPlanName(value)}
+                    riskprofileData={(value:any) => setriskProfileData(value)}
           />
         );
       case 'ongoinggoal':
@@ -94,11 +97,13 @@ const GoalDashboard = () => {
         />
       </Wrapper>
       <NewGoalpopup
-        isVisible={isVisible}
-        goalID={goalID}
-        goalPlanID={goalPlanID}
-        setisVisible={setIsVisible}
-        flag={setRecommended}
+         isVisible={isVisible}
+                goalID={goalID}
+                goalPlanID={goalPlanID}
+                goalPlanName={goalPlanName}
+                setisVisible={(value: any) => setIsVisible(value)}
+                flag={(value: boolean) => setRecommended(value)}
+                riskProfileData={riskProfileData}
       />
       <RecommendedPlan
         isVisible={recommended}
@@ -116,4 +121,4 @@ const GoalDashboard = () => {
   );
 };
 
-export default GoalDashboard;
+export default GoalDashboards;
