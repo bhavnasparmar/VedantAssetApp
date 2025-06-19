@@ -41,7 +41,8 @@ export const getRiskCatWiseSchemeDataAPi = (payload: any) => {
 
 // fund picker Api
 export const getFundPickerListDataApi = (payload :any) => {
-    const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}`,payload);
+    //  console.log('get Risk Scheme API11111111111111111111111111111111111111111111111111 ',`${API_URL}${endPoints.getFundPickerListData}/${payload}`)
+    const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}`,{params:payload});
     return promiseHandler(promise);
 };
 

@@ -133,13 +133,12 @@ const FundPicker = () => {
       const payload = {
         page: pageNumber,
         limit: pagesize,
-        filters: filter,
-        sort: false,
+        filters: false,
+        //sort: false,
+        sort:{"SchemePerformances.Returns3yr":"DESC"}
       };
       console.log('payload', payload);
-      const [result, error]: any = await getFundPickerListDataApi({
-        params: payload,
-      });
+      const [result, error]: any = await getFundPickerListDataApi(payload);
       console.log('getFundPickerListDataApi=======', error);
       if (result?.data?.rows) {
         const fetchedData = result.data.rows;
