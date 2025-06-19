@@ -41,8 +41,9 @@ export const getRiskCatWiseSchemeDataAPi = (payload: any) => {
 
 // fund picker Api
 export const getFundPickerListDataApi = (payload :any) => {
-    //  console.log('get Risk Scheme API11111111111111111111111111111111111111111111111111 ',`${API_URL}${endPoints.getFundPickerListData}/${payload}`)
-    const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}`,{params:payload});
+  console.log('get getFundPickerListDataApi Scheme API111',`${API_URL}${endPoints.getFundPickerListData}?filters=${payload?.filters}&limit=${payload?.limit}&sort={"SchemePerformances.Returns3yr":"DESC"}&page=${payload?.page}`)
+    // const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}`,{params:payload});
+    const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}?filters=${payload?.filters}&limit=${payload?.limit}&sort={"SchemePerformances.Returns3yr":"DESC"}&page=${payload?.page}`);
     return promiseHandler(promise);
 };
 
