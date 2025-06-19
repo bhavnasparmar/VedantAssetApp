@@ -5,7 +5,7 @@ import { getAllGoalTypeApi, getAllongoingGoal } from '../../../../../api/homeapi
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import Wrapper from '../../../../../ui/wrapper';
 import { borderRadius, colors, fontSize, responsiveHeight, responsiveWidth } from '../../../../../styles/variables';
-import { ActivityIndicator, FlatList, Image, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, FlatList, Image, TouchableOpacity, View } from 'react-native';
 import { getGoalTypeImage, IMAGE_URL_GOAL } from '../../../../../utils/Commanutils';
 import { styles } from '../../goaltabview/goalDashboardStyle';
 import Spacer from '../../../../../ui/spacer';
@@ -15,41 +15,68 @@ import DeleteAlert from '../../component/deleteAlert';
 import API from '../../../../../utils/API';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import NoRecords from '../../../../../shared/components/NoRecords/NoRecords';
-const OnGoingGoal = ({setVisible, setGoalPlanID, setgoalId}: any) => {
+import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
+import LinearGradient from 'react-native-linear-gradient';
+// const OnGoingGoal = ({ setVisible, setGoalPlanID, setgoalId }: any) => {
+const OnGoingGoal = ({  setgoalId, setGoalPlanID, setGoalName, riskprofileData }: any) => {
 
-   const navigation: any = useNavigation();
+  const navigation: any = useNavigation();
   const isFocused = useIsFocused();
   const [onGoingGoalTypesData, setonGoingGoalTypesData] = useState<any[]>([]);
+  const [actions, setAction] = useState<any[]>([
+    {
+      id: 1,
+      name: 'Edit',
+      icon: 'create',
+    },
+    {
+      id: 2,
+      name: 'Delete',
+      icon: 'trash',
+    },
+    {
+      id: 3,
+      name: 'View',
+      icon: 'eye',
+    },
+    {
+      id: 4,
+      name: 'Execute Now',
+      icon: 'brush',
+    },
+  ]);
   const [title, settitle] = useState('');
   const [id, setid] = useState('');
+  const [actionIndex, setActionIndex] = useState(null);
   const [isVisible, setisVisible] = useState<boolean>(false);
   const [loader, setloader] = useState<boolean>(false);
-    useEffect(() => {
-        goalTypes();
-    }, [isFocused]);
+  const [loading_loader, setLoading_Loader] = useState<boolean>(false);
+  useEffect(() => {
+    goalTypes();
+  }, [isFocused]);
 
-    const goalTypes = async () => {
-        try {
-            const [result, error]: any = await getAllongoingGoal();
-            console.log('result--**--', result);
-            console.log('result?.data----', result?.data);
-            console.log('result?.error----', error);
-            if (result) {
-                if (result?.data?.onGoingGoalDetails.length > 0) {
-                    setonGoingGoalTypesData(result?.data?.onGoingGoalDetails);
-                } else {
-                    showToast(toastTypes.info, 'No Data Found');
-                }
-            } else {
-            }
-
-
-        } catch (error: any) {
-            console.log('goalTypes Catch Error', error);
-            showToast(toastTypes.error, error[0].msg);
+  const goalTypes = async () => {
+    try {
+      const [result, error]: any = await getAllongoingGoal();
+      console.log('result--**--', result);
+      console.log('result?.data----', result?.data);
+      console.log('result?.error----', error);
+      if (result) {
+        if (result?.data?.onGoingGoalDetails.length > 0) {
+          setonGoingGoalTypesData(result?.data?.onGoingGoalDetails);
+        } else {
+          showToast(toastTypes.info, 'No Data Found');
         }
-    };
- const deleteAPI = async () => {
+      } else {
+      }
+
+
+    } catch (error: any) {
+      console.log('goalTypes Catch Error', error);
+      showToast(toastTypes.error, error[0].msg);
+    }
+  };
+  const deleteAPI = async () => {
     try {
       setloader(true);
       const result: any = await API.delete(`goal-plans/remove/${id}`);
@@ -71,7 +98,30 @@ const OnGoingGoal = ({setVisible, setGoalPlanID, setgoalId}: any) => {
       showToast(toastTypes.error, error[0].msg);
     }
   };
- const renderItem = ({item}: any) => {
+
+  const toggleActionArea = (index: any) => {
+    if (index === actionIndex) {
+      setActionIndex(null)
+    } else {
+      setActionIndex(index)
+    }
+
+  }
+
+
+  const performActions = (action: any, data: any) => {
+    if (action?.id === 1) {
+      // setisModalVisible(true),
+      setgoalId(data?.id),
+        setGoalPlanID(action?.id),
+        setGoalName(data?.GoalType?.goal_name)
+      // setEditGoalData(data)
+      navigation.navigate('SuggestedScheme', { goalPlanID: data?.id, goalData: data })
+    }
+
+  }
+
+  const renderItem = ({ item, index }: any) => {
     let investType: any = '';
     let recommended: any = '';
     let months: any = '';
@@ -85,245 +135,116 @@ const OnGoingGoal = ({setVisible, setGoalPlanID, setgoalId}: any) => {
       recommended = item?.sip_amt;
       months = item?.sip_duration_mts;
     }
-
     return (
       <>
-        <Wrapper
-          customStyles={{
-            borderRadius: borderRadius.normal,
-            borderColor: colors.gray,
-            borderWidth: responsiveWidth(0.2),
-            marginVertical: responsiveWidth(2),
-            marginHorizontal: responsiveWidth(3),
-          }}>
-          <Wrapper
-            row
-            color={colors.Hard_White}
-            // color={colors.yellow}
-            customStyles={{
-              borderTopEndRadius: borderRadius.normal,
-              borderTopStartRadius:borderRadius.normal
-            }}>
-            <TouchableOpacity
-              style={[
-                styles.buttonongoing,
-                {backgroundColor: colors.darkGrayShades},
-              ]}
-              onPress={() => {}}>
-              <Image
-                resizeMode="contain"
-                source={{
-                  uri:
-                    IMAGE_URL_GOAL +
-                    '/goalplanning/' +
-                    item?.goal_type?.goal_icon,
-                }}
-                style={styles.flatlistImage}></Image>
-              {/*  <Icon name='car-sport-outline' size={16} /> */}
-            </TouchableOpacity>
-            <Wrapper
-              justify="center"
-              customStyles={{
-                width: responsiveWidth(55),
-                padding: responsiveWidth(1),
-              }}>
-              <CusText bold text={item?.goal_label || '-'} size="MS" />
-              <Wrapper row customStyles={{marginVertical: responsiveWidth(1)}}>
-                <Wrapper
-                  row
-                  justify="center"
-                 // width={responsiveWidth(25)}
-                  customStyles={{
-                    borderRadius: borderRadius.middleSmall,
-                    borderWidth: responsiveWidth(0.5),
-                    borderColor: colors.Hard_White,
-                    padding: responsiveWidth(1),
-                  }}>
-                  <CusText
-                    color={colors.Hard_White}
-                    position="center"
-                    text={'Category :'}
-                  />
-                  <CusText
-                    color={colors.Hard_White}
-                    position="center"
-                    text={item?.goal_type?.goal_name || '-'}
-                  />
-                </Wrapper>
-                <Spacer x="XXS" />
-                <CusButton
-                  textWeight="bold"
-                  title={investType || '-'}
-                  width={responsiveWidth(20)}
-                  radius={borderRadius.middleSmall}
-                  textStyle={{fontSize: fontSize.small}}
-                  textArea={'100%'}
-                  color={'rgba(255, 255, 255, 0.1)'}
-                  textcolor={colors.Hard_White}
-                  height={responsiveWidth(8)}
-                />
-              </Wrapper>
-            </Wrapper>
-            <TouchableOpacity
-              onPress={() => {
-                setisVisible(true),
-                  settitle(item?.goal_label),
-                  setid(item?.goal_plan_id);
-              }}>
-              <Wrapper
-                height={responsiveHeight(5.5)}
-                width={responsiveWidth(11)}
-                color={'rgba(217, 109, 109, 1)'}
-                customStyles={{
-                  borderTopRightRadius: borderRadius.normal,
-                  borderBottomLeftRadius: responsiveWidth(9),
-                  bottom: responsiveHeight(0.1),
-                  left: responsiveWidth(3.8),
-                }}
-                justify="center"
-                align="center">
-                <IonIcon
-                  style={{marginLeft: responsiveWidth(1)}}
-                  name="trash-outline"
-                  color={colors.Hard_White}
-                  size={fontSize.medium}
-                />
-              </Wrapper>
-            </TouchableOpacity>
-          </Wrapper>
-          <Wrapper
-            align="center"
-            color={colors.gray}>
-            <Wrapper width={responsiveWidth(87)} color={'rgba(255, 255, 255, 0.1)'} align="center" customStyles={{padding: responsiveWidth(1)}}>
-            <CusText semibold color={'#E59F39'} text={'Target'} />
-            <CusText semibold text={'₹' + item?.target_amt || 0} />
-            </Wrapper>
-          </Wrapper>
-          <Wrapper row align="center" justify="center" customStyles={{borderBottomStartRadius:borderRadius.medium,borderBottomEndRadius:borderRadius.medium}} color={colors.containerBg}>
-            <Wrapper customStyles={styles.card}>
-              <Wrapper row justify="apart">
-                <Wrapper>
-                  <CusText text={'Invested'} color={colors.gray} />
-                  <CusText text={0} />
-                </Wrapper>
-                <Wrapper>
-                  <CusText text={'Months'} color={colors.gray} />
-                  <CusText text={0} />
-                </Wrapper>
-              </Wrapper>
-              <Spacer y="XXS" />
-              <Wrapper row justify="apart">
-                <Wrapper>
-                  <CusText text={'Recommended'} color={colors.gray} />
-                  <CusText text={'₹' + recommended || 0} />
-                </Wrapper>
-                <Wrapper>
-                  <CusText text={'Months'} color={colors.gray} />
-                  <CusText text={months || 0} />
-                </Wrapper>
-              </Wrapper>
-            </Wrapper>
-            <Spacer x="N" />
-            <Wrapper
-              width={responsiveWidth(25)}
-              height={responsiveHeight(13)}
-              position="center"
-              align="center"
-              justify="center">
-              <AnimatedCircularProgress
-                size={75}
-                width={3}
-                fill={
-                  (item.totalAlloc?.Current?.toFixed(2) /
-                    item?.target_amt.toFixed(2)) *
-                    100 || 0
-                } // Score between 0 and 100
-                tintColor={colors.secondary}
-                backgroundColor="#E0E0E0"
-                arcSweepAngle={360} // Half circle (180 degrees)
-                rotation={360} // Start from bottom
-                lineCap="round">
-                {() => (
-                  <Wrapper position="center" align="center">
-                    <CusText text={'Achieved'} />
-                    <CusText
-                      semibold
-                      text={
-                        (
-                          (item?.totalAlloc?.Current?.toFixed(2) /
-                            item?.target_amt.toFixed(2)) *
-                          100
-                        ).toFixed(2) + '%'
-                      }
-                    />
-                  </Wrapper>
-                )}
-              </AnimatedCircularProgress>
-            </Wrapper>
-          </Wrapper>
-        </Wrapper>
-        <Wrapper
-          color={colors.containerBg}
-          width={responsiveWidth(75)}
-          customStyles={{
-            borderRadius: borderRadius.normal,
-            borderColor: colors.gray,
-            borderWidth: responsiveWidth(0.2),
-            alignSelf: 'center',
-            padding: responsiveWidth(2),
-            paddingVertical: responsiveHeight(0.7),
-            bottom: responsiveWidth(2),
-            borderTopStartRadius: 0,
-            borderTopEndRadius: 0,
-            borderTopWidth: 0,
-          }}>
-          <Wrapper
-            customStyles={{paddingHorizontal: responsiveWidth(3)}}
-            row
-            justify='center'>
-            <CusButton
-              iconName="timer-outline"
-              iconColor={colors.Hard_White}
-              width={responsiveWidth(10)}
-              height={responsiveWidth(10)}
-              customStyle={{marginHorizontal:responsiveWidth(1)}}
-              radius={borderRadius.ring}
-              //   onPress={() => {
-              //     navigation.navigate('SchemeList');
-              //   }}
+        <Wrapper customStyles={{
+          // borderRadius: borderRadius.medium,
+          // borderWidth: responsiveWidth(0.25),
+          // marginVertical: responsiveWidth(0.5),
+          // borderColor: colors.gray,
+          paddingVertical: responsiveWidth(1.5),
+          // borderBottomWidth:5
+          paddingHorizontal: responsiveWidth(2)
+        }}>
+          <Wrapper row align='center' justify='apart' customStyles={{ paddingVertical: responsiveWidth(1) }}>
+            <CusText bold color={colors.label} size='XL' text={item?.goal_label} />
+            <TouchableOpacity onPress={() => { toggleActionArea(index) }} activeOpacity={0.6}>
 
-              onPress={() => {
-              //  kycCheck(item);
-              }}
-            />
-            <CusButton
-              iconName="eye-outline"
-              iconColor={colors.Hard_White}
-              width={responsiveWidth(10)}
-              height={responsiveWidth(10)}
-              radius={borderRadius.ring}
-              customStyle={{marginHorizontal:responsiveWidth(1)}}
-              onPress={() => {
-                navigation.navigate('GoalPlanningDetail', {
-                  id: item?.goal_plan_id,
-                });
-              }}
-            />
-            <CusButton
-              onPress={() => {
-                // getEditDetails(item?.goal_plan_id)
-               // setGoalPlanID(item?.goal_plan_id),
-                 // setgoalId(''),
-                 // setVisible(true);
-              }}
-              iconName="create-outline"
-              customStyle={{marginHorizontal:responsiveWidth(1)}}
-              iconColor={colors.Hard_White}
-              width={responsiveWidth(10)}
-              height={responsiveWidth(10)}
-              radius={borderRadius.ring}
+              <Wrapper position='center' align='center' justify='center' color={colors.Hard_White} customStyles={{ borderRadius: borderRadius.ring, padding: responsiveWidth(0) }}>
+                <IonIcon size={responsiveWidth(8)} name={'ellipsis-vertical-circle'} color={colors.orange} />
+              </Wrapper>
+            </TouchableOpacity>
+          </Wrapper>
+          <Wrapper align='center' justify='apart' row customStyles={{}}>
+            <Wrapper row align='center'>
+              <CusText bold color={colors.label} size='SN' text={'Category : '} />
+              <CusText bold color={colors.label} size='SN' text={item?.GoalType?.goal_name} />
+            </Wrapper>
+            <Wrapper color={colors.primary1} customStyles={{ minWidth: responsiveWidth(20), paddingVertical: responsiveWidth(1), paddingHorizontal: responsiveWidth(2), borderRadius: borderRadius.middleSmall }}>
+              <CusText position='center' bold color={colors.Hard_White} size='SN' text={investType} />
+            </Wrapper>
+          </Wrapper>
+          <Wrapper row align='center' justify='apart' customStyles={{ marginTop: responsiveWidth(2) }}>
+            <Wrapper>
+              <CusText size='SN' text={'Target'} />
+              <CusText
+                bold
+                size="L"
+                color={colors.primary}
+                text={'₹' + (item?.target_amt || 0)}
+              />
+            </Wrapper>
+            <Wrapper align='end'>
+              <CusText size='SN' text={'Current Value'} />
+              <CusText
+                bold
+                size="M"
+                color={colors.primary}
+                text={'₹' + (item?.totalAlloc?.Current || 0)}
+              />
+            </Wrapper>
+          </Wrapper>
+          <Wrapper justify='apart' row align='center' borderColor={colors.primary} customStyles={{ marginTop: responsiveWidth(2), borderWidth: 1, borderRadius: borderRadius.middleSmall, paddingHorizontal: responsiveWidth(2), paddingVertical: responsiveWidth(2) }}>
+            <CusText bold color={colors.label} size="SN" text={'Achieved'} />
+            <CusText
+              color={colors.label}
+              bold
+              size="SN"
+              text={
+                (
+                  (item?.totalAlloc?.Current?.toFixed(2) /
+                    item?.target_amt.toFixed(2)) *
+                  100
+                ).toFixed(2) + '%'
+              }
             />
           </Wrapper>
+          <Wrapper customStyles={{ marginTop: responsiveWidth(3) }}>
+            <Wrapper justify='apart' row align='center' >
+              <Wrapper align='start'>
+                <CusText size='SS' text={'Invested - Months'} />
+                <CusText
+                  bold
+                  size="M"
+                  color={colors.primary}
+                  text={'₹' + (item?.totalAlloc?.Invested || 0) + ' - ' + (item?.totalAlloc?.transaction_month || 0)}
+                />
+              </Wrapper>
+              <Wrapper align='end'>
+                <CusText size='SS' text={'Recommended - Months'} />
+                <CusText
+                  bold
+                  size="M"
+                  color={colors.primary}
+                  text={'₹' + (recommended || 0) + ' - ' + (months || 0)}
+                />
+              </Wrapper>
+            </Wrapper>
+          </Wrapper>
+          {
+            actionIndex === index ?
+              <>
+                <Spacer y='XXS' />
+                <Wrapper row justify='apart' align='center' position='center' customStyles={{ gap: responsiveWidth(2) }}>
+                  {
+                    actions.map((aitem: any, aindex: any) => {
+                      return (
+                        <>
+                          <TouchableOpacity onPress={() => { performActions(aitem, item) }} activeOpacity={0.6}>
+                            <Wrapper row position='center' align='center' justify='center' color={colors.lightGray} customStyles={{ gap: responsiveWidth(1), borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(1), paddingHorizontal: responsiveWidth(2) }}>
+                              <IonIcon size={responsiveWidth(5)} name={aitem?.icon} color={colors.orange} />
+                              <CusText semibold size='S' text={aitem?.name} />
+                            </Wrapper>
+                          </TouchableOpacity>
+                        </>
+                      )
+                    })
+                  }
+                </Wrapper>
+              </>
+              : null
+          }
+
         </Wrapper>
       </>
     );
@@ -343,6 +264,16 @@ const OnGoingGoal = ({setVisible, setGoalPlanID, setgoalId}: any) => {
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderItem}
           ListEmptyComponent={() => <NoRecords />}
+          ItemSeparatorComponent={() =>
+            <>
+              <Wrapper customStyles={{ marginTop: responsiveWidth(2) }}>
+                <LinearGradient
+                  start={{ x: 1, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  colors={[colors.primary, colors.primary, colors.primary]}
+                  style={{ width: '100%', height: 2, opacity: 0.5 }}></LinearGradient>
+              </Wrapper>
+            </>}
         />
       </Wrapper>
       <DeleteAlert

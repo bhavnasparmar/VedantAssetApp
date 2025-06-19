@@ -34,14 +34,19 @@ export const addRiskProfileQuestionAnswerApi = (payload: any) => {
 
 
 export const getRiskCatWiseSchemeDataAPi = (payload: any) => {
-    console.log('get Risk Scheme API ',`${API_URL}${endPoints.getRiskCatWiseSchemeData}/${payload}`)
+    console.log('get Risk Scheme API ', `${API_URL}${endPoints.getRiskCatWiseSchemeData}/${payload}`)
     const promise = API.get(`${API_URL}${endPoints.getRiskCatWiseSchemeData}/${payload}`);
     return promiseHandler(promise);
 };
 
 // fund picker Api
-export const getFundPickerListDataApi = (payload :any) => {
-  console.log('get getFundPickerListDataApi Scheme API111',`${API_URL}${endPoints.getFundPickerListData}?filters=${payload?.filters}&limit=${payload?.limit}&sort={"SchemePerformances.Returns3yr":"DESC"}&page=${payload?.page}`)
+export const getPlanDataApi = (payload: any) => {
+    const promise = API.get(`${API_URL}${endPoints.getGoalPlanWiseSchemeData}/${payload}`);
+    return promiseHandler(promise);
+};
+
+export const getFundPickerListDataApi = (payload: any) => {
+    console.log('get getFundPickerListDataApi Scheme API111', `${API_URL}${endPoints.getFundPickerListData}?filters=${payload?.filters}&limit=${payload?.limit}&sort={"SchemePerformances.Returns3yr":"DESC"}&page=${payload?.page}`)
     // const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}`,{params:payload});
     const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}?filters=${payload?.filters}&limit=${payload?.limit}&sort={"SchemePerformances.Returns3yr":"DESC"}&page=${payload?.page}`);
     return promiseHandler(promise);
@@ -61,8 +66,8 @@ export const getAmcApi = () => {
     return promiseHandler(promise);
 };
 
-export const goalcal = (payload:any) => {
+export const goalcal = (payload: any) => {
 
-    const promise = API.post(`${API_URL}${endPoints.goalcalss}`,payload);
-   return promiseHandler(promise);
+    const promise = API.post(`${API_URL}${endPoints.goalcalss}`, payload);
+    return promiseHandler(promise);
 };

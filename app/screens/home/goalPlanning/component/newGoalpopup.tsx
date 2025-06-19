@@ -18,7 +18,7 @@ import { showToast, toastTypes } from '../../../../services/toastService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { goalcal } from '../../../../api/homeapi';
 
-const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalPlanName,riskProfileData }: any) => {
+const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalPlanName, riskProfileData, editGoalData }: any) => {
 
 
     const [isFocus, setIsFocus] = useState(false);
@@ -54,9 +54,10 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
     const isFocused = useIsFocused();
 
     useEffect(() => {
-        if (goalPlanID !== '') {
-            getEditDetails(goalPlanID)
-        }
+        console.log('editGoalData : ', editGoalData)
+        if (editGoalData) {
+            getEditDetails(editGoalData)
+        } 
 
         return () => {
             setForm({
@@ -71,7 +72,9 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
                 inflation: '',
                 months: '',
             })
+
         };
+
     }, [isFocused, goalPlanID]);
 
 
@@ -102,26 +105,27 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
             months: '',
         })
         setisVisible(false)
-                  flag(true) 
+        flag(true)
     }
 
-    const getEditDetails = async (goal_plan_id: any) => {
+    const getEditDetails = async (data: any) => {
         try {
-            const result: any = await API.get(`goal-plans/goal-details/${goal_plan_id}`);
-            if (result?.code === 200) {
-                setEditedData(result?.data?.goal)
-                handleFormChange({ key: 'title', value: result?.data?.goal?.goal_label })
-                handleFormChange({ key: 'targetammount', value: String(result?.data?.goal?.target_amt) })
-                if (result?.data?.goal?.inflation_perc !== 0) {
-                    setIsEnabled(true)
-                    handleFormChange({ key: 'inflation', value: result?.data?.goal?.inflation_perc })
-                }
-                handleFormChange({ key: 'months', value: String(result?.data?.goal?.duration_mts) })
+            console.log('Edit goal Data 1: ', data?.inflation_perc)
+            setEditedData(data)
+            handleFormChange({ key: 'title', value: data?.goal_label })
+            handleFormChange({ key: 'targetammount', value: String(data?.target_amt) })
+            if (Number(data?.inflation_perc) === 0 || data?.inflation_perc === undefined) {
+                setIsEnabled(false)
+                handleFormChange({ key: 'inflation', value: 0 })
             } else {
-                // showToast(toastTypes.info, result?.msg)
+
+                setIsEnabled(true)
+                handleFormChange({ key: 'inflation', value: data?.inflation_perc })
             }
+            handleFormChange({ key: 'months', value: data?.duration_mts === 0 ? String(data?.sip_duration_mts) : String(data?.duration_mts) })
+
         } catch (error: any) {
-            console.log('getEditDetails Catch Error', error)
+            console.log('getEditDetails Catch Error 1', error)
             showToast(toastTypes.error, error[0].msg)
         }
     }
@@ -139,36 +143,40 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
             setisSubmited(submited);
             const isValid = handleValidate(submited, null);
             if (!isValid) return;
- const useretail: any = await AsyncStorage.getItem(USER_DATA);
+            const useretail: any = await AsyncStorage.getItem(USER_DATA);
 
-    let useretail1 = JSON.parse(useretail);
-            let payload = {        
-    user_id: useretail1?.id,
-    target_amount: Form.targetammount,
-    months:  MYType === 1 ? Form.months : 12 * Number(Form.months),
-    risk_category_id: riskProfileData?.riskProfileId,
-    inflation_rate:Form.inflation,
-     goal_type_id:goalPlanID
+            let useretail1 = JSON.parse(useretail);
+            let payload = {
+                user_id: useretail1?.id,
+                target_amount: Form.targetammount,
+                months: MYType === 1 ? Form.months : 12 * Number(Form.months),
+                risk_category_id: riskProfileData?.riskProfileId,
+                inflation_rate: Form.inflation,
+                goal_type_id: goalPlanID
 
             }
             console.log('Payload : ', payload)
             setLoader(true)
             const result: any = await goalcal(payload);
-console.log(result[0].data,"result?.data")
-            // if (result?.code === 200) {
+            console.log(result[0].data, "result?.data")
+            console.log(result, "result?.data")
+            if (result[0].data) {
                 setGoalPlanningDetails(null)
                 setLoader(false)
-                
-                let data =result[0].data
+
+                let data = result[0].data
                 data.months = MYType === 1 ? Form.months : 12 * Number(Form.months)
                 data.inflation_rate = Form.inflation
                 data.title = Form.title
                 data.targetammount = Form.targetammount
                 data.goal_type_id = goalPlanID !== '' ? EditedData?.goal_type_id : goalID
                 setGoalPlanningDetails(data)
-                
                 clearFomrData()
-                showToast(toastTypes.success, result?.msg)
+                showToast(toastTypes.success, 'Goal Calculated')
+            }
+            else {
+                showToast(toastTypes.info, 'Try Again')
+            }
             // }
             /*  else {
                 setLoader(false)
@@ -263,7 +271,7 @@ console.log(result[0].data,"result?.data")
                 }}>
                 <Spacer y='XXS' />
                 <Wrapper width={responsiveWidth(90)} row justify='apart' align='center' customStyles={{
-                    paddingVertical: responsiveWidth(1.5),
+                    paddingVertical: responsiveWidth(2),
                     paddingHorizontal: responsiveWidth(3)
                 }}>
 
@@ -272,12 +280,12 @@ console.log(result[0].data,"result?.data")
 
                     <IonIcon onPress={() => { clearData() }} name='close-outline' color={colors.black} size={25} ></IonIcon>
                 </Wrapper>
-                <Spacer y='XXS' />
+
                 <Wrapper
                     customStyles={{
                         height: responsiveHeight(0.1),
                         width: responsiveWidth(90),
-                        backgroundColor: colors.lineColor,
+                        backgroundColor: colors.gray,
                     }}
                 />
                 <InputField
@@ -314,10 +322,11 @@ console.log(result[0].data,"result?.data")
                 />
                 <Spacer y='XS' />
                 <Wrapper row align='center' width={responsiveWidth(85)} justify='apart'>
-                    <CusText  text={'Do you want to adjust the goal amount for inflation ?'}
+                    <CusText semibold text={'Do you want to adjust the goal amount for inflation ?'}
                         size="SS" color={colors.inputLabel} customStyles={{ width: responsiveWidth(50) }} />
-                    <Wrapper row align='center'>
-                        <CusText text={'No'} size="SS" color={colors.inputLabel} medium customStyles={{ paddingRight: responsiveWidth(3) }} />
+                    <Wrapper row align='center' justify='apart' >
+                        <CusText text={'No'} size="SS" color={colors.inputLabel} medium customStyles={{}} />
+                        <Spacer x='XXS' />
                         <Switch
                             trackColor={{
                                 false: colors.gray,
@@ -328,19 +337,20 @@ console.log(result[0].data,"result?.data")
                             onValueChange={toggleSwitch}
                             value={isEnabled}
                         />
-                        <CusText text={'Yes'} size="SS" color={colors.inputLabel} medium customStyles={{ paddingRight: responsiveWidth(3) }} />
+                        <Spacer x='XXS' />
+                        <CusText text={'Yes'} size="SS" color={colors.inputLabel} medium customStyles={{}} />
                     </Wrapper>
                 </Wrapper>
 
                 {isEnabled ?
                     <>
                         <Spacer y='S' />
-                        <Wrapper align='center' justify='apart' width={responsiveWidth(85)} row customStyles={{ }}>
-                            <Wrapper position='center' width={responsiveWidth(70)}  row align='center'>
-                                <CusText text={1} size="SS" color={colors.inputLabel} medium />
-                                <Slider 
+                        <Wrapper align='center' justify='apart' width={responsiveWidth(85)} row customStyles={{}}>
+                            <Wrapper position='center' width={responsiveWidth(70)} row align='center'>
+                                <CusText text={0} size="SL" color={colors.inputLabel} semibold />
+                                <Slider
                                     style={styles.slider}
-                                    minimumValue={1}
+                                    minimumValue={0}
                                     maximumValue={9}
                                     step={1}
                                     // value={slidervalue}
@@ -350,17 +360,17 @@ console.log(result[0].data,"result?.data")
                                         handleFormChange({ key: 'inflation', value: val })
                                     }}
                                     minimumTrackTintColor={colors.primary}
-                                    maximumTrackTintColor="#FFFFFF"
+                                    maximumTrackTintColor={colors.gray}
                                     thumbTintColor={colors.primary}
                                 />
-                                <CusText text={9} size="SS" color={colors.inputLabel} medium customStyles={{ marginRight: responsiveWidth(5) }} />
+                                <CusText text={9} size="SL" color={colors.inputLabel} semibold customStyles={{ marginRight: responsiveWidth(0) }} />
                             </Wrapper>
 
-                            <Wrapper customStyles={styles.sectralfield}>
+                            <Wrapper customStyles={{ paddingHorizontal: responsiveWidth(5), paddingVertical: responsiveWidth(1), borderRadius: borderRadius.middleSmall }} position='center' align='center' justify='center' color={colors.lightGray}>
                                 <CusText
                                     // text={slidervalue}
-                                    text={Form.inflation}
-                                    size="S" color={colors.inputLabel} medium />
+                                    text={Form.inflation ? Form.inflation : 0}
+                                    size="M" color={colors.primary} extraBold />
                             </Wrapper>
                         </Wrapper>
                     </>
@@ -368,10 +378,11 @@ console.log(result[0].data,"result?.data")
                 }
 
                 <Spacer y='XS' />
-                <Wrapper row justify="apart" width={responsiveWidth(87)}>
-                    <CusText position="left" text={'When do you need these funds for Business ?'} />
+                <Wrapper row width={responsiveWidth(87)}>
+                    <CusText semibold text={'When do you need these funds for Business ?'}
+                        size="SS" color={colors.inputLabel} customStyles={{}} />
                 </Wrapper>
-                <Wrapper row justify="apart" width={responsiveWidth(90)}>
+                <Wrapper row align='center' justify="apart" width={responsiveWidth(90)}>
                     <InputField
                         // label='When do you need these funds for Business ?'
                         value={Form.months}
@@ -417,10 +428,10 @@ console.log(result[0].data,"result?.data")
                 </Wrapper>
                 <Spacer y='S' />
 
-                <Wrapper row width={responsiveWidth(85)} align='start'>
+                <Wrapper row width={responsiveWidth(85)} align='center'>
                     <CusText text={'Risk Profile'} size="N" color={colors.inputLabel} medium />
-                    <Wrapper customStyles={styles.riskfield}>
-                        <CusText text={riskProfileData?.RiskCategory?.risk_type} size="S" color={'#E59F39'} medium />
+                    <Wrapper customStyles={styles.riskfield} align='center'>
+                        <CusText position='center' text={riskProfileData?.RiskCategory?.risk_type} size="S" color={'#E59F39'} medium />
                     </Wrapper>
                 </Wrapper>
                 <Spacer y='S' />
@@ -432,7 +443,7 @@ console.log(result[0].data,"result?.data")
                     color={colors.secondary}
                     position="center"
                     radius={borderRadius.medium}
-                  
+
                     onPress={() => {
 
                         submit()

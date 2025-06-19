@@ -1,6 +1,6 @@
-import React, {useState, useContext} from 'react';
-import {Dimensions, Text} from 'react-native';
-import {TabBar, TabView} from 'react-native-tab-view';
+import React, { useState, useContext, useEffect } from 'react';
+import { Dimensions, Text } from 'react-native';
+import { TabBar, TabView } from 'react-native-tab-view';
 import {
   borderRadius,
   responsiveHeight,
@@ -12,19 +12,23 @@ import NewGoalpopup from '../component/newGoalpopup';
 import RecommendedPlan from '../component/recomendedPlan';
 import CompletedGoal from './components/completedGoal';
 import Header from '../../../../shared/components/Header/Header';
-import {AppearanceContext} from '../../../../context/appearanceContext';
+import { AppearanceContext } from '../../../../context/appearanceContext';
 import NewGoal from './Components/NewGoal';
 import OnGoingGoal from './Components/OnGoingGoal';
+import { useIsFocused, useRoute } from '@react-navigation/native';
 
 const GoalDashboard = () => {
-  const {colors}: any = useContext(AppearanceContext);
+  const { colors }: any = useContext(AppearanceContext);
+  const route: any = useRoute()
+  const isFocused: any = useIsFocused()
   const layout = Dimensions.get('window');
+  console.log('route Data : ', route?.params)
 
   const [index, setIndex] = useState(0);
   const [routes] = useState([
-    {key: 'newgoal', title: 'New Goal'},
-    {key: 'ongoinggoal', title: 'Ongoing Goal'},
-    {key: 'completedgoal', title: 'Completed Goal'},
+    { key: 'newgoal', title: 'New' },
+    { key: 'ongoinggoal', title: 'Ongoing' },
+    { key: 'completedgoal', title: 'Completed' },
   ]);
 
   const [chartshow, setChartshow] = useState(false);
@@ -33,26 +37,42 @@ const GoalDashboard = () => {
   const [goalPlanID, setGoalPlanID] = useState<any>('');
   const [recommended, setRecommended] = useState(false);
   const [riskProfileData, setriskProfileData] = useState<any>({})
- const [goalPlanName, setGoalPlanName] = useState<any>('')
-  const renderScene = ({route}: any) => {
+  const [editGoalData, setEditGoalData] = useState<any>({})
+  const [goalPlanName, setGoalPlanName] = useState<any>('')
+  const [pageName, setPageName] = useState<any>('')
+
+  useEffect(() => {
+    if (route?.params?.tabNumber) {
+      console.log('Route Available')
+      setEditGoalData(route?.params?.goalPlanData)
+      setIndex(1)
+      setIsVisible(route?.params?.showAlert)
+      setPageName('')
+    } else {
+      console.log('Route Not Available')
+    }
+  }, [isFocused])
+
+  const renderScene = ({ route }: any) => {
     switch (route.key) {
       case 'newgoal':
         return (
           <NewGoal
-           setisVisible={(value: boolean) => setIsVisible(value)}
-                    setgoalId={(value: any) => setGoalId(value)}
-                    setGoalPlanID={(value: any) => setGoalPlanID(value)}
-                    setGoalName={(value: any) => setGoalPlanName(value)}
-                    riskprofileData={(value:any) => setriskProfileData(value)}
+            setisVisible={(value: boolean) => setIsVisible(value)}
+            setgoalId={(value: any) => setGoalId(value)}
+            setGoalPlanID={(value: any) => setGoalPlanID(value)}
+            setGoalName={(value: any) => setGoalPlanName(value)}
+            riskprofileData={(value: any) => setriskProfileData(value)}
+            setPageName={(value: any) => setPageName(value)}
           />
         );
       case 'ongoinggoal':
         return (
-         <OnGoingGoal
-                    setVisible={(value: boolean) => setIsVisible(value)}
-                    setgoalId={(value: any) => setGoalId(value)}
-                    setGoalPlanID={(value: any) => setGoalPlanID(value)}
-                />
+          <OnGoingGoal
+            setgoalId={(value: any) => setGoalId(value)}
+            setGoalName={(value: any) => setGoalPlanName(value)}
+            setGoalPlanID={(value: any) => setGoalPlanID(value)}
+          />
         );
       case 'completedgoal':
         return <></>;
@@ -61,17 +81,17 @@ const GoalDashboard = () => {
         return null;
     }
   };
-  console.log("setriskProfileData",goalPlanID,riskProfileData,)
+  console.log("setriskProfileData", goalPlanID, riskProfileData,)
   return (
     <>
       <Header menubtn name="Goal Planning" />
       <Wrapper color={colors.Hard_White} height={responsiveHeight(92)}>
         <TabView
           lazy
-          navigationState={{index, routes}}
+          navigationState={{ index, routes }}
           renderScene={renderScene}
           onIndexChange={setIndex}
-          initialLayout={{width: layout.width}}
+          initialLayout={{ width: layout.width }}
           style={{
             marginHorizontal: responsiveWidth(3),
             marginBottom: responsiveWidth(3),
@@ -80,9 +100,9 @@ const GoalDashboard = () => {
           renderTabBar={props => (
             <TabBar
               {...props}
-              indicatorStyle={{backgroundColor: colors.primary}}
-              style={{backgroundColor: colors.primary}}
-              renderLabel={({route, focused}: any) => (
+              indicatorStyle={{ backgroundColor: colors.primary }}
+              style={{ backgroundColor: colors.primary }}
+              renderLabel={({ route, focused }: any) => (
                 <Text
                   style={{
                     color: focused ? colors.pink : colors.pink,
@@ -96,13 +116,14 @@ const GoalDashboard = () => {
         />
       </Wrapper>
       <NewGoalpopup
-         isVisible={isVisible}
-                goalID={goalID}
-                goalPlanID={goalPlanID}
-                goalPlanName={goalPlanName}
-                setisVisible={(value: any) => setIsVisible(value)}
-                flag={(value: boolean) => setRecommended(value)}
-                riskProfileData={riskProfileData}
+        isVisible={isVisible}
+        goalID={goalID}
+        goalPlanID={goalPlanID}
+        goalPlanName={goalPlanName}
+        setisVisible={(value: any) => setIsVisible(value)}
+        flag={(value: boolean) => setRecommended(value)}
+        riskProfileData={riskProfileData}
+        editGoalData={pageName === 'NewGoal' ? {} : route?.params?.goalPlanData || {}}
       />
       <RecommendedPlan
         isVisible={recommended}

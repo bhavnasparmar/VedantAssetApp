@@ -31,6 +31,18 @@ export const styles = StyleSheet.create({
     marginVertical: responsiveWidth(2),
   },
 
+  flatlistImagewrapper: {
+    width: responsiveWidth(10),
+    height: responsiveWidth(10),
+    borderColor: colors.primary,
+    padding: 10,
+    borderRadius: borderRadius.ring,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: responsiveWidth(4),
+    marginVertical: responsiveWidth(2),
+  },
+
   flatliststyles: {
     width: responsiveWidth(20),
   },
@@ -46,7 +58,7 @@ export const styles = StyleSheet.create({
       borderBottomLeftRadius: responsiveWidth(2)
   },
   slider: {
-    width: responsiveWidth(50),
+    width: responsiveWidth(60),
     height: 20,
     position: 'relative',
     zIndex: 1,

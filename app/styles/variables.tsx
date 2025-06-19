@@ -1,5 +1,6 @@
 import { Dimensions, Platform } from 'react-native';
 import Device from 'react-native-device-info';
+import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
@@ -128,6 +129,7 @@ let reptativeColors = {
   bottomTabBG1: '#FFF',
   altProductColor: '#9CC54466',
   altoffercolor: '#20B038',
+  label:'#101828',
   //extra color code
 
   inputLabel: '#BCBCBC',
@@ -146,6 +148,7 @@ const colors: any = {
   gradient3: 'rgba(229, 75, 186, 0.4)',
   gradient4: 'rgba(243, 118, 124, 0.29)',
   gradient5: 'rgba(255, 151, 75, 0.2)',
+  label:reptativeColors.label,
   transparent: reptativeColors.transparent,
   black: reptativeColors.black,
   white: reptativeColors.white,
@@ -306,6 +309,7 @@ export const darkColors: any = {
   gradient4: 'rgba(243, 118, 124, 0.29)',
   gradient5: 'rgba(255, 151, 75, 0.2)',
   transparent: reptativeColors.transparent,
+    label:reptativeColors.label,
   black: reptativeColors.white,
   white: reptativeColors.black,
   darkGray: reptativeColors.lightGray,
@@ -463,9 +467,31 @@ const fontFamily = {
   semiBold : 'Montserrat-SemiBold'
 };
 
+
 const LARGE_DEVICE_SCALE = 1.3;
 
 let fontSize: any = {
+  XXXS: (0.85 * deviceHeight) / 100, // 7,
+  XXS: (1 * deviceHeight) / 100, // 8,
+  nanoSmall: (1.15 * deviceHeight) / 100, // 9,
+  extraSmall: (1.25 * deviceHeight) / 100, //10,
+  XMS: (1.35 * deviceHeight) / 100,//11,
+  small:(1.5 * deviceHeight) / 100, // 12,
+  middleSmall:(1.65 * deviceHeight) / 100, // 13,
+  semiSmall: (1.75 * deviceHeight) / 100, //14,
+  semiNormal: (1.85 * deviceHeight) / 100, //15,
+  normal: (2 * deviceHeight) / 100, //16,
+  medium: (2.25 * deviceHeight) / 100, // 18
+  semiLarge: (2.50 * deviceHeight) / 100, // 20
+  large: (2.75 * deviceHeight) / 100, // 22
+  extraLarge: (3 * deviceHeight) / 100, // 24
+  // extraLarge:  24,
+  XL:(3.25 * deviceHeight) / 100, // 26,
+  XXL: (3.5 * deviceHeight) / 100,// 28,
+  XXXL: (3.75 * deviceHeight) / 100,// 30,
+};
+
+let fontSize1: any = {
   XXXS: 7,
   XXS: 8,
   nanoSmall: 9,
@@ -478,8 +504,8 @@ let fontSize: any = {
   normal: 16,
   medium: 18,
   semiLarge: 20,
-  large: 22,
-  extraLarge: 24,
+  large:  22,
+  extraLarge:  24,
   XL: 26,
   XXL: 28,
   XXXL: 30,

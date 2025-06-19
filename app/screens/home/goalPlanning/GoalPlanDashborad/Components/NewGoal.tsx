@@ -16,7 +16,7 @@ import Alert from "../../../../../shared/components/Alert/Alert";
 
 
 
-const NewGoal = ({ setisVisible, setgoalId, setGoalPlanID, setGoalName,riskprofileData }: any) => {
+const NewGoal = ({ setisVisible, setgoalId, setGoalPlanID, setGoalName,riskprofileData,setPageName }: any) => {
 
     const navigation: any = useNavigation()
     const isFocused = useIsFocused();
@@ -100,7 +100,7 @@ const NewGoal = ({ setisVisible, setgoalId, setGoalPlanID, setGoalName,riskprofi
                             alignItems: "center",
                             backgroundColor: colors.white
                         }} onPress={() => { setgoalId(item?.id), setGoalPlanID(item?.id), setisVisible(true), 
-                        setGoalName(item?.goal_name) }}>
+                        setGoalName(item?.goal_name),setPageName('NewGoal') }}>
                             <Image resizeMode='contain' source={{ uri: getGoalTypeImage(item?.goal_icon) }} style={{
                                 height: responsiveWidth(26),
                                 width: responsiveWidth(26)

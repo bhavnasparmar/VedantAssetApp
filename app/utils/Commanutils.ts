@@ -38,6 +38,7 @@ const endPoints = {
   getCategoryWithSubCategoryData : 'fund-picker/get-category-with-subCategory',
   getNatureData : 'fund-picker/get-nature-list',
   getAmcListData : 'fund-picker/get-AMC',
+  getGoalPlanWiseSchemeData : 'goal-plan/getGoalPlanWiseSchemeData',
 };
 
 export { endPoints };
