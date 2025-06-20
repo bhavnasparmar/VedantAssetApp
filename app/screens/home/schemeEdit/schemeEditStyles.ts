@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
     },
     innercard: {
         backgroundColor: colors.Hard_White,
-        width: responsiveWidth(90),
+        width: responsiveWidth(95),
         borderRadius: responsiveWidth(2),
         marginTop: responsiveWidth(3),
         alignSelf: 'center',

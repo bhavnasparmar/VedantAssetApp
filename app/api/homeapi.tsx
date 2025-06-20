@@ -45,6 +45,21 @@ export const getPlanDataApi = (payload: any) => {
     return promiseHandler(promise);
 };
 
+export const saveGoalDataApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.addGoalPlanData}`,payload);
+    return promiseHandler(promise);
+};
+
+export const saveGoalDataAllocApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.adduseralloc}`,payload);
+    return promiseHandler(promise);
+};
+
+export const getSuggestedSchemesApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.getSuggestedSchemes}`,payload);
+    return promiseHandler(promise);
+};
+
 export const getFundPickerListDataApi = (payload: any) => {
     console.log('get getFundPickerListDataApi Scheme API111', `${API_URL}${endPoints.getFundPickerListData}?filters=${payload?.filters}&limit=${payload?.limit}&sort={"SchemePerformances.Returns3yr":"DESC"}&page=${payload?.page}`)
     // const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}`,{params:payload});

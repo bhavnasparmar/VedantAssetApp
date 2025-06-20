@@ -45,7 +45,7 @@ const GoalDashboard = () => {
     if (route?.params?.tabNumber) {
       console.log('Route Available')
       setEditGoalData(route?.params?.goalPlanData)
-      setIndex(1)
+      setIndex(route?.params?.tabNumber)
       setIsVisible(route?.params?.showAlert)
       setPageName('')
     } else {
@@ -123,7 +123,7 @@ const GoalDashboard = () => {
         setisVisible={(value: any) => setIsVisible(value)}
         flag={(value: boolean) => setRecommended(value)}
         riskProfileData={riskProfileData}
-        editGoalData={pageName === 'NewGoal' ? {} : route?.params?.goalPlanData || {}}
+        editGoalData={pageName === 'NewGoal' ? null : route?.params?.goalPlanData}
       />
       <RecommendedPlan
         isVisible={recommended}

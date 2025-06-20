@@ -16,13 +16,15 @@ import Container from '../../../../ui/container';
 import { PieChart } from "react-native-gifted-charts";
 import { showToast, toastTypes } from '../../../../services/toastService';
 import Header from '../../../../shared/components/Header/Header';
-import { getPlanDataApi } from '../../../../api/homeapi';
+import { getPlanDataApi, saveGoalDataAllocApi, saveGoalDataApi } from '../../../../api/homeapi';
 import LinearGradient from 'react-native-linear-gradient';
 
 const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => {
     const [ediDept, setediDept] = useState<any>([100]);
     const [schemeList, setSchemeList] = useState<any>([]);
     const [pieData1, setPieData1] = useState<any>([]);
+    const [allData, setAllData] = useState<any>(null);
+
 
     const isFocused = useIsFocused();
     const navigation: any = useNavigation();
@@ -33,18 +35,31 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
         { value: 20, color: '#ED6665', text: '26%' },
     ];
 
-    console.log('goalPlanID 2 : ', route?.params?.goalData)
+    console.log('goalPlanID 2 goalData : ', route?.params?.goalData)
+    console.log('goalPlanID 2 goalPlanID : ', route?.params?.goalPlanID)
+    console.log('route?.params?.goalPlanData : ', route?.params?.goalPlanData)
 
 
 
     useEffect(() => {
-        if (goalPlanID !== '') {
-            GetPlanData(route?.params?.goalPlanID)
+        if (route?.params?.goalPlanData) {
+            setAllData(route?.params?.goalPlanData)
+            setSchemeList(route?.params?.goalPlanData?.schemeList || route?.params?.goalPlanData?.schemesList)
+            GetChartData(route?.params?.goalPlanData?.allocArr)
+        } else {
+            if (route?.params?.goalPlanID) {
+                GetPlanData(route?.params?.goalPlanID)
+            }
         }
+
         return () => {
 
         };
-    }, [isFocused, route?.params?.goalPlanID]);
+    }, [isFocused]);
+
+    // useEffect(() => {
+    //     setSchemeList(route?.params?.goalPlanData?.schemeList)
+    // }, [route?.params?.goalPlanData]);
 
 
 
@@ -54,6 +69,7 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
             const [result, error]: any = await getPlanDataApi(goal_plan_id);
             if (result) {
                 console.log('result === > ', result?.data)
+                setAllData(result?.data)
                 setSchemeList(result?.data?.schemeList)
                 const LineChartData = await Promise.all(
                     result?.data?.allocArr.map(async (item: any, index: any) => {
@@ -71,6 +87,28 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                 console.log('GetPlanData Error', error)
                 showToast(toastTypes.info, error)
             }
+        } catch (error: any) {
+            console.log('GetPlanData catch Error : ', error)
+            showToast(toastTypes.error, error)
+        }
+    }
+
+    const GetChartData = async (goal_plan_data: any) => {
+        try {
+
+            const LineChartData = await Promise.all(
+                goal_plan_data.map(async (item: any, index: any) => {
+                    return {
+                        value: item?.weightage,
+                        text: item?.Name,
+                        color: color[index % color.length]
+                    };
+
+                })
+            );
+            console.log('LineChartData ==== >>> ', LineChartData)
+            setPieData1(LineChartData)
+
         } catch (error: any) {
             console.log('GetPlanData catch Error : ', error)
             showToast(toastTypes.error, error)
@@ -254,7 +292,89 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
     };
 
     const reCalculate = () => {
-        navigation.navigate('GoalPlanDashboard', { tabNumber: 2, showAlert: true, goalPlanData: route?.params?.goalData })
+        navigation.navigate('GoalPlanDashboard', { tabNumber: 1, showAlert: true, goalPlanData: route?.params?.goalData })
+    }
+
+    const saveGoal = async () => {
+        try {
+
+            const scheme = route?.params?.goalPlanData?.schemesList.map((item: any) => {
+                return {
+                    investment_type: route?.params?.type === 'SIP' ? "sip" : "lumpsum",
+                    scheme_id: item?.scheme_id,
+                    sip_amount:
+                        route?.params?.type === 'Lumpsum' ? 0 : item?.sip_amount,
+                    sip_duration:
+                        route?.params?.type === 'Lumpsum'
+                            ? 0
+                            : route?.params?.goalPlanData?.months,
+                    sip_frequency: 2,
+                    lumpsum_amount:
+                        route?.params?.type === 'Lumpsum' ? item?.lumpsum_amount : 0,
+                    lumpsum_duration:
+                        route?.params?.type === 'Lumpsum'
+                            ? route?.params?.goalPlanData?.months
+                            : 0,
+                };
+            });
+
+            let payload: any = {
+                goal_type_id: route?.params?.goalPlanID,
+                goal_label: route?.params?.goalPlanData?.title,
+                risk_category_id: route?.params?.goalPlanData?.goal_risk_category_id,
+                target_amt: route?.params?.goalPlanData?.targetammount,
+                err_perc: route?.params?.goalPlanData?.err_perc,
+                lumpsum_amt: route?.params?.type === 'Lumpsum' ? route?.params?.goalPlanData?.lumpsum_calculated_value : 0,
+                sip_amt: route?.params?.type === 'SIP' ? route?.params?.goalPlanData?.sip_calculated_value : 0,
+                calc_amt: route?.params?.type === 'SIP'
+                    ? route?.params?.goalPlanData?.goal_sip_projected_value
+                    : route?.params?.goalPlanData?.goal_sip_projected_value,
+                duration_mts: route?.params?.type === 'SIP' ? 0 : route?.params?.goalPlanData?.months,
+                sip_duration_mts: route?.params?.type === 'SIP' ? route?.params?.goalPlanData?.months : 0,
+                inflation_perc: route?.params?.goalPlanData?.inflation_rate,
+                lumpsum_current_amt: route?.params?.goalPlanData?.goal_projected_value,
+                goal_exec_date: null,
+                investment_type: route?.params?.type === 'SIP' ? "sip" : "lumpsum",
+                suggested_scheme: scheme,
+            }
+            console.log('payload ==== >>> ', payload)
+
+            const [result, error]: any = await saveGoalDataApi(payload);
+            if (result) {
+                console.log('Result  ==== >>> ', result)
+                let allocationList = route?.params?.goalPlanData?.schemesList?.map((allocation: any) => {
+                    return {
+                        goal_plan_id: result?.data?.plans?.id,
+                        risk_category_id: allocation?.risk_category_id,
+                        scheme_cate_id: allocation?.scheme_cate_id,
+                        scheme_subcate_id: allocation?.scheme_subcate_id,
+                        weightage: allocation?.weightage,
+                        scheme_id: allocation?.scheme_id,
+                    };
+                });
+                let allocPayload: any = {
+                    allocationList,
+                    goal_plan_id: result?.data?.plans?.id,
+                }
+                console.log('allocPayload ==== >>> :', allocPayload)
+                const [resultAlloc, errorAlloc]: any = await saveGoalDataAllocApi(allocPayload);
+                if (resultAlloc) {
+                    console.log('resultAlloc  ==== >>> ', resultAlloc)
+                    showToast(toastTypes.success, result?.msg)
+                    navigation.navigate('GoalPlanDashboard', { tabNumber: 0 })
+                } else {
+                    console.log('saveGoalDataAllocApi Error', errorAlloc)
+                    showToast(toastTypes.info, errorAlloc)
+                }
+            } else {
+                console.log('saveGoal Error', result?.msg)
+                showToast(toastTypes.info, result?.msg)
+            }
+
+
+        } catch (error) {
+            console.log('saveGoal Error:', error)
+        }
     }
 
     const renderScheme = ({ item, index }: any) => {
@@ -322,8 +442,20 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                 <Wrapper customStyles={{ marginBottom: responsiveWidth(1), }}>
                     <Wrapper customStyles={{ paddingHorizontal: responsiveWidth(2) }}>
                         <Wrapper row align='center' justify='apart' customStyles={{ marginVertical: responsiveWidth(3) }}>
-                            <CusText underline size='M' color={colors.label} semibold text={`${item?.SchemeCategory?.Name} - ${item?.SchemeSubcategory?.Name}`} />
-                            <TouchableOpacity activeOpacity={0.6} onPress={() => { }}>
+                            <Wrapper width={responsiveWidth(75)}>
+                                <CusText underline size='M' color={colors.label} semibold text={`${item?.SchemeCategory?.Name} - ${item?.SchemeSubcategory?.Name}`} />
+                            </Wrapper>
+                            <TouchableOpacity activeOpacity={0.6} onPress={() => {
+                                navigation.navigate('SchemeEdit',
+                                    {
+                                        currentScheme: item,
+                                        schemeData: schemeList,
+                                        overAllData: allData,
+                                        goalData: route?.params?.goalData,
+                                        goalPlanID: route?.params?.goalPlanID,
+                                        type: route?.params?.type,
+                                    })
+                            }}>
                                 <CusText size='N' color={colors.orange} bold text={'Change'} />
                             </TouchableOpacity>
 
@@ -451,7 +583,7 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                         <CusText size='SS' bold position='center' text={'Recalculate'} />
                     </Wrapper>
                 </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.6} onPress={() => { }}>
+                <TouchableOpacity activeOpacity={0.6} onPress={() => { saveGoal() }}>
                     <Wrapper width={responsiveWidth(30)} color={colors.orange} position='center' customStyles={{ padding: responsiveWidth(2.5), borderRadius: borderRadius.medium }}>
                         <CusText size='SS' bold position='center' color={colors.Hard_White} text={'Save Goal'} />
                     </Wrapper>

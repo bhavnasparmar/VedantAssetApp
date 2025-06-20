@@ -39,6 +39,9 @@ const endPoints = {
   getNatureData : 'fund-picker/get-nature-list',
   getAmcListData : 'fund-picker/get-AMC',
   getGoalPlanWiseSchemeData : 'goal-plan/getGoalPlanWiseSchemeData',
+  addGoalPlanData : 'goal-plan/addGoalPlanData',
+  adduseralloc : 'goal-plan/add-user-alloc',
+  getSuggestedSchemes: 'goal-plan/suggested-subcategory-schemes',
 };
 
 export { endPoints };

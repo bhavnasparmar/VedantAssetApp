@@ -26,6 +26,7 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
     const [loader, setLoader] = useState<boolean>(false);
     const [slidervalue, setsliderValue] = useState(0)
     const [isEnabled, setIsEnabled] = useState<boolean>(false);
+    const [isCalculated, setIsClculated] = useState<boolean>(false);
     const [EditedData, setEditedData] = useState<any>({});
     const [months, setmonths] = useState<any>([
         {
@@ -55,9 +56,12 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
 
     useEffect(() => {
         console.log('editGoalData : ', editGoalData)
-        if (editGoalData) {
-            getEditDetails(editGoalData)
-        } 
+        if (isVisible) {
+            if (editGoalData) {
+                getEditDetails(editGoalData)
+            }
+        }
+
 
         return () => {
             setForm({
@@ -75,7 +79,7 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
 
         };
 
-    }, [isFocused, goalPlanID]);
+    }, [isFocused, isVisible]);
 
 
 
