@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import CusText from '../../../../../ui/custom-text';
 import { showToast, toastTypes } from '../../../../../services/toastService';
-import { getAllGoalTypeApi, getAllongoingGoal } from '../../../../../api/homeapi';
+import { deleteGoalPlanApi, getAllGoalTypeApi, getAllongoingGoal } from '../../../../../api/homeapi';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import Wrapper from '../../../../../ui/wrapper';
 import { borderRadius, colors, fontSize, responsiveHeight, responsiveWidth } from '../../../../../styles/variables';
@@ -17,8 +17,9 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import NoRecords from '../../../../../shared/components/NoRecords/NoRecords';
 import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import LinearGradient from 'react-native-linear-gradient';
+import CommonModal from '../../../../../shared/components/CommonAlert/commonModal';
 // const OnGoingGoal = ({ setVisible, setGoalPlanID, setgoalId }: any) => {
-const OnGoingGoal = ({  setgoalId, setGoalPlanID, setGoalName, riskprofileData }: any) => {
+const OnGoingGoal = ({ setgoalId, setGoalPlanID, setGoalName, riskprofileData }: any) => {
 
   const navigation: any = useNavigation();
   const isFocused = useIsFocused();
@@ -94,7 +95,7 @@ const OnGoingGoal = ({  setgoalId, setGoalPlanID, setGoalName, riskprofileData }
         showToast(toastTypes.info, result?.msg);
       }
     } catch (error: any) {
-      console.log('onGoingGoalTypes Catch Error', error);
+      console.log('onGoingGoalTypes Catch Error 1', error);
       showToast(toastTypes.error, error[0].msg);
     }
   };
@@ -109,6 +110,32 @@ const OnGoingGoal = ({  setgoalId, setGoalPlanID, setGoalName, riskprofileData }
   }
 
 
+  const deleteGoal = async (id: any) => {
+    try {
+      let payload: any = {
+        id: id
+      }
+      setloader(true);
+      const [result, error]: any = await deleteGoalPlanApi(payload);
+      if (result?.data === 1) {
+        setloader(false);
+        setisVisible(false);
+        showToast(toastTypes.success, result?.msg);
+        goalTypes()
+      } else {
+        console.log('delete Error : ', error);
+        showToast(toastTypes.success, result?.error);
+
+      }
+
+    } catch (error) {
+      console.log('onGoingGoalTypes Catch Error', error);
+      showToast(toastTypes.error, error);
+
+    }
+  }
+
+
   const performActions = (action: any, data: any) => {
     if (action?.id === 1) {
       // setisModalVisible(true),
@@ -117,6 +144,11 @@ const OnGoingGoal = ({  setgoalId, setGoalPlanID, setGoalName, riskprofileData }
         setGoalName(data?.GoalType?.goal_name)
       // setEditGoalData(data)
       navigation.navigate('SuggestedScheme', { goalPlanID: data?.id, goalData: data })
+    }
+    if (action?.id === 2) {
+      setid(data?.id)
+      // deleteGoal(data?.id)
+      setisVisible(true)
     }
 
   }
@@ -276,17 +308,35 @@ const OnGoingGoal = ({  setgoalId, setGoalPlanID, setGoalName, riskprofileData }
             </>}
         />
       </Wrapper>
-      <DeleteAlert
+      {/* <DeleteAlert
         isVisible={isVisible}
         setisVisible={(value: any) => setisVisible(value)}
         title={title}
         btnCallParent={() => {
-          deleteAPI();
+          deleteGoal(id)
         }}
         btnTitle={
           loader ? <ActivityIndicator color={colors.Hard_White} /> : 'Yes'
         }
+      /> */}
+
+      <CommonModal
+        visible={isVisible}
+        onClose={() => { setisVisible(false) }}
+        iconName="alert-circle-outline"
+        iconColor={colors.red}
+        iconSize={responsiveWidth(20)}
+        title="Delete Goal"
+        description={`Are you sure want to Delete this Goal?`}
+        button1Text="No"
+        onButton1Press={() => {
+          setisVisible(false)
+        }}
+        button2Text="Yes"
+        onButton2Press={async () => { deleteGoal(id) }}
+
       />
+
     </>
   );
 }

@@ -44,7 +44,7 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
     useEffect(() => {
         if (route?.params?.goalPlanData) {
             setAllData(route?.params?.goalPlanData)
-            setSchemeList(route?.params?.goalPlanData?.schemeList || route?.params?.goalPlanData?.schemesList)
+            setSchemeList(route?.params?.goalPlanData?.schemesList)
             GetChartData(route?.params?.goalPlanData?.allocArr)
         } else {
             if (route?.params?.goalPlanID) {

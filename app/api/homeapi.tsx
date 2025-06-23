@@ -46,19 +46,27 @@ export const getPlanDataApi = (payload: any) => {
 };
 
 export const saveGoalDataApi = (payload: any) => {
-    const promise = API.post(`${API_URL}${endPoints.addGoalPlanData}`,payload);
+    const promise = API.post(`${API_URL}${endPoints.addGoalPlanData}`, payload);
     return promiseHandler(promise);
 };
 
 export const saveGoalDataAllocApi = (payload: any) => {
-    const promise = API.post(`${API_URL}${endPoints.adduseralloc}`,payload);
+    const promise = API.post(`${API_URL}${endPoints.adduseralloc}`, payload);
+    return promiseHandler(promise);
+};
+
+export const deleteGoalPlanApi = (payload: any) => {
+    const promise = API.delete(`${API_URL}${endPoints.deleteGoal}/${payload?.id}`);
     return promiseHandler(promise);
 };
 
 export const getSuggestedSchemesApi = (payload: any) => {
-    const promise = API.post(`${API_URL}${endPoints.getSuggestedSchemes}`,payload);
+    const promise = API.post(`${API_URL}${endPoints.getSuggestedSchemes}`, payload);
     return promiseHandler(promise);
 };
+
+
+
 
 export const getFundPickerListDataApi = (payload: any) => {
     console.log('get getFundPickerListDataApi Scheme API111', `${API_URL}${endPoints.getFundPickerListData}?filters=${payload?.filters}&limit=${payload?.limit}&sort={"SchemePerformances.Returns3yr":"DESC"}&page=${payload?.page}`)

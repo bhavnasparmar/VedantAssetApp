@@ -42,6 +42,7 @@ const endPoints = {
   addGoalPlanData : 'goal-plan/addGoalPlanData',
   adduseralloc : 'goal-plan/add-user-alloc',
   getSuggestedSchemes: 'goal-plan/suggested-subcategory-schemes',
+  deleteGoal: 'goal-plan/deleteGoalPlanData',
 };
 
 export { endPoints };
