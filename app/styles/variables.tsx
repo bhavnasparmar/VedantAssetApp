@@ -130,6 +130,7 @@ let reptativeColors = {
   altProductColor: '#9CC54466',
   altoffercolor: '#20B038',
   label:'#101828',
+  headerlist:'#EAECF0',
   //extra color code
 
   inputLabel: '#BCBCBC',
@@ -194,6 +195,7 @@ const colors: any = {
   tabHeader: reptativeColors.primary3,
   count: reptativeColors.red,
   searchHeaderBG: reptativeColors.searchHeaderBG,
+  headerlist:reptativeColors.headerlist,
 
   background: reptativeColors?.lightGray,
 
@@ -354,6 +356,8 @@ export const darkColors: any = {
   tabHeader: reptativeColors.primary3,
   count: reptativeColors.red,
   itemClose: reptativeColors.itemClose,
+
+  headerlist:reptativeColors.headerlist,
 
   //Bottom Tab
   bottomTabBG1: reptativeColors.darkGray,
