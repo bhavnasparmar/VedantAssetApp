@@ -94,7 +94,8 @@ let reptativeColors = {
   darkGrayShades: '#313131',
   gray: '#999999',
   lightGray: '#eeeeee',
-  primary: 'rgba(35, 59, 116, 1)',
+  // primary: 'rgba(35, 59, 116, 1)',
+  primary: '#233B74',
   primarylow: '#8505B41F',
   primary1: '#3498DB',
   primary2: '#FF6207',
@@ -137,11 +138,15 @@ let reptativeColors = {
 
   gradient1: '#DA79FF',
   gradient2: '#7200E4',
-  placeholderColor: 'rgba(153,153,153,0.6)',
+  // placeholderColor: 'rgba(153,153,153,0.6)',
+  placeholderColor: '#98A2B3',
   placeholderColorFixed: 'rgba(255,255,255,0.6)',
   darkgreen: '#00830B',
   paginationborder: '#DFE3E8',
-  paginationselected: "#1B47C40F"
+  paginationselected: "#1B47C40F",
+  fieldborder:'#EAECF0',
+  bg:'#F4F6F8',
+  action:'#3498DB',
 };
 
 const colors: any = {
@@ -186,6 +191,12 @@ const colors: any = {
 
   paginationborder: reptativeColors.paginationborder,
   paginationselected: reptativeColors.paginationselected,
+
+  placeholder:reptativeColors.placeholderColor,
+  fieldborder:reptativeColors.fieldborder,
+  bg:reptativeColors.bg,
+  action:reptativeColors.action,
+ 
 
   //Header
   headerBg: reptativeColors.gray,
@@ -358,6 +369,11 @@ export const darkColors: any = {
   itemClose: reptativeColors.itemClose,
 
   headerlist:reptativeColors.headerlist,
+
+    placeholder:reptativeColors.placeholderColor,
+  fieldborder:reptativeColors.fieldborder,
+  bg:reptativeColors.bg,
+  action:reptativeColors.action,
 
   //Bottom Tab
   bottomTabBG1: reptativeColors.darkGray,
