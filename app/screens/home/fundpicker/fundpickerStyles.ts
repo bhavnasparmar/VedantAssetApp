@@ -2,6 +2,8 @@ import {StyleSheet} from 'react-native';
 import {
   borderRadius,
   colors,
+  fontFamily,
+  fontSize,
   marginHorizontal,
   responsiveHeight,
   responsiveWidth,
@@ -14,6 +16,29 @@ const styles = StyleSheet.create({
     borderRadius: responsiveWidth(2),
     marginTop: responsiveWidth(3),
     alignSelf: 'center',
+  },
+  container: {
+    flex: 1,
+    padding: 16,
+    paddingTop: 40,
+    backgroundColor: '#fff',
+  },
+  head: {
+  //  height: 50,
+  width:550,
+    backgroundColor: '#f1f8ff',
+  },
+   scrollViewHeight: {
+    height: 300, // Set vertical height to scroll the body
+  },
+  headText: {
+    margin: 6,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  rowText: {
+    margin: 6,
+    textAlign: 'center',
   },
   innercard: {
     backgroundColor: colors.cardBg,
@@ -200,6 +225,81 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.ring,
     padding: responsiveWidth(0.5),
     fontWeight : 'bold'
+  },
+  tableContainer: {
+    flex: 1,
+    marginHorizontal: 10,
+    marginTop: 10,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  swipebutton:{
+  padding:responsiveWidth(1),
+  marginVertical:responsiveWidth(1),
+  marginHorizontal:responsiveWidth(1),
+  borderRadius:borderRadius.small
+  },
+  headerRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingVertical: 12,
+    backgroundColor: '#f9f9f9',
+  },
+  headerCell: {
+    flex: 1,
+    fontSize: fontSize.semiSmall,
+    fontFamily:fontFamily.semiBold,
+    color: colors.label,
+    width:responsiveWidth(15),
+    paddingHorizontal: responsiveWidth(2),
+  },
+   
+  row: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingVertical: 12,
+  },
+  cell: {
+    flex: 1,
+    fontSize: fontSize.semiSmall,
+    width:responsiveWidth(20),
+    paddingHorizontal: responsiveWidth(3),
+  },
+  filterCell: {
+   width:responsiveWidth(45)
+  },
+  nameCell: {
+   width:responsiveWidth(25)
+  },
+  fundName: {
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  fundCategory: {
+    fontSize: 12,
+    color: '#666',
+  },
+  starContainer: {
+    flexDirection: 'row',
+  },
+  bottomBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10,
+    backgroundColor: 'white',
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  actionButton: {
+    alignItems: 'center',
+    padding: 8,
   },
 });
 export {styles};

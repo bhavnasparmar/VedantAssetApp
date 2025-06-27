@@ -228,8 +228,7 @@ export function DrawerContent(props: any) {
           {/* </View> */}
           {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}
           {/* <View style={styles.iconSet}></View> */}
-           <Wrapper>
-            {/* <View style={styles.iconSet}></View> */}
+          {/*  <Wrapper>
             <DrawerItem
               icon={({ }) => (
                 <IonIcon
@@ -257,7 +256,7 @@ export function DrawerContent(props: any) {
               ]}
               style={{ width: "100%", height: 1, opacity: 0.5 }}
             ></LinearGradient>
-          </Wrapper>
+          </Wrapper> */}
           <Wrapper>
             <DrawerItem
               icon={({ }) => (

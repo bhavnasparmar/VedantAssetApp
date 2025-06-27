@@ -71,7 +71,7 @@ export const getSuggestedSchemesApi = (payload: any) => {
 export const getFundPickerListDataApi = (payload: any) => {
     console.log('get getFundPickerListDataApi Scheme API111', `${API_URL}${endPoints.getFundPickerListData}?filters=${payload?.filters}&limit=${payload?.limit}&sort={"SchemePerformances.Returns3yr":"DESC"}&page=${payload?.page}`)
     // const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}`,{params:payload});
-    const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}?filters=${payload?.filters}&limit=${payload?.limit}&sort={"SchemePerformances.Returns3yr":"DESC"}&page=${payload?.page}`);
+    const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}?filters=${payload?.filters}&limit=${payload?.limit}&sort={"SchemePerformances.Returns3yr":"DESC"}&page=${payload?.page}&categoryid=${payload?.sort1?.categoryid}&subcategory_id=${payload?.sort1?.subcategory_id}&amc_id=${payload?.sort1?.amc_id}&option_id=${payload?.sort1?.option_id}`);
     return promiseHandler(promise);
 };
 

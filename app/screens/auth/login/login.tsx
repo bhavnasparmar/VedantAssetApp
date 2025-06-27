@@ -47,7 +47,7 @@ const Login = () => {
     /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
   const CRED = {
-    email: 'bhavna@yopmail.com',
+    email: 'proses@yopmail.com',
     password: '123456',
   };
 

@@ -13,6 +13,7 @@ import fundpicker from '../../../screens/home/fundpicker/fundpicker';
 import FundPicker from '../../../screens/home/fundpicker/fundpicker';
 import SchemeEdit from '../../../screens/home/schemeEdit/schemeEdit';
 import SuggestedScheme from '../../../screens/home/goalPlanning/component/suggestedScheme';
+import Cart from '../../../screens/home/cart/cart';
 
 const Drawer = createDrawerNavigator();
 
@@ -47,6 +48,7 @@ function SideDrawer() {
       <Drawer.Screen name='SelectScheme' component={SelectScheme} />
       <Drawer.Screen name='FundPicker' component={FundPicker} />
       <Drawer.Screen name='SchemeEdit' component={SchemeEdit} />
+       <Drawer.Screen name='Cart' component={Cart} />
         <Drawer.Screen name='SuggestedScheme' component={SuggestedScheme} />
     </Drawer.Navigator>
   );
