@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   tableContainer: {
     flex: 1,
     marginHorizontal: 10,
-    marginTop: 10,
+    // marginTop: 10,
     backgroundColor: 'white',
     borderRadius: 8,
     shadowColor: '#000',
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
     paddingVertical: 12,
-    backgroundColor: '#f9f9f9',
+    backgroundColor:  colors.fieldborder,
   },
   headerCell: {
     flex: 1,
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     fontFamily:fontFamily.semiBold,
     color: colors.label,
     width:responsiveWidth(15),
-    paddingHorizontal: responsiveWidth(2),
+    // paddingHorizontal: responsiveWidth(2),
   },
    
   row: {
@@ -269,8 +269,9 @@ const styles = StyleSheet.create({
   cell: {
     flex: 1,
     fontSize: fontSize.semiSmall,
-    width:responsiveWidth(20),
+    width:responsiveWidth(25),
     paddingHorizontal: responsiveWidth(3),
+    justifyContent:'center',
   },
   filterCell: {
    width:responsiveWidth(45)

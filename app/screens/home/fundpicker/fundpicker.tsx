@@ -1,7 +1,7 @@
 import { useIsFocused } from '@react-navigation/native';
 import { debounce } from 'lodash';
 import React, { useCallback, useEffect,  useState } from 'react';
-import {  FlatList, ScrollView, Text, View } from 'react-native';
+import {  FlatList, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import {
   getAmcApi,
   getCategoryWithSubCategoryApi,
@@ -10,7 +10,7 @@ import {
 } from '../../../api/homeapi';
 import { showToast, toastTypes } from '../../../services/toastService';
 import Header from '../../../shared/components/Header/Header';
-import {  colors, responsiveWidth } from '../../../styles/variables';
+import {  borderRadius, colors, responsiveHeight, responsiveWidth } from '../../../styles/variables';
 import InputField from '../../../ui/InputField';
 import CusButton from '../../../ui/custom-button';
 import CusText from '../../../ui/custom-text';
@@ -21,10 +21,13 @@ import { styles } from './fundpickerStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { convertToCrores, toFixedDataForReturn } from '../../../utils/Commanutils';
 import moment from 'moment';
+import { AppearanceContext } from '../../../context/appearanceContext';
 
 const FundPicker = () => {
   const isFocused: any = useIsFocused();
   const [isVisible, setIsVisible] = useState(false);
+  const [isDownloadVisible, setIsDownloadVisible] = useState(false);
+  const [isReturnsVisible, setIsReturnsVisible] = useState(false);
   const [fundPickerList, setfundPickerList] = useState<any[]>([]);
   const [search, setsearch] = useState<any>('');
   const [categoryData, setCategoryData] = useState<any[]>([]);
@@ -42,6 +45,39 @@ const FundPicker = () => {
     { id: '3', name: 'Invesco India Mid Cap Gr', category: 'Equity - Mid Cap', nav: '87.83', totalAum: '4680.96', stars: 4, return1Y: '1.97%', return3Y: '22.45%', return5Y: '31.28%', stdDev: '16.84%', date: '04/07/2007' },
     // Add more funds as needed
   ]);
+
+  const [defaultReturns,setDefaultReturns]:any = useState<any[]>(
+    [
+      {
+        id:1,
+        name:'Return 1 Day'
+      },
+      {
+        id:2,
+        name:'Return 1 Week'
+      },
+      {
+        id:3,
+        name:'Return 1 Month'
+      },
+      {
+        id:4,
+        name:'Return 3 Month'
+      },
+      {
+        id:5,
+        name:'Return 6 Month'
+      },
+      {
+        id:6,
+        name:'Return 1 Year'
+      },
+      {
+        id:7,
+        name:'Return 2 Year'
+      },
+    ]
+  )
 
   const debouncedGetFundPickerScheme = useCallback(
     debounce((text: string) => {
@@ -132,10 +168,12 @@ const FundPicker = () => {
         filters: false,
         //sort: false,
         sort: { "SchemePerformances.Returns3yr": "DESC" },
-        sort1: { "categoryid":filterVal?.categoryid
-, "subcategory_id": filterVal?.subcategory_id
-, "amc_id": filterVal?.amc_id
-, "option_id":filterVal?.option_id}
+        sort1: {
+          "categoryid": filterVal?.categoryid
+          , "subcategory_id": filterVal?.subcategory_id
+          , "amc_id": filterVal?.amc_id
+          , "option_id": filterVal?.option_id
+        }
       };
       console.log('payload', payload);
       const [result, error]: any = await getFundPickerListDataApi(payload);
@@ -174,466 +212,52 @@ const FundPicker = () => {
     const renderTableHeader = () => {
     return (
       <Wrapper customStyles={styles.headerRow}>
-        <Wrapper row justify='apart' width={responsiveWidth(45)} customStyles={{paddingHorizontal: responsiveWidth(2)}}>
-        <CusText style={styles.headerCell} size='MS' semibold text={'Scheme'} />
-         <Ionicons name='swap-vertical-outline'/>
+        <Wrapper align='center' justify='center' row width={responsiveWidth(45)} customStyles={{paddingHorizontal: responsiveWidth(2),gap:responsiveWidth(1)}}>
+        <CusText style={styles.headerCell} size='SS' semibold text={'Scheme'} />
+         <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)}/>
         </Wrapper>
-        <Wrapper row justify='apart' width={responsiveWidth(25)} customStyles={{paddingHorizontal: responsiveWidth(2)}}>
-        <CusText style={styles.headerCell} size='MS' semibold text={'Morning star'} />
-         <Ionicons name='swap-vertical-outline'/>
+        <Wrapper row align='center' justify='center' width={responsiveWidth(30)} customStyles={{paddingHorizontal: responsiveWidth(2),gap:responsiveWidth(1)}}>
+        <CusText style={styles.headerCell} size='SS' semibold text={'Morning star'} />
+         <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)}/>
         </Wrapper>
         {/* <Text style={[styles.headerCell, styles.nameCell]} >Morning star</Text> */}
-        <Wrapper row justify='apart' width={responsiveWidth(20)} customStyles={{paddingHorizontal: responsiveWidth(2)}}>
-        <CusText customStyles={styles.headerCell} text={'NAV'}/>
-        <Ionicons name='swap-vertical-outline'/>
+        <Wrapper row align='center' justify='center' width={responsiveWidth(20)} customStyles={{ ...{paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1)} }}>
+          <CusText style={styles.headerCell} size='SS' semibold text={'NAV'} />
+          <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
         </Wrapper>
 
-         <Wrapper row justify='apart' width={responsiveWidth(20)} customStyles={{paddingHorizontal: responsiveWidth(2)}}>
-          <CusText customStyles={styles.headerCell} text={'AUM (Cr.)'}/>
-           <Ionicons name='swap-vertical-outline'/>
+         <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1)}}>
+          <CusText style={styles.headerCell}  size='SS' semibold text={'AUM (Cr.)'}/>
+              <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
          </Wrapper>
-         <Wrapper row justify='apart' width={responsiveWidth(20)} customStyles={{paddingHorizontal: responsiveWidth(2)}}>
-        <CusText customStyles={styles.headerCell} text={'Exp. Ratio'}/>
-         <Ionicons name='swap-vertical-outline'/>
+        <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+          <CusText style={styles.headerCell} size='SS' semibold text={'Exp. Ratio'} />
+          <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
         </Wrapper>
-        <Wrapper row justify='apart' width={responsiveWidth(20)} customStyles={{paddingHorizontal: responsiveWidth(2)}}>
-  <CusText customStyles={styles.headerCell} text={'1Y'}/>
-   <Ionicons name='swap-vertical-outline'/>
+        <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+          <CusText style={styles.headerCell} size='SS' semibold text={'1Y'} />
+          <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
         </Wrapper>
-      <Wrapper row justify='apart' width={responsiveWidth(20)} customStyles={{paddingHorizontal: responsiveWidth(2)}}>
-  <CusText customStyles={styles.headerCell} text={'3Y'}/>
-   <Ionicons name='swap-vertical-outline'/>
+        <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+          <CusText style={styles.headerCell} size='SS' semibold text={'3Y'} />
+          <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
         </Wrapper>
-        <Wrapper row justify='apart' width={responsiveWidth(20)} customStyles={{paddingHorizontal: responsiveWidth(2)}}>
-  <CusText customStyles={styles.headerCell} text={'5Y'}/>
-   <Ionicons name='swap-vertical-outline'/>
+        <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+          <CusText style={styles.headerCell} size='SS' semibold text={'5Y'} />
+         <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
         </Wrapper>
-         <Wrapper row justify='apart' width={responsiveWidth(20)} customStyles={{paddingHorizontal: responsiveWidth(2)}}>
-  <CusText customStyles={styles.headerCell} text={'Since Incep'}/>
-   <Ionicons name='swap-vertical-outline'/>
+        <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+          <CusText style={styles.headerCell} size='SS' semibold text={'Since Incep'} />
+          <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
         </Wrapper>
-         <Wrapper row justify='apart' width={responsiveWidth(20)} customStyles={{paddingHorizontal: responsiveWidth(2)}}>
-  <CusText customStyles={styles.headerCell} text={'Launch Date'}/>
-   <Ionicons name='swap-vertical-outline'/>
+        <Wrapper row align='center' justify='center' width={responsiveWidth(40)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1)}}>
+          <CusText style={styles.headerCell} size='SS' semibold text={'Launch Date'} />
+           <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
         </Wrapper>
       </Wrapper>
     );
   };
 
-  const renderItem = ({ item }: any) => {
-    return (
-      <>
-        {/*    <Wrapper
-          color={colors.cardBg}
-          customStyles={{
-            borderRadius: borderRadius.medium,
-            marginHorizontal: responsiveWidth(1),
-            paddingVertical: responsiveWidth(3),
-          }}>
-          <Wrapper
-            row
-            align="center"
-            justify="apart"
-            width={responsiveWidth(90)}>
-
-            <Wrapper row>
-              <Image
-                style={{
-                  resizeMode: 'contain',
-                  height: responsiveWidth(22),
-                  width: responsiveWidth(22),
-                }}
-                source={require('../../../assets/Images/bankImg.jpg')}
-              />
-              <Wrapper>
-                <Wrapper
-                  row
-                  align="center"
-                  customStyles={{
-                    paddingHorizontal: responsiveWidth(1),
-                    paddingVertical: responsiveWidth(0.5),
-                  }}>
-                  <Wrapper width={responsiveWidth(55)}>
-                    <CusText
-                      color={colors.primary}
-                      customStyles={{marginLeft: responsiveWidth(1)}}
-                      semibold
-                      text={item?.name}
-                      size="SS"
-                    />
-                  </Wrapper>
-                </Wrapper>
-                <Wrapper
-                  row
-                  align="center"
-                  customStyles={{
-                    paddingHorizontal: responsiveWidth(2),
-                    paddingVertical: responsiveWidth(1),
-                  }}>
-                  <Wrapper
-                    row
-                    align="center"
-                    customStyles={{
-                      gap: responsiveWidth(1),
-                    }}>
-                    <Wrapper
-                      row
-                      align="center"
-                      customStyles={{
-                        borderWidth: 1,
-                        paddingHorizontal: responsiveWidth(1),
-                        paddingVertical: responsiveWidth(0.2),
-                        borderRadius: borderRadius.small,
-                      }}>
-                      <CusText
-                        text={item?.SchemeCategory?.Name}
-                        size="XS"
-                        color={colors.black}
-                      />
-                      <CusText text={'-'} size="XS" color={colors.black} />
-                      <CusText
-                        text={item?.SchemeSubcategory?.Name}
-                        size="XS"
-                        color={colors.black}
-                      />
-                    </Wrapper>
-                  </Wrapper>
-                </Wrapper>
-                <Wrapper
-                  row
-                  align="center"
-                  customStyles={{
-                    gap: responsiveWidth(5),
-                    paddingHorizontal: responsiveWidth(2),
-                    paddingVertical: responsiveWidth(1),
-                  }}>
-                  <Wrapper
-                    row
-                    align="center"
-                    customStyles={{gap: responsiveWidth(1)}}>
-                    <IonIcon
-                      name="calendar-outline"
-                      color={colors.gray}
-                      size={responsiveWidth(3)}
-                    />
-                    <CusText
-                      text={
-                        item?.inception_date
-                          ? moment(item?.inception_date).format('DD-MM-yyyy')
-                          : '-'
-                      }
-                      size="S"
-                      color={colors.gray}
-                    />
-                  </Wrapper>
-                  <Wrapper align="center" row>
-                    {(item?.SchemePerformances.length
-                      ? item?.SchemePerformances[0]?.OverallRating
-                      : 0) && (
-                      <CusText
-                        text={
-                          item?.SchemePerformances.length
-                            ? item?.SchemePerformances[0]?.OverallRating
-                            : 0
-                        }
-                        size="S"
-                        color={colors.gray}
-                      />
-                    )}
-                    {(item?.SchemePerformances.length
-                      ? item?.SchemePerformances[0]?.OverallRating
-                      : 0) && (
-                      <IonIcon
-                        name="star"
-                        size={responsiveWidth(3)}
-                        color={'#F9BD36'}
-                      />
-                    )}
-                  </Wrapper>
-                </Wrapper>
-              </Wrapper>
-            </Wrapper>
-            <TouchableOpacity onPress={()=>{navigation.navigate('Cart')}}>
-              
-              <LinearGradient
-                style={{
-                  borderRadius: borderRadius.ring,
-                  padding: responsiveWidth(1),
-                }}
-                
-                start={{x: 1, y: 0}}
-                end={{x: 0, y: 1}}
-                colors={['#FF974BCC', '#E54BBACC']}>
-                <IonIcon
-                  name="add-outline"
-                  color={colors.Hard_White}
-                  size={responsiveWidth(6)}
-                />
-              </LinearGradient>
-            </TouchableOpacity>
-          </Wrapper>
-
-          <Wrapper>
-            <LinearGradient
-              start={{x: 1, y: 0}}
-              end={{x: 0, y: 1}}
-              colors={[colors.transparent, colors.primary, colors.transparent]}
-              style={{width: '100%', height: 2, opacity: 0.5}}></LinearGradient>
-          </Wrapper>
-          <Spacer y="XS" />
-          <Wrapper
-            position="center"
-            row
-            align="center"
-            justify="apart"
-            width={responsiveWidth(85)}>
-            <Wrapper align="center">
-              <CusText
-                extraBold
-                text={'Return (1 Yr.)'}
-                size="S"
-                color={colors.gray}
-              />
-              <Wrapper
-                row
-                align="center"
-                customStyles={{gap: responsiveWidth(1)}}>
-                {toFixedDataForReturn(
-                  item?.SchemePerformances?.[0]?.Return1yr,
-                ) !== '--' && (
-                  <IonIcon
-                    style={[
-                      {
-                        backgroundColor: showArraow(
-                          item?.SchemePerformances?.[0]?.Return1yr,
-                          item?.SchemePerformances?.[0]?.CategoryAvgReturn1yr,
-                        ),
-                      },
-                      styles.returnIcon,
-                    ]}
-                    name="arrow-up"
-                    color={
-                      showArraow(
-                        item?.SchemePerformances?.[0]?.Return1yr,
-                        item?.SchemePerformances?.[0]?.CategoryAvgReturn1yr,
-                      ) == '#ffff00'
-                        ? colors.black
-                        : colors.white
-                    }
-                    size={responsiveWidth(3)}
-                  />
-                )}
-
-                <CusText
-                  semibold
-                  color={colors.gray}
-                  text={toFixedDataForReturn(
-                    item?.SchemePerformances?.[0]?.Return1yr,
-                  )}
-                  size="N"
-                />
-              </Wrapper>
-              <Spacer y="XS" />
-              <CusText
-                extraBold
-                text={'Return (5 Yr.)'}
-                size="S"
-                color={colors.gray}
-              />
-              <Wrapper
-                row
-                align="center"
-                customStyles={{gap: responsiveWidth(1)}}>
-                <IonIcon
-                  style={[
-                    {
-                      backgroundColor: showArraow(
-                        item?.SchemePerformances?.[0]?.Returns5yr,
-                        item?.SchemePerformances?.[0]?.CategoryAvgReturns5yr,
-                      ),
-                    },
-                    styles.returnIcon,
-                  ]}
-                  name="arrow-up-outline"
-                  color={
-                    showArraow(
-                      item?.SchemePerformances?.[0]?.Returns5yr,
-                      item?.SchemePerformances?.[0]?.CategoryAvgReturns5yr,
-                    ) == '#ffff00'
-                      ? colors.black
-                      : colors.white
-                  }
-                  size={responsiveWidth(3)}
-                />
-
-                <CusText
-                  semibold
-                  color={colors.gray}
-                  text={toFixedDataForReturn(
-                    item?.SchemePerformances?.[0]?.Returns5yr,
-                  )}
-                  size="N"
-                />
-              </Wrapper>
-            </Wrapper>
-            <Wrapper align="center">
-              <CusText
-                extraBold
-                text={'Return (2 Yr.)'}
-                size="S"
-                color={colors.gray}
-              />
-              <Wrapper
-                row
-                align="center"
-                customStyles={{gap: responsiveWidth(1)}}>
-                <IonIcon
-                  style={[
-                    {
-                      backgroundColor: showArraow(
-                        item?.SchemePerformances?.[0]?.Returns2yr,
-                        item?.SchemePerformances?.[0]?.CategoryAvgReturns2yr,
-                      ),
-                    },
-                    styles.returnIcon,
-                  ]}
-                  name="arrow-up-outline"
-                  color={
-                    showArraow(
-                      item?.SchemePerformances?.[0]?.Returns2yr,
-                      item?.SchemePerformances?.[0]?.CategoryAvgReturns2yr,
-                    ) == '#ffff00'
-                      ? colors.black
-                      : colors.white
-                  }
-                  size={responsiveWidth(3)}
-                />
-
-                <CusText
-                  semibold
-                  text={toFixedDataForReturn(
-                    item?.SchemePerformances?.[0]?.Returns2yr,
-                  )}
-                  size="N"
-                  color={colors.gray}
-                />
-              </Wrapper>
-              <Spacer y="XS" />
-              <CusText
-                extraBold
-                text={'Return (10 Yr.)'}
-                size="S"
-                color={colors.gray}
-              />
-              <Wrapper
-                row
-                align="center"
-                customStyles={{gap: responsiveWidth(1)}}>
-                <IonIcon
-                  style={[
-                    {
-                      backgroundColor: showArraow(
-                        item?.SchemePerformances?.[0]?.Returns10yr,
-                        item?.SchemePerformances?.[0]?.CategoryAvgReturns10yr,
-                      ),
-                    },
-                    styles.returnIcon,
-                  ]}
-                  name="arrow-up-outline"
-                  color={
-                    showArraow(
-                      item?.SchemePerformances?.[0]?.Returns10yr,
-                      item?.SchemePerformances?.[0]?.CategoryAvgReturns10yr,
-                    ) == '#ffff00'
-                      ? colors.black
-                      : colors.white
-                  }
-                  size={responsiveWidth(3)}
-                />
-
-                <CusText
-                  semibold
-                  text={toFixedDataForReturn(
-                    item?.SchemePerformances?.[0]?.Returns10yr,
-                  )}
-                  size="N"
-                  color={colors.gray}
-                />
-              </Wrapper>
-            </Wrapper>
-            <Wrapper align="center">
-              <CusText
-                extraBold
-                text={'Return (3 Yr.)'}
-                size="S"
-                color={colors.gray}
-              />
-              <Wrapper
-                row
-                align="center"
-                customStyles={{gap: responsiveWidth(1)}}>
-                <IonIcon
-                  style={[
-                    {
-                      backgroundColor: showArraow(
-                        item?.SchemePerformances?.[0]?.Returns3yr,
-                        item?.SchemePerformances?.[0]?.CategoryAvgReturns3yr,
-                      ),
-                    },
-                    styles.returnIcon,
-                  ]}
-                  name="arrow-up-outline"
-                  color={
-                    showArraow(
-                      item?.SchemePerformances?.[0]?.Returns3yr,
-                      item?.SchemePerformances?.[0]?.CategoryAvgReturns3yr,
-                    ) == '#ffff00'
-                      ? colors.black
-                      : colors.white
-                  }
-                  size={responsiveWidth(3)}
-                />
-
-                <CusText
-                  semibold
-                  text={toFixedDataForReturn(
-                    item?.SchemePerformances?.[0]?.Returns3yr,
-                  )}
-                  size="N"
-                  color={colors.gray}
-                />
-              </Wrapper>
-              <Spacer y="XS" />
-              <CusText
-                extraBold
-                text={'AUM (Cr.)'}
-                size="S"
-                color={colors.gray}
-              />
-              <Wrapper
-                row
-                align="center"
-                customStyles={{gap: responsiveWidth(1)}}>
-                <CusText
-                  semibold
-                  text={convertToCrores(
-                    item?.SchemePerformances?.[0]?.AUM
-                      ? item?.SchemePerformances?.[0]?.AUM
-                      : 0,
-                  )}
-                  size="N"
-                  color={colors.gray}
-                />
-              </Wrapper>
-            </Wrapper>
-          </Wrapper>
-        </Wrapper> */}
-       
-
-        <Spacer y="S" />
-      </>
-    );
-  };
  const renderFundItem = ({ item }:any) => (
     <Wrapper customStyles={styles.row}>
      
@@ -657,8 +281,8 @@ const FundPicker = () => {
             </Wrapper>
          </Wrapper>
       </View>
-       <View style={[styles.cell,{width:responsiveWidth(25)}]}>
-          <Wrapper align="center" row>
+       <View style={[styles.cell,{width:responsiveWidth(25),}]}>
+          <Wrapper  position='center' align="center" row>
         {(item?.SchemePerformances.length
                       ? item?.SchemePerformances[0]?.OverallRating
                       : 0) && (
@@ -668,8 +292,8 @@ const FundPicker = () => {
                             ? item?.SchemePerformances[0]?.OverallRating
                             : 0
                         }
-                        size="S"
-                        color={colors.gray}
+                       size='SS'
+                      //  semibold
                       />
                     )}
                     {(item?.SchemePerformances.length
@@ -683,104 +307,162 @@ const FundPicker = () => {
                     )}
                     </Wrapper>
       </View>
-      <CusText customStyles={styles.cell} text={item?.SchemePerformances[0]?.Nav} />
-      <CusText customStyles={styles.cell} text={convertToCrores(
-                    item?.SchemePerformances?.[0]?.AUM
-                      ? item?.SchemePerformances?.[0]?.AUM
-                      : 0,
-                  )}/>
-      <CusText customStyles={styles.cell} text={item.net_expense_ratio} />
-      <CusText customStyles={styles.cell} text={toFixedDataForReturn(
-                    item?.SchemePerformances?.[0]?.Return1yr,
-                  )} />
-      <CusText customStyles={styles.cell} text={toFixedDataForReturn(
-                    item?.SchemePerformances?.[0]?.Returns3yr,
-                  )} />
-      <CusText customStyles={styles.cell} text={toFixedDataForReturn(
-                    item?.SchemePerformances?.[0]?.Returns5yr,
-                  )} />
-      <CusText customStyles={styles.cell} text={item?.SchemePerformances[0]?.ReturnSinceIncep ? item?.SchemePerformances[0]?.ReturnSinceIncep.toFixed(2) : '-'} />
-      <CusText customStyles={styles.cell} text={item?.inception_date
-                          ? moment(item?.inception_date).format('DD-MM-yyyy')
-                          : '-'} />
+     <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+       <Wrapper position='center' align="center" row>
+         <CusText size='SS' position='center' text={item?.SchemePerformances[0]?.Nav} />
+       </Wrapper>
+     </View>
+     <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+       <Wrapper position='center' align="center" row>
+         <CusText size='SS' position='center' text={convertToCrores(
+           item?.SchemePerformances?.[0]?.AUM
+             ? item?.SchemePerformances?.[0]?.AUM
+             : 0,
+         )} />
+       </Wrapper>
+     </View>
+     <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+       <Wrapper position='center' align="center" row>
+         <CusText size='SS' position='center' text={item.net_expense_ratio} />
+       </Wrapper>
+     </View>
+     <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+       <Wrapper position='center' align="center" row>
+         <CusText size='SS' position='center' text={toFixedDataForReturn(
+           item?.SchemePerformances?.[0]?.Return1yr,
+         )} />
+       </Wrapper>
+     </View>
+     <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+       <Wrapper position='center' align="center" row>
+         <CusText size='SS' position='center' text={toFixedDataForReturn(
+           item?.SchemePerformances?.[0]?.Returns3yr,
+         )} />
+       </Wrapper>
+     </View>
+     <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+       <Wrapper position='center' align="center" row>
+         <CusText size='SS' position='center' text={toFixedDataForReturn(
+           item?.SchemePerformances?.[0]?.Returns5yr,
+         )} />
+       </Wrapper>
+     </View>
+     <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+       <Wrapper position='center' align="center" row>
+         <CusText size='SS' position='center' text={item?.SchemePerformances[0]?.ReturnSinceIncep ? item?.SchemePerformances[0]?.ReturnSinceIncep.toFixed(2) : '-'} />
+       </Wrapper>
+     </View>
+     <View style={[styles.cell, { width: responsiveWidth(40), }]}>
+       <Wrapper position='center' align="center" row>
+         <CusText size='SS' position='center' text={item?.inception_date
+           ? moment(item?.inception_date).format('DD-MM-yyyy')
+           : '-'} />
+       </Wrapper>
+     </View>
     </Wrapper>
   );
   return (
     <>
       <Header menubtn name={'Fund Picker'} />
-      <Wrapper
-        width={responsiveWidth(95)}
-        position="center"
-        row
-        justify="apart">
+      <Wrapper  color='white' row align='center'  customStyles={{paddingHorizontal:responsiveWidth(2.5),gap:responsiveWidth(1.5),paddingVertical:responsiveWidth(2)}}>
         <InputField
           fieldColor={colors.Hard_White}
-          width={responsiveWidth(80)}
-          placeholder="Search Here"
+          width={responsiveWidth(60)}
+          placeholder="Search"
           value={search}
-          //onChangeText={debouncedGetFundPickerScheme}
           onChangeText={(text: string) => {
             setsearch(text);
             debouncedGetFundPickerScheme(text);
           }}
-          borderColor={colors.gray}
-          suffixIcon={search ? 'close' : 'search'}
-          suffixPress={() => {
-            if (search) {
-              setPage(1);
-              setsearch('');
-              getFundPickerscheme('', filterObj, 1, true);
-            }
+          placeholderColor={colors.gray}
+          borderColor={colors.fieldborder}
+          fieldViewStyle={{
+            height:responsiveWidth(11),
+            borderRadius:borderRadius.normal
           }}
+          style={{
+            borderColor:colors.fieldborder
+          }}
+          // suffixIcon={search ? 'close' : 'search'}
+          // suffixPress={() => {
+          //   if (search) {
+          //     setPage(1);
+          //     setsearch('');
+          //     getFundPickerscheme('', filterObj, 1, true);
+          //   }
+          // }}
         />
-        <Spacer x="XXS" />
-        <CusButton
-          onPress={() => {
-            setIsVisible(true);
-          }}
-          iconFirst
-          iconPress={() => {
-            //setIsVisible(true);
-          }}
-          iconName="filter-outline"
-          width={responsiveWidth(13)}
-        />
-      </Wrapper>
-      <Spacer y="S" />
-      {/* <Container Xcenter > */}
-      <Wrapper >
-      
-         {/* <FlatList
-          data={fundPickerList}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={renderItem}
-          nestedScrollEnabled={true}
-          onEndReached={loadMore}
-          onEndReachedThreshold={0.5}
-          refreshing={isRefreshing}
-          onRefresh={onRefresh}
-          ListFooterComponent={loader ? <ActivityIndicator /> : null}
-        ListEmptyComponent={
-          !loader && (
-            <Wrapper align="center" customStyles={{ marginVertical : responsiveWidth(5)}}>
-              <CusText
-                text="No funds found."
-                size="N"
-                color={colors.gray}
-              />
+        <TouchableOpacity activeOpacity={0.6} onPress={() => { setIsVisible(true); }}>
+          <Wrapper customStyles={{ padding: responsiveWidth(2.5), borderRadius: borderRadius.normal, borderColor: colors.inputBorder, borderWidth: 1 }}>
+            <Ionicons name='funnel' color={colors.secondary} size={responsiveWidth(5)} />
+          </Wrapper>
+        </TouchableOpacity>
+        <Wrapper customStyles={{ position: "relative" }}>
+          <TouchableOpacity activeOpacity={0.6} onPress={() => { setIsDownloadVisible(!isDownloadVisible) }}>
+            <Wrapper customStyles={{ padding: responsiveWidth(2.5), borderRadius: borderRadius.normal, borderColor: colors.inputBorder, borderWidth: 1 }}>
+              <Image resizeMode='contain' source={require('../../../assets/Images/downloadfile.png')} style={{ height: responsiveWidth(5), width: responsiveWidth(5) }} />
             </Wrapper>
-          )
-        }
-        /> */}
+          </TouchableOpacity>
+          {
+            isDownloadVisible ?
+              <Wrapper position='end' width={responsiveWidth(20)} color={colors.Hard_White} customStyles={{ position: "absolute", top: "95%", zIndex: 1, borderRadius: borderRadius.normal,borderColor:colors.inputBorder,borderWidth:1 }}>
+                <TouchableOpacity onPress={() => { setIsDownloadVisible(!isDownloadVisible) }}>
+                  <Wrapper row align='center' position='start' justify='center' customStyles={{ paddingHorizontal:responsiveWidth(2), paddingVertical: responsiveHeight(1),gap:responsiveWidth(1) }}>
+                   <Image resizeMode='contain' style={{height:responsiveWidth(3.5),width:responsiveWidth(3.5)}} source={require('../../../assets/Images/excelpic.png')} />
+                    <CusText semibold text={'EXCEL'} />
+                  </Wrapper>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => { setIsDownloadVisible(!isDownloadVisible) }}>
+                  <Wrapper row align='center' position='start' justify='center' customStyles={{ paddingHorizontal:responsiveWidth(2), paddingVertical: responsiveHeight(1),gap:responsiveWidth(1) }}>
+                    <Image resizeMode='contain' style={{height:responsiveWidth(3.5),width:responsiveWidth(3.5)}} source={require('../../../assets/Images/pdfpic.png')} />
+                    <CusText semibold text={'PDF'} />
+                  </Wrapper>
+                </TouchableOpacity>
+              </Wrapper>
+              :
+              null
+          }
+        </Wrapper>
+        <Wrapper customStyles={{ position: "relative" }}>
+          <TouchableOpacity activeOpacity={0.6} onPress={() => { setIsReturnsVisible(!isReturnsVisible) }}>
+            <Wrapper customStyles={{ padding: responsiveWidth(2.5), borderRadius: borderRadius.normal, borderColor: colors.inputBorder, borderWidth: 1 }}>
+              <Image resizeMode='contain' source={require('../../../assets/Images/openfile.png')} style={{ height: responsiveWidth(5), width: responsiveWidth(5) }} />
+            </Wrapper>
+          </TouchableOpacity>
+          {
+            isReturnsVisible ?
+              <Wrapper position='end' width={responsiveWidth(40)} color={colors.Hard_White} customStyles={{ position: "absolute", top: "95%", zIndex: 1, borderRadius: borderRadius.normal, borderColor: colors.inputBorder, borderWidth: 1 }}>
+                {
+                  defaultReturns?.map((item: any, index: any) => {
+                    return (
+                      <>
+                        <TouchableOpacity onPress={() => { setIsReturnsVisible(!isReturnsVisible) }}>
+                          <Wrapper row align='center' customStyles={{ paddingHorizontal: responsiveWidth(2), paddingVertical: responsiveHeight(1), gap: responsiveWidth(1) }}>
+                         <Ionicons name='square-outline' size={responsiveWidth(4)} />
+                            <CusText semibold text={item?.name} />
+                          </Wrapper>
+                        </TouchableOpacity>
+                      </>
+                    )
+                  })
+                }
+
+              </Wrapper>
+              :
+              null
+          }
+        </Wrapper>
+      </Wrapper>
+      <Wrapper color='white' >
         <ScrollView horizontal={true}>
-            <View style={styles.tableContainer}>
-        {renderTableHeader()}
+          <View style={styles.tableContainer}>
+            {renderTableHeader()}
             <FlatList
-          data={fundPickerList}
-          renderItem={renderFundItem}
-          keyExtractor={item => item.id}
-        />
-        </View>
+              data={fundPickerList}
+              renderItem={renderFundItem}
+              keyExtractor={item => item.id}
+            />
+          </View>
         </ScrollView>
       </Wrapper>
       <FundPickerFilter
@@ -812,7 +494,6 @@ const FundPicker = () => {
           )
         }
       />
-      {/* </Container> */}
     </>
   );
 };
