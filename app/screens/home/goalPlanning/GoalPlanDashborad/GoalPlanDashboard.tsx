@@ -93,15 +93,15 @@ const GoalDashboard = () => {
           onIndexChange={setIndex}
           initialLayout={{ width: layout.width }}
           style={{
-            marginHorizontal: responsiveWidth(3),
             marginBottom: responsiveWidth(3),
-            borderRadius: borderRadius.medium,
           }}
           renderTabBar={props => (
             <TabBar
               {...props}
-              indicatorStyle={{ backgroundColor: colors.primary }}
-              style={{ backgroundColor: colors.primary }}
+              indicatorStyle={{ backgroundColor: colors.Hard_White,
+              borderRadius: borderRadius.medium }}
+                
+              style={{ backgroundColor: colors.gray }}
               renderLabel={({ route, focused }: any) => (
                 <Text
                   style={{

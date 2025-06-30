@@ -87,12 +87,13 @@ const NewGoal = ({ setisVisible, setgoalId, setGoalPlanID, setGoalName,riskprofi
                     borderBottomRightRadius: borderRadius.medium,
                 }}
             >
-                <Wrapper row color={colors.containerBg} customStyles={{ flexWrap: 'wrap', marginHorizontal: responsiveWidth(2), marginVertical: responsiveWidth(2), paddingBottom: responsiveWidth(2), borderRadius: borderRadius.medium }}>
+                <Wrapper row color={colors.containerBg} customStyles={{ flexWrap: 'wrap',  marginVertical: responsiveWidth(2), paddingBottom: responsiveWidth(2), borderRadius: borderRadius.medium }}>
                    {goalTypesData?.map((item: any, i: number) =>
-                    <Wrapper width={responsiveWidth(29)} customStyles={{ flexWrap: 'wrap' }}>
+                    <Wrapper width={responsiveWidth(29)} customStyles={{ flexWrap: 'wrap', marginHorizontal: responsiveWidth(2), }}>
                         <TouchableOpacity style={{
                             width: responsiveWidth(29),
                             height: responsiveWidth(29),
+                           
                             borderColor: "rgba(226, 226, 226, 1)",
                             borderWidth: responsiveWidth(0.5),
                             borderRadius: borderRadius.medium,
@@ -108,7 +109,7 @@ const NewGoal = ({ setisVisible, setgoalId, setGoalPlanID, setGoalName,riskprofi
                         </TouchableOpacity>
                         <Spacer y='XXS' />
                         <Wrapper position='center'>
-                            <CusText semibold position="center" text={item?.goal_name} size='SS' color={colors.primary}
+                            <CusText semibold position="center" text={item?.goal_name} size='SS' color={colors.black}
                                 customStyles={{ width: responsiveWidth(21) }} />
                         </Wrapper>
                     </Wrapper>
