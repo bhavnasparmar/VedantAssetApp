@@ -37,12 +37,12 @@ const OnGoingGoal = ({ setgoalId, setGoalPlanID, setGoalName, riskprofileData }:
     },
     {
       id: 3,
-      name: 'View',
+      name: 'Execute',
       icon: 'eye',
     },
     {
       id: 4,
-      name: 'Execute Now',
+      name: 'Details',
       icon: 'brush',
     },
   ]);
@@ -170,22 +170,22 @@ const OnGoingGoal = ({ setgoalId, setGoalPlanID, setGoalName, riskprofileData }:
     return (
       <>
         <Wrapper customStyles={{
-          // borderRadius: borderRadius.medium,
-          // borderWidth: responsiveWidth(0.25),
-          // marginVertical: responsiveWidth(0.5),
-          // borderColor: colors.gray,
-          paddingVertical: responsiveWidth(1.5),
-          // borderBottomWidth:5
-          paddingHorizontal: responsiveWidth(2)
+           borderRadius: borderRadius.medium,
+          borderWidth: 1,
+           marginVertical: responsiveWidth(2),
+           borderColor: colors.gray,
+          paddingVertical: responsiveWidth(4),
+          paddingHorizontal: responsiveWidth(5),
+
         }}>
           <Wrapper row align='center' justify='apart' customStyles={{ paddingVertical: responsiveWidth(1) }}>
-            <CusText bold color={colors.label} size='XL' text={item?.goal_label} />
-            <TouchableOpacity onPress={() => { toggleActionArea(index) }} activeOpacity={0.6}>
+            <CusText bold color={colors.black} size='M' text={item?.goal_label} />
+            {/* <TouchableOpacity onPress={() => { toggleActionArea(index) }} activeOpacity={0.6}>
 
               <Wrapper position='center' align='center' justify='center' color={colors.Hard_White} customStyles={{ borderRadius: borderRadius.ring, padding: responsiveWidth(0) }}>
                 <IonIcon size={responsiveWidth(8)} name={'ellipsis-vertical-circle'} color={colors.orange} />
               </Wrapper>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </Wrapper>
           <Wrapper align='center' justify='apart' row customStyles={{}}>
             <Wrapper row align='center'>
@@ -198,18 +198,26 @@ const OnGoingGoal = ({ setgoalId, setGoalPlanID, setGoalName, riskprofileData }:
           </Wrapper>
           <Wrapper row align='center' justify='apart' customStyles={{ marginTop: responsiveWidth(2) }}>
             <Wrapper>
-              <CusText size='SN' text={'Target'} />
-              <CusText
-                bold
-                size="L"
+              <CusText  size='SN' text={'Target'} semibold color={colors.black}/>
+           
+            </Wrapper>
+            <Wrapper align='end'>
+               <CusText
+                semibold
+                size="M"
                 color={colors.primary}
                 text={'₹' + (item?.target_amt || 0)}
               />
             </Wrapper>
+          </Wrapper>
+          <Wrapper row align='center' justify='apart' customStyles={{ marginTop: responsiveWidth(2) }}>
+            <Wrapper>
+                <CusText size='SN' text={'Current Value'} semibold color={colors.black}/>
+           
+            </Wrapper>
             <Wrapper align='end'>
-              <CusText size='SN' text={'Current Value'} />
               <CusText
-                bold
+                extraBold
                 size="M"
                 color={colors.primary}
                 text={'₹' + (item?.totalAlloc?.Current || 0)}
@@ -217,7 +225,7 @@ const OnGoingGoal = ({ setgoalId, setGoalPlanID, setGoalName, riskprofileData }:
             </Wrapper>
           </Wrapper>
           <Wrapper justify='apart' row align='center' borderColor={colors.primary} customStyles={{ marginTop: responsiveWidth(2), borderWidth: 1, borderRadius: borderRadius.middleSmall, paddingHorizontal: responsiveWidth(2), paddingVertical: responsiveWidth(2) }}>
-            <CusText bold color={colors.label} size="SN" text={'Achieved'} />
+            <CusText color={colors.label} size="SN" text={'Achieved'} />
             <CusText
               color={colors.label}
               bold
@@ -232,7 +240,7 @@ const OnGoingGoal = ({ setgoalId, setGoalPlanID, setGoalName, riskprofileData }:
             />
           </Wrapper>
           <Wrapper customStyles={{ marginTop: responsiveWidth(3) }}>
-            <Wrapper justify='apart' row align='center' >
+            {/* <Wrapper justify='apart' row align='center' >
               <Wrapper align='start'>
                 <CusText size='SS' text={'Invested - Months'} />
                 <CusText
@@ -251,21 +259,66 @@ const OnGoingGoal = ({ setgoalId, setGoalPlanID, setGoalName, riskprofileData }:
                   text={'₹' + (recommended || 0) + ' - ' + (months || 0)}
                 />
               </Wrapper>
+            </Wrapper> */}
+            <Wrapper justify='apart' row align='center' >
+              <Wrapper row align='start'>
+                <CusText semibold size='SS' text={'Invested : '} />
+                <CusText
+                  size="SS"
+                  color={colors.primary}
+                  text={'₹' + (item?.totalAlloc?.Invested || 0)}
+                />
+              </Wrapper>
+              <Wrapper row align='end'>
+                <CusText semibold size='SS' text={'Months : '} />
+                <CusText
+                  size="SS"
+                  color={colors.primary}
+                  text={(item?.totalAlloc?.transaction_month || 0)}
+                />
+              </Wrapper>
+            </Wrapper>
+            <Wrapper justify='apart' row align='center' customStyles={{ marginTop: responsiveWidth(3) }} >
+              <Wrapper row align='end'>
+                <CusText semibold size='SS' text={'Recommended : '} />
+                <CusText
+                  size="SS"
+                  color={colors.primary}
+                  text={'₹' + (recommended || 0)}
+                />
+              </Wrapper>
+              <Wrapper row align='end'>
+                <CusText semibold size='SS' text={'Months : '} />
+                <CusText
+                  size="SS"
+                  color={colors.primary}
+                  text={(months || 0)}
+                />
+              </Wrapper>
             </Wrapper>
           </Wrapper>
-          {
-            actionIndex === index ?
-              <>
                 <Spacer y='XXS' />
+                 <Wrapper customStyles={{ marginTop: responsiveWidth(2) }}>
+                <LinearGradient
+                  start={{ x: 1, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                   colors={[colors.primary, colors.primary, colors.primary]}
+                   style={{ width: '100%', height: 1, opacity: 0.5 }}></LinearGradient>
+               </Wrapper>
+               <Spacer y='XXS' />
                 <Wrapper row justify='apart' align='center' position='center' customStyles={{ gap: responsiveWidth(2) }}>
                   {
                     actions.map((aitem: any, aindex: any) => {
                       return (
                         <>
                           <TouchableOpacity onPress={() => { performActions(aitem, item) }} activeOpacity={0.6}>
-                            <Wrapper row position='center' align='center' justify='center' color={colors.lightGray} customStyles={{ gap: responsiveWidth(1), borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(1), paddingHorizontal: responsiveWidth(2) }}>
-                              <IonIcon size={responsiveWidth(5)} name={aitem?.icon} color={colors.orange} />
-                              <CusText semibold size='S' text={aitem?.name} />
+                            <Wrapper row position='center' align='center' justify='center' color={colors.secondary} customStyles={{ gap: responsiveWidth(1), 
+                            borderRadius: borderRadius.middleSmall, 
+                              paddingVertical: responsiveWidth(2),
+                               paddingHorizontal: responsiveWidth(2),
+                               width:responsiveWidth(20) }}>
+                              {/* <IonIcon size={responsiveWidth(5)} name={aitem?.icon} color={colors.orange} /> */}
+                              <CusText semibold size='SS' text={aitem?.name} color={colors.white}/>
                             </Wrapper>
                           </TouchableOpacity>
                         </>
@@ -273,9 +326,7 @@ const OnGoingGoal = ({ setgoalId, setGoalPlanID, setGoalName, riskprofileData }:
                     })
                   }
                 </Wrapper>
-              </>
-              : null
-          }
+              
 
         </Wrapper>
       </>
@@ -290,22 +341,23 @@ const OnGoingGoal = ({ setgoalId, setGoalPlanID, setGoalName, riskprofileData }:
         customStyles={{
           borderBottomLeftRadius: borderRadius.medium,
           borderBottomRightRadius: borderRadius.medium,
+          marginHorizontal:responsiveWidth(3)
         }}>
         <FlatList
           data={onGoingGoalTypesData}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderItem}
           ListEmptyComponent={() => <NoRecords />}
-          ItemSeparatorComponent={() =>
-            <>
-              <Wrapper customStyles={{ marginTop: responsiveWidth(2) }}>
-                <LinearGradient
-                  start={{ x: 1, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                  colors={[colors.primary, colors.primary, colors.primary]}
-                  style={{ width: '100%', height: 2, opacity: 0.5 }}></LinearGradient>
-              </Wrapper>
-            </>}
+          // ItemSeparatorComponent={() =>
+          //   <>
+          //     <Wrapper customStyles={{ marginTop: responsiveWidth(2) }}>
+          //       <LinearGradient
+          //         start={{ x: 1, y: 0 }}
+          //         end={{ x: 0, y: 1 }}
+          //         colors={[colors.primary, colors.primary, colors.primary]}
+          //         style={{ width: '100%', height: 2, opacity: 0.5 }}></LinearGradient>
+          //     </Wrapper>
+          //   </>}
         />
       </Wrapper>
       {/* <DeleteAlert

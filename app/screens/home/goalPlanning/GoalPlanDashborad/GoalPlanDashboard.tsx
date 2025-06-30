@@ -99,18 +99,21 @@ const GoalDashboard = () => {
             <TabBar
               {...props}
               indicatorStyle={{ backgroundColor: colors.Hard_White,
-              borderRadius: borderRadius.medium }}
+              borderTopLeftRadius: borderRadius.medium, borderTopRightRadius: borderRadius.medium, height: responsiveWidth(10) }}
                 
-              style={{ backgroundColor: colors.gray }}
-              renderLabel={({ route, focused }: any) => (
-                <Text
-                  style={{
-                    color: focused ? colors.pink : colors.pink,
-                    fontWeight: focused ? 'bold' : 'normal',
-                  }}>
-                  {route.title}
-                </Text>
-              )}
+              style={{ backgroundColor: colors.tabBg }}
+              inactiveColor={colors.black}
+              activeColor={colors.black}
+              tabStyle={{paddingBottom :0}}
+              // renderLabel={({ route, focused }: any) => (
+              //   <Text
+              //     style={{
+              //       color: focused ? colors.pink : colors.pink,
+              //       fontWeight: focused ? 'bold' : 'normal',
+              //     }}>
+              //     {route.title}
+              //   </Text>
+              // )}
             />
           )}
         />

@@ -109,7 +109,7 @@ let reptativeColors = {
   yellow: '#eef240',
   green: '#01b81a',
   innerCard: '#1c1c1d',
-  tabBg: '#333333',
+  tabBg: '#EAECF0',
   itemborder: '#090F471A',
   itemtextcolor: '#090F47',
   errorText: '#E33629',
@@ -196,6 +196,7 @@ const colors: any = {
   fieldborder:reptativeColors.fieldborder,
   bg:reptativeColors.bg,
   action:reptativeColors.action,
+  tabBg: reptativeColors.tabBg, //extra
  
 
   //Header
@@ -483,7 +484,7 @@ export const darkColors: any = {
 const fontFamily = {
   regular: 'Montserrat-Regular',
   medium:'Montserrat-Medium',
- // bold: 'Montserrat-SemiBold',
+ bold: 'Montserrat-SemiBold',
   semiBold : 'Montserrat-SemiBold'
 };
 

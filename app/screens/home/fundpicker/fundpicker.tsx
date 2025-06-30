@@ -1,5 +1,5 @@
 import { useIsFocused } from '@react-navigation/native';
-import { debounce } from 'lodash';
+import { debounce, sortBy } from 'lodash';
 import React, { useCallback, useEffect,  useState } from 'react';
 import {  FlatList, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import {
@@ -29,6 +29,7 @@ const FundPicker = () => {
   const [isDownloadVisible, setIsDownloadVisible] = useState(false);
   const [isReturnsVisible, setIsReturnsVisible] = useState(false);
   const [fundPickerList, setfundPickerList] = useState<any[]>([]);
+  const [selectedReturn, setSelectedReturn] = useState<any[]>([]);
   const [search, setsearch] = useState<any>('');
   const [categoryData, setCategoryData] = useState<any[]>([]);
   const [natureList, setNatureList] = useState<any[]>([]);
@@ -38,6 +39,8 @@ const FundPicker = () => {
   const pagesize = 10;
   const [page, setPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [sortField, setSortField] = useState('');
+const [sortOrder, setSortOrder] = useState('');
   //const [hasMoreData, setHasMoreData] = useState(true);
   const [funds, setFunds] = useState([
     { id: '1', name: 'HDFC Mid-Cap Opportunities Gr', category: 'Equity - Mid Cap', nav: '178.234', totalAum: '78201.08', stars: 5, return1Y: '41.86%', return3Y: '29.47%', return5Y: '33.39%', stdDev: '17.21%', date: '25/06/2023' },
@@ -76,6 +79,26 @@ const FundPicker = () => {
         id:7,
         name:'Return 2 Year'
       },
+       {
+        id:8,
+        name:'Return 3 Year'
+      },
+       {
+        id:9,
+        name:'Return 5 Year'
+      },
+       {
+        id:10,
+        name:'Return 7 Year'
+      },
+      {
+        id:11,
+        name:'Return 10 Year'
+      },
+       {
+        id:12,
+        name:'Return Since Incep'
+      },
     ]
   )
 
@@ -88,6 +111,7 @@ const FundPicker = () => {
   );
 
   useEffect(() => {
+    setSelectedReturn([6,8,9])
     getFundPickerscheme(search);
     getCategories();
     getNatureList();
@@ -149,31 +173,48 @@ const FundPicker = () => {
     filterVal: any = null,
     pageNumber = 1,
     isRefresh = false,
+    sort : any= null
   ) => {
     try {
       // if (!isRefresh) setloader(true);
       setloader(true);
       let filter = {};
       if ((searchValue || '').trim() && filterVal) {
-        filter = { name: searchValue.trim(), ...filterVal };
-      } else if ((searchValue || '').trim()) {
-        filter = { name: searchValue.trim() };
-      } else if (filterVal) {
-        filter = filterVal;
-      }
-      console.log("filter",filterVal)
-      const payload = {
-        page: pageNumber,
-        limit: pagesize,
-        filters: false,
-        //sort: false,
-        sort: { "SchemePerformances.Returns3yr": "DESC" },
-        sort1: {
+        let data :any =  {
           "categoryid": filterVal?.categoryid
           , "subcategory_id": filterVal?.subcategory_id
           , "amc_id": filterVal?.amc_id
-          , "option_id": filterVal?.option_id
+          , "option_id": Number(filterVal?.option_id)
         }
+        // filter = { name: searchValue.trim(), ...filterVal };
+        filter = { ms_fullname: searchValue.trim(), ...data };
+      } else if ((searchValue || '').trim()) {
+        filter = { ms_fullname: searchValue.trim() };
+      } else if (filterVal) {
+        filter = {
+          "categoryid": filterVal?.categoryid
+          , "subcategory_id": filterVal?.subcategory_id
+          , "amc_id": filterVal?.amc_id
+          , "option_id": Number(filterVal?.option_id)
+        }
+      }
+      console.log("filterVal",filterVal)
+      console.log("filter",filterVal)
+      console.log("Sort Data : ",sort)
+
+    
+      
+      const payload = {
+        page: pageNumber,
+        limit: pagesize,
+        // filters: filterVal ? {
+        //   "categoryid": filterVal?.categoryid
+        //   , "subcategory_id": filterVal?.subcategory_id
+        //   , "amc_id": filterVal?.amc_id
+        //   , "option_id": Number(filterVal?.option_id)
+        // } : false,
+          filters: filterVal ? filter : false,
+        sort: sort !==null ? sort : { "SchemePerformances.Returns3yr": "DESC" },
       };
       console.log('payload', payload);
       const [result, error]: any = await getFundPickerListDataApi(payload);
@@ -208,55 +249,425 @@ const FundPicker = () => {
     currencySign: 'standard',
     maximumFractionDigits: 0,
   });
+
+
+  const handleSort = (field: string) => {
+    let newOrder = 'ASC';
+
+   
+    if (sortField === field) {
+      if (sortOrder === 'ASC') {
+        newOrder = 'DESC';
+      } else if (sortOrder === 'DESC') {
+        setSortField('');
+        setSortOrder('');
+        const defaultSort = { "SchemePerformances.Returns3yr": "DESC" };
+        getFundPickerscheme('', filterObj, 1, false, defaultSort);
+        return;
+      }
+    }
+
+    setSortField(field);
+    setSortOrder(newOrder);
+
+    const sort = { [field]: newOrder };
+    getFundPickerscheme('', filterObj, 1, false, sort);
+  };
  
     const renderTableHeader = () => {
+
     return (
       <Wrapper customStyles={styles.headerRow}>
         <Wrapper align='center' justify='center' row width={responsiveWidth(45)} customStyles={{paddingHorizontal: responsiveWidth(2),gap:responsiveWidth(1)}}>
         <CusText style={styles.headerCell} size='SS' semibold text={'Scheme'} />
-         <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)}/>
+        <TouchableOpacity onPress={()=>{
+            handleSort('ms_fullname') 
+        }}>
+        <Ionicons
+              name={
+                sortField === 'ms_fullname'
+                  ? sortOrder === 'ASC'
+                    ? 'arrow-up-outline'
+                    : 'arrow-down-outline'
+                  : 'swap-vertical-outline'
+              }
+              color={colors.gray}
+              size={responsiveWidth(3.5)}
+            />
+         </TouchableOpacity>
         </Wrapper>
         <Wrapper row align='center' justify='center' width={responsiveWidth(30)} customStyles={{paddingHorizontal: responsiveWidth(2),gap:responsiveWidth(1)}}>
         <CusText style={styles.headerCell} size='SS' semibold text={'Morning star'} />
-         <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)}/>
+        <TouchableOpacity onPress={() => {
+            handleSort('SchemePerformances.OverallRating') 
+          }}>
+         <Ionicons
+              name={
+                sortField === 'SchemePerformances.OverallRating'
+                  ? sortOrder === 'ASC'
+                    ? 'arrow-up-outline'
+                    : 'arrow-down-outline'
+                  : 'swap-vertical-outline'
+              }
+              color={colors.gray}
+              size={responsiveWidth(3.5)}
+            />
+         </TouchableOpacity>
         </Wrapper>
-        {/* <Text style={[styles.headerCell, styles.nameCell]} >Morning star</Text> */}
-        <Wrapper row align='center' justify='center' width={responsiveWidth(20)} customStyles={{ ...{paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1)} }}>
+       
+        <Wrapper row align='center' justify='center' width={responsiveWidth(20)} customStyles={{ ...{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) } }}>
           <CusText style={styles.headerCell} size='SS' semibold text={'NAV'} />
-          <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
+          <TouchableOpacity onPress={() => {
+            handleSort('SchemePerformances.Nav')
+            // let sort: any = { "SchemePerformances.Nav": "ASC" }
+            // getFundPickerscheme('', null, 1, filterObj, sort)
+            
+          }}>
+            <Ionicons
+              name={
+                sortField === 'SchemePerformances.Nav'
+                  ? sortOrder === 'ASC'
+                    ? 'arrow-up-outline'
+                    : 'arrow-down-outline'
+                  : 'swap-vertical-outline'
+              }
+              color={colors.gray}
+              size={responsiveWidth(3.5)}
+            />
+          </TouchableOpacity>
         </Wrapper>
 
-         <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1)}}>
-          <CusText style={styles.headerCell}  size='SS' semibold text={'AUM (Cr.)'}/>
-              <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
-         </Wrapper>
+        <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+          <CusText style={styles.headerCell} size='SS' semibold text={'AUM (Cr.)'} />
+          <TouchableOpacity onPress={() => {
+               handleSort('SchemePerformances.AUM')
+          }}>
+           <Ionicons
+              name={
+                sortField === 'SchemePerformances.AUM'
+                  ? sortOrder === 'ASC'
+                    ? 'arrow-up-outline'
+                    : 'arrow-down-outline'
+                  : 'swap-vertical-outline'
+              }
+              color={colors.gray}
+              size={responsiveWidth(3.5)}
+            />
+          </TouchableOpacity>
+        </Wrapper>
         <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
           <CusText style={styles.headerCell} size='SS' semibold text={'Exp. Ratio'} />
-          <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
+          <TouchableOpacity onPress={() => {
+            handleSort('SchemePerformances.AUM')
+          }}>
+            <Ionicons
+              name={
+                sortField === 'SchemePerformances.AUM'
+                  ? sortOrder === 'ASC'
+                    ? 'arrow-up-outline'
+                    : 'arrow-down-outline'
+                  : 'swap-vertical-outline'
+              }
+              color={colors.gray}
+              size={responsiveWidth(3.5)}
+            />
+          </TouchableOpacity>
         </Wrapper>
-        <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
-          <CusText style={styles.headerCell} size='SS' semibold text={'1Y'} />
-          <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
-        </Wrapper>
-        <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
-          <CusText style={styles.headerCell} size='SS' semibold text={'3Y'} />
-          <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
-        </Wrapper>
-        <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
-          <CusText style={styles.headerCell} size='SS' semibold text={'5Y'} />
-         <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
-        </Wrapper>
+        {
+          selectedReturn?.includes(1) && (
+            <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+              <CusText style={styles.headerCell} size='SS' semibold text={'1D'} />
+              <TouchableOpacity onPress={() => {
+                handleSort('SchemePerformances.Return1d')
+              }}>
+                <Ionicons
+                  name={
+                    sortField === 'SchemePerformances.Return1d'
+                      ? sortOrder === 'ASC'
+                        ? 'arrow-up-outline'
+                        : 'arrow-down-outline'
+                      : 'swap-vertical-outline'
+                  }
+                  color={colors.gray}
+                  size={responsiveWidth(3.5)}
+                />
+              </TouchableOpacity>
+            </Wrapper>
+          )
+        }
+        {
+          selectedReturn?.includes(2) && (
+            <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+              <CusText style={styles.headerCell} size='SS' semibold text={'1W'} />
+              <TouchableOpacity onPress={() => {
+                handleSort('SchemePerformances.Return1w')
+              }}>
+                <Ionicons
+                  name={
+                    sortField === 'SchemePerformances.Return1w'
+                      ? sortOrder === 'ASC'
+                        ? 'arrow-up-outline'
+                        : 'arrow-down-outline'
+                      : 'swap-vertical-outline'
+                  }
+                  color={colors.gray}
+                  size={responsiveWidth(3.5)}
+                />
+              </TouchableOpacity>
+            </Wrapper>
+          )
+        }
+         {
+          selectedReturn?.includes(3) && (
+            <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+              <CusText style={styles.headerCell} size='SS' semibold text={'1M'} />
+              <TouchableOpacity onPress={() => {
+                handleSort('SchemePerformances.Return1mth')
+              }}>
+                <Ionicons
+                  name={
+                    sortField === 'SchemePerformances.Return1mth'
+                      ? sortOrder === 'ASC'
+                        ? 'arrow-up-outline'
+                        : 'arrow-down-outline'
+                      : 'swap-vertical-outline'
+                  }
+                  color={colors.gray}
+                  size={responsiveWidth(3.5)}
+                />
+              </TouchableOpacity>
+            </Wrapper>
+          )
+        }
+        {
+          selectedReturn?.includes(4) && (
+            <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+              <CusText style={styles.headerCell} size='SS' semibold text={'3M'} />
+              <TouchableOpacity onPress={() => {
+                handleSort('SchemePerformances.Return3mth')
+              }}>
+                <Ionicons
+                  name={
+                    sortField === 'SchemePerformances.Return3mth'
+                      ? sortOrder === 'ASC'
+                        ? 'arrow-up-outline'
+                        : 'arrow-down-outline'
+                      : 'swap-vertical-outline'
+                  }
+                  color={colors.gray}
+                  size={responsiveWidth(3.5)}
+                />
+              </TouchableOpacity>
+            </Wrapper>
+          )
+        }
+         {
+          selectedReturn?.includes(5) && (
+            <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+              <CusText style={styles.headerCell} size='SS' semibold text={'6M'} />
+              <TouchableOpacity onPress={() => {
+                handleSort('SchemePerformances.Return6mth')
+              }}>
+                <Ionicons
+                  name={
+                    sortField === 'SchemePerformances.Return6mth'
+                      ? sortOrder === 'ASC'
+                        ? 'arrow-up-outline'
+                        : 'arrow-down-outline'
+                      : 'swap-vertical-outline'
+                  }
+                  color={colors.gray}
+                  size={responsiveWidth(3.5)}
+                />
+              </TouchableOpacity>
+            </Wrapper>
+          )
+        }
+        {
+          selectedReturn?.includes(6) && (
+            <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+              <CusText style={styles.headerCell} size='SS' semibold text={'1Y'} />
+              <TouchableOpacity onPress={() => {
+                handleSort('SchemePerformances.Return1yr')
+              }}>
+                <Ionicons
+                  name={
+                    sortField === 'SchemePerformances.Return1yr'
+                      ? sortOrder === 'ASC'
+                        ? 'arrow-up-outline'
+                        : 'arrow-down-outline'
+                      : 'swap-vertical-outline'
+                  }
+                  color={colors.gray}
+                  size={responsiveWidth(3.5)}
+                />
+              </TouchableOpacity>
+            </Wrapper>
+          )
+        }
+         {
+          selectedReturn?.includes(7) && (
+            <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+              <CusText style={styles.headerCell} size='SS' semibold text={'2Y'} />
+              <TouchableOpacity onPress={() => {
+                handleSort('SchemePerformances.Returns2yr')
+              }}>
+                <Ionicons
+                  name={
+                    sortField === 'SchemePerformances.Returns2yr'
+                      ? sortOrder === 'ASC'
+                        ? 'arrow-up-outline'
+                        : 'arrow-down-outline'
+                      : 'swap-vertical-outline'
+                  }
+                  color={colors.gray}
+                  size={responsiveWidth(3.5)}
+                />
+              </TouchableOpacity>
+            </Wrapper>
+          )
+        }
+        {
+          selectedReturn?.includes(8) && (
+            <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+              <CusText style={styles.headerCell} size='SS' semibold text={'3Y'} />
+              <TouchableOpacity onPress={() => {
+                handleSort('SchemePerformances.Returns3yr')
+              }}>
+                <Ionicons
+                  name={
+                    sortField === 'SchemePerformances.Returns3yr'
+                      ? sortOrder === 'ASC'
+                        ? 'arrow-up-outline'
+                        : 'arrow-down-outline'
+                      : 'swap-vertical-outline'
+                  }
+                  color={colors.gray}
+                  size={responsiveWidth(3.5)}
+                />
+              </TouchableOpacity>
+            </Wrapper>
+          )
+        }
+        {
+          selectedReturn?.includes(9) && (
+            <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+              <CusText style={styles.headerCell} size='SS' semibold text={'5Y'} />
+              <TouchableOpacity onPress={() => {
+                handleSort('SchemePerformances.Returns5yr')
+              }}>
+                <Ionicons
+                  name={
+                    sortField === 'SchemePerformances.Returns5yr'
+                      ? sortOrder === 'ASC'
+                        ? 'arrow-up-outline'
+                        : 'arrow-down-outline'
+                      : 'swap-vertical-outline'
+                  }
+                  color={colors.gray}
+                  size={responsiveWidth(3.5)}
+                />
+              </TouchableOpacity>
+            </Wrapper>
+          )
+        }
+        {
+          selectedReturn?.includes(10) && (
+            <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+              <CusText style={styles.headerCell} size='SS' semibold text={'7Y'} />
+              <TouchableOpacity onPress={() => {
+                handleSort('SchemePerformances.Returns7yr')
+              }}>
+                <Ionicons
+                  name={
+                    sortField === 'SchemePerformances.Returns7yr'
+                      ? sortOrder === 'ASC'
+                        ? 'arrow-up-outline'
+                        : 'arrow-down-outline'
+                      : 'swap-vertical-outline'
+                  }
+                  color={colors.gray}
+                  size={responsiveWidth(3.5)}
+                />
+              </TouchableOpacity>
+            </Wrapper>
+          )
+        }
+        {
+          selectedReturn?.includes(11) && (
+            <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
+              <CusText style={styles.headerCell} size='SS' semibold text={'10Y'} />
+              <TouchableOpacity onPress={() => {
+                handleSort('SchemePerformances.Returns10yr')
+              }}>
+                <Ionicons
+                  name={
+                    sortField === 'SchemePerformances.Returns10yr'
+                      ? sortOrder === 'ASC'
+                        ? 'arrow-up-outline'
+                        : 'arrow-down-outline'
+                      : 'swap-vertical-outline'
+                  }
+                  color={colors.gray}
+                  size={responsiveWidth(3.5)}
+                />
+              </TouchableOpacity>
+            </Wrapper>
+          )
+        }
+       
+       
         <Wrapper row align='center' justify='center' width={responsiveWidth(25)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1) }}>
           <CusText style={styles.headerCell} size='SS' semibold text={'Since Incep'} />
-          <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
+          <TouchableOpacity onPress={() => {
+             handleSort('SchemePerformances.ReturnSinceIncep')
+          }}>
+         <Ionicons
+              name={
+                sortField === 'SchemePerformances.ReturnSinceIncep'
+                  ? sortOrder === 'ASC'
+                    ? 'arrow-up-outline'
+                    : 'arrow-down-outline'
+                  : 'swap-vertical-outline'
+              }
+              color={colors.gray}
+              size={responsiveWidth(3.5)}
+            />
+          </TouchableOpacity>
         </Wrapper>
         <Wrapper row align='center' justify='center' width={responsiveWidth(40)} customStyles={{ paddingHorizontal: responsiveWidth(2), gap: responsiveWidth(1)}}>
           <CusText style={styles.headerCell} size='SS' semibold text={'Launch Date'} />
-           <Ionicons name='swap-vertical-outline' color={colors.gray} size={responsiveWidth(3.5)} />
+          <TouchableOpacity onPress={() => {
+            // let sort: any = { "inception_date": "ASC" }
+            // getFundPickerscheme('', null, 1, filterObj, sort)
+             handleSort('inception_date')
+          }}>
+           <Ionicons
+              name={
+                sortField === 'inception_date'
+                  ? sortOrder === 'ASC'
+                    ? 'arrow-up-outline'
+                    : 'arrow-down-outline'
+                  : 'swap-vertical-outline'
+              }
+              color={colors.gray}
+              size={responsiveWidth(3.5)}
+            />
+           </TouchableOpacity>
         </Wrapper>
       </Wrapper>
     );
   };
+
+  const toggleReturnColums = (item: any) => {
+  setSelectedReturn(prevSelected => {
+    if (prevSelected.includes(item.id)) {
+      return prevSelected.filter(id => id !== item.id);
+    } else {
+      return [...prevSelected, item.id];
+    }
+  });
+};
 
  const renderFundItem = ({ item }:any) => (
     <Wrapper customStyles={styles.row}>
@@ -326,27 +737,130 @@ const FundPicker = () => {
          <CusText size='SS' position='center' text={item.net_expense_ratio} />
        </Wrapper>
      </View>
-     <View style={[styles.cell, { width: responsiveWidth(25), }]}>
-       <Wrapper position='center' align="center" row>
-         <CusText size='SS' position='center' text={toFixedDataForReturn(
-           item?.SchemePerformances?.[0]?.Return1yr,
-         )} />
-       </Wrapper>
-     </View>
-     <View style={[styles.cell, { width: responsiveWidth(25), }]}>
-       <Wrapper position='center' align="center" row>
-         <CusText size='SS' position='center' text={toFixedDataForReturn(
-           item?.SchemePerformances?.[0]?.Returns3yr,
-         )} />
-       </Wrapper>
-     </View>
-     <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+     {
+       selectedReturn?.includes(1) && (
+         <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+           <Wrapper position='center' align="center" row>
+             <CusText size='SS' position='center' text={toFixedDataForReturn(
+               item?.SchemePerformances?.[0]?.Return1d,
+             )} />
+           </Wrapper>
+         </View>
+       )
+     }
+     {
+       selectedReturn?.includes(2) && (
+         <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+           <Wrapper position='center' align="center" row>
+             <CusText size='SS' position='center' text={toFixedDataForReturn(
+               item?.SchemePerformances?.[0]?.Return1w,
+             )} />
+           </Wrapper>
+         </View>
+       )
+     }
+     {
+       selectedReturn?.includes(3) && (
+         <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+           <Wrapper position='center' align="center" row>
+             <CusText size='SS' position='center' text={toFixedDataForReturn(
+               item?.SchemePerformances?.[0]?.Return1mth,
+             )} />
+           </Wrapper>
+         </View>
+       )
+     }
+     {
+       selectedReturn?.includes(4) && (
+         <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+           <Wrapper position='center' align="center" row>
+             <CusText size='SS' position='center' text={toFixedDataForReturn(
+               item?.SchemePerformances?.[0]?.Return3mth,
+             )} />
+           </Wrapper>
+         </View>
+       )
+     }
+     {
+       selectedReturn?.includes(5) && (
+         <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+           <Wrapper position='center' align="center" row>
+             <CusText size='SS' position='center' text={toFixedDataForReturn(
+               item?.SchemePerformances?.[0]?.Return6mth,
+             )} />
+           </Wrapper>
+         </View>
+       )
+     }
+     {
+       selectedReturn?.includes(6) && (
+         <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+           <Wrapper position='center' align="center" row>
+             <CusText size='SS' position='center' text={toFixedDataForReturn(
+               item?.SchemePerformances?.[0]?.Return1yr,
+             )} />
+           </Wrapper>
+         </View>
+       )
+     }
+     {
+       selectedReturn?.includes(7) && (
+         <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+           <Wrapper position='center' align="center" row>
+             <CusText size='SS' position='center' text={toFixedDataForReturn(
+               item?.SchemePerformances?.[0]?.Returns2yr,
+             )} />
+           </Wrapper>
+         </View>
+       )
+     }
+     {
+       selectedReturn?.includes(8) && (
+         <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+           <Wrapper position='center' align="center" row>
+             <CusText size='SS' position='center' text={toFixedDataForReturn(
+               item?.SchemePerformances?.[0]?.Returns3yr,
+             )} />
+           </Wrapper>
+         </View>
+       )
+     }
+     {
+       selectedReturn?.includes(9) && (
+         <View style={[styles.cell, { width: responsiveWidth(25), }]}>
        <Wrapper position='center' align="center" row>
          <CusText size='SS' position='center' text={toFixedDataForReturn(
            item?.SchemePerformances?.[0]?.Returns5yr,
          )} />
        </Wrapper>
      </View>
+       )
+     }
+     {
+       selectedReturn?.includes(10) && (
+         <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+       <Wrapper position='center' align="center" row>
+         <CusText size='SS' position='center' text={toFixedDataForReturn(
+           item?.SchemePerformances?.[0]?.Returns7yr,
+         )} />
+       </Wrapper>
+     </View>
+       )
+     }
+     {
+       selectedReturn?.includes(11) && (
+         <View style={[styles.cell, { width: responsiveWidth(25), }]}>
+       <Wrapper position='center' align="center" row>
+         <CusText size='SS' position='center' text={toFixedDataForReturn(
+           item?.SchemePerformances?.[0]?.Returns10yr,
+         )} />
+       </Wrapper>
+     </View>
+       )
+     }
+   
+   
+    
      <View style={[styles.cell, { width: responsiveWidth(25), }]}>
        <Wrapper position='center' align="center" row>
          <CusText size='SS' position='center' text={item?.SchemePerformances[0]?.ReturnSinceIncep ? item?.SchemePerformances[0]?.ReturnSinceIncep.toFixed(2) : '-'} />
@@ -398,7 +912,7 @@ const FundPicker = () => {
           </Wrapper>
         </TouchableOpacity>
         <Wrapper customStyles={{ position: "relative" }}>
-          <TouchableOpacity activeOpacity={0.6} onPress={() => { setIsDownloadVisible(!isDownloadVisible) }}>
+          <TouchableOpacity activeOpacity={0.6} onPress={() => {setIsReturnsVisible(false) , setIsDownloadVisible(!isDownloadVisible) }}>
             <Wrapper customStyles={{ padding: responsiveWidth(2.5), borderRadius: borderRadius.normal, borderColor: colors.inputBorder, borderWidth: 1 }}>
               <Image resizeMode='contain' source={require('../../../assets/Images/downloadfile.png')} style={{ height: responsiveWidth(5), width: responsiveWidth(5) }} />
             </Wrapper>
@@ -406,13 +920,13 @@ const FundPicker = () => {
           {
             isDownloadVisible ?
               <Wrapper position='end' width={responsiveWidth(20)} color={colors.Hard_White} customStyles={{ position: "absolute", top: "95%", zIndex: 1, borderRadius: borderRadius.normal,borderColor:colors.inputBorder,borderWidth:1 }}>
-                <TouchableOpacity onPress={() => { setIsDownloadVisible(!isDownloadVisible) }}>
+                <TouchableOpacity onPress={() => {setIsReturnsVisible(false) , setIsDownloadVisible(!isDownloadVisible) }}>
                   <Wrapper row align='center' position='start' justify='center' customStyles={{ paddingHorizontal:responsiveWidth(2), paddingVertical: responsiveHeight(1),gap:responsiveWidth(1) }}>
                    <Image resizeMode='contain' style={{height:responsiveWidth(3.5),width:responsiveWidth(3.5)}} source={require('../../../assets/Images/excelpic.png')} />
                     <CusText semibold text={'EXCEL'} />
                   </Wrapper>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => { setIsDownloadVisible(!isDownloadVisible) }}>
+                <TouchableOpacity onPress={() => {setIsReturnsVisible(false) , setIsDownloadVisible(!isDownloadVisible) }}>
                   <Wrapper row align='center' position='start' justify='center' customStyles={{ paddingHorizontal:responsiveWidth(2), paddingVertical: responsiveHeight(1),gap:responsiveWidth(1) }}>
                     <Image resizeMode='contain' style={{height:responsiveWidth(3.5),width:responsiveWidth(3.5)}} source={require('../../../assets/Images/pdfpic.png')} />
                     <CusText semibold text={'PDF'} />
@@ -424,7 +938,7 @@ const FundPicker = () => {
           }
         </Wrapper>
         <Wrapper customStyles={{ position: "relative" }}>
-          <TouchableOpacity activeOpacity={0.6} onPress={() => { setIsReturnsVisible(!isReturnsVisible) }}>
+          <TouchableOpacity activeOpacity={0.6} onPress={() => { setIsDownloadVisible(false),setIsReturnsVisible(!isReturnsVisible) }}>
             <Wrapper customStyles={{ padding: responsiveWidth(2.5), borderRadius: borderRadius.normal, borderColor: colors.inputBorder, borderWidth: 1 }}>
               <Image resizeMode='contain' source={require('../../../assets/Images/openfile.png')} style={{ height: responsiveWidth(5), width: responsiveWidth(5) }} />
             </Wrapper>
@@ -436,9 +950,10 @@ const FundPicker = () => {
                   defaultReturns?.map((item: any, index: any) => {
                     return (
                       <>
-                        <TouchableOpacity onPress={() => { setIsReturnsVisible(!isReturnsVisible) }}>
+                        <TouchableOpacity onPress={() => { toggleReturnColums(item) }}>
                           <Wrapper row align='center' customStyles={{ paddingHorizontal: responsiveWidth(2), paddingVertical: responsiveHeight(1), gap: responsiveWidth(1) }}>
-                         <Ionicons name='square-outline' size={responsiveWidth(4)} />
+                        
+                         <Ionicons name={selectedReturn.includes(item?.id) ? 'checkbox' : 'square-outline'} size={responsiveWidth(4)} />
                             <CusText semibold text={item?.name} />
                           </Wrapper>
                         </TouchableOpacity>
@@ -485,6 +1000,10 @@ const FundPicker = () => {
           setFilterObj(newFilters);
           setPage(1);
           getFundPickerscheme(search, newFilters, 1, true);
+        }}
+        onResetApply={() => {
+         
+          getFundPickerscheme(search, null, 1, false,null);
         }}
         ListEmptyComponent={
           !loader && (

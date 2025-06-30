@@ -27,6 +27,7 @@ const FundPickerFilter = ({
   natureList,
   amcList,
   onFilterApply,
+  onResetApply,
 }: any) => {
   const [selectCategory, setSelectCategory] = useState<any>([]);
   const [selectSubCategory, setSelectSubCategory] = useState<any>([]);
@@ -75,7 +76,7 @@ const FundPickerFilter = ({
   'Index': 'selectIndex',
   'ETF': 'selectETF',
 };
-  const [selectNature, setSelectNature] = useState<number | null>(null);
+  const [selectNature, setSelectNature] = useState<number | null>(1);
   const [selectReturn, setSelectReturn] = useState<number | null>(null);
   const [selectIncluded, setSelectIncluded] = useState<any>([]);
   const [selectType, setSelectType] = useState<number | null>(null);
@@ -95,6 +96,7 @@ const FundPickerFilter = ({
   console.log('Category Data ====>>>: ', categoryData)
 
   useEffect(() => {
+    setSelectNature(1)
     if (isVisible && filterObj) {
       setSelectCategory(filterObj?.categoryid || []);
       setSelectSubCategory(filterObj?.subcategory_id || []);
@@ -165,6 +167,8 @@ const FundPickerFilter = ({
     setSelectCategory([]);
     setSelectNature(null);
     setSelectSubCategory([]);
+    onResetApply()
+    setisVisible(false);
   };
 
   const toggleAssetClass = (data: any) => {
@@ -574,9 +578,9 @@ const toggleIncluded = (item: any) => {
               onFilterApply({
                 categoryid: selectCategory,
                 subcategory_id: selectSubCategory,
-                amc_id: selectAmc,
+                // amc_id: selectAmc,
                 option_id: selectNature,
-                selectInclude:selectInclude
+                // selectInclude:selectInclude
               });
               setisVisible(false);
             }}
