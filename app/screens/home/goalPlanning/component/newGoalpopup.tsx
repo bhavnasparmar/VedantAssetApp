@@ -71,25 +71,11 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
                 inflation: '',
                 months: '',
             })
-        if (isVisible) {
+       
             if (editGoalData) {
-                setForm({
-                     ...Form,
-                title: '',
-                targetammount: '',
-                inflation: 0,
-                months: '',
-            });
-            setFormError({
-                 ...FormError,
-                title: '',
-                targetammount: '',
-                inflation: '',
-                months: '',
-            })
                 getEditDetails(editGoalData)
             }
-        }
+      
 
 
         return () => {
@@ -110,7 +96,7 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
 
         };
 
-    }, [isFocused, isVisible]);
+    }, [isVisible,isFocused]);
 
 
 
@@ -152,30 +138,61 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
         //     inflation: 0,
         //     months: '',
         // });
-        setFormError({
+        console.log('Edit goal Data 1: ', data)
+          setFormError({
             ...FormError,
             title: '',
             targetammount: '',
             inflation: '',
             months: '',
         })
-            console.log('Edit goal Data 1: ', data?.inflation_perc)
-            setEditedData(data)
-            handleFormChange({ key: 'title', value: data?.goal_label })
-            handleFormChange({ key: 'targetammount', value: String(data?.target_amt) })
-            if (Number(data?.inflation_perc) === 0 || data?.inflation_perc === undefined) {
+        let inflation:any = 0
+        if (Number(data?.inflation_perc) === 0 || data?.inflation_perc === undefined) {
                 setIsEnabled(false)
-                setFormError({
-                    ...FormError,
-                    inflation: '',
-                })
+                inflation=''
+                // setForm({
+                //     ...Form,
+                //     inflation: 0,
+                // });
                 // handleFormChange({ key: 'inflation', value: '' })
             } else {
 
                 setIsEnabled(true)
-                handleFormChange({ key: 'inflation', value: data?.inflation_perc })
+                // handleFormChange({ key: 'inflation', value: data?.inflation_perc })
+                inflation=Number(data?.inflation_perc)
+                // setForm({
+                //     ...Form,
+                //     inflation: Number(data?.inflation_perc),
+                // });
             }
-            handleFormChange({ key: 'months', value: data?.duration_mts === 0 ? String(data?.sip_duration_mts) : String(data?.duration_mts) })
+      
+         setForm({
+            title: data?.goal_label,
+            targetammount:  String(data?.target_amt),
+            inflation: inflation,
+            months: data?.duration_mts === 0 ? String(data?.sip_duration_mts) : String(data?.duration_mts),
+        });
+            // console.log('Edit goal Data 1: ', data?.inflation_perc)
+            // setEditedData(data)
+            // handleFormChange({ key: 'title', value: data?.goal_label })
+            // handleFormChange({ key: 'targetammount', value: String(data?.target_amt) })
+            // if (Number(data?.inflation_perc) === 0 || data?.inflation_perc === undefined) {
+            //     setIsEnabled(false)
+            //     setForm({
+            //         ...Form,
+            //         inflation: 0,
+            //     });
+            //     // handleFormChange({ key: 'inflation', value: '' })
+            // } else {
+
+            //     setIsEnabled(true)
+            //     // handleFormChange({ key: 'inflation', value: data?.inflation_perc })
+            //     setForm({
+            //         ...Form,
+            //         inflation: Number(data?.inflation_perc),
+            //     });
+            // }
+            // handleFormChange({ key: 'months', value: data?.duration_mts === 0 ? String(data?.sip_duration_mts) : String(data?.duration_mts) })
 
         } catch (error: any) {
             console.log('getEditDetails Catch Error 1', error)
