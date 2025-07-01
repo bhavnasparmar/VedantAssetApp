@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useContext} from 'react';
-import {Text, TouchableOpacity, View} from 'react-native';
+import {ScrollView, Text, TouchableOpacity, View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import Slider from '@react-native-community/slider';
@@ -286,23 +286,30 @@ useFocusEffect(
   return (
     <Container Xcenter contentWidth={responsiveWidth(100)}>
       {/* sample */}
+      <Wrapper position='center' color={colors.Hard_White} width={responsiveWidth(94)} height={responsiveHeight(80)} 
+      customStyles={{ borderRadius: borderRadius.large, 
+      marginVertical: responsiveWidth(3), padding: responsiveWidth(5), 
+      paddingHorizontal: responsiveWidth(3),justifyContent:'center'}}>
+        <ScrollView>
        {questionList?.map((items:any,ini:number)=>
-      <Wrapper customStyles={{gap: 20, marginBottom: responsiveWidth(2), borderBottomWidth: 1, paddingLeft: responsiveWidth(0), paddingVertical: responsiveWidth(2)}} borderColor={colors.gray}>
+      <Wrapper customStyles={{gap: 20, marginBottom: responsiveWidth(1), borderBottomWidth: 1, paddingLeft: responsiveWidth(0),
+         paddingVertical: responsiveWidth(1)}}
+       borderColor={colors.tabBg}>
         <TouchableOpacity onPress={()=>{toggel(items,ini)}}>
       <Wrapper row align="center" customStyles={{gap: 20, paddingLeft: responsiveWidth(5)}}>
         {/* <Wrapper justify="center" align="center" width={responsiveWidth(10)} height={responsiveWidth(10)} customStyles={{borderRadius: borderRadius.ring}}>
           <CusText text={"1"} color={colors.Hard_Black} size="M" />
         </Wrapper> */}
         <Wrapper customStyles={{flex: 1}}>
-          <CusText text={items?.question} color={colors.Hard_Black} size={items.selectAns ? "S" : "M"} />
+          <CusText text={items?.question} color={colors.Hard_Black} size={items.selectAns ? "SS" : "SS"} />
           { items.selectAns ?
-          <CusText text={items.selectAns} color={colors.Hard_Black} size="M" />
+          <CusText text={items.selectAns} color={colors.Hard_Black} size="SS" />
           : null }
         </Wrapper>
         <Wrapper justify="center" align="center" width={responsiveWidth(10)} height={responsiveWidth(10)} customStyles={{borderRadius: borderRadius.ring}}>
           <IonIcon
-                  name={items?.question == currentQ?.question ? 'chevron-up-outline' : 'chevron-down-outline'}
-                  size={24}
+                  name={items?.question == currentQ?.question ? 'chevron-up-circle' : 'chevron-down-circle'}
+                  size={20}
                   color={colors.secondary}
                 />
         </Wrapper>
@@ -333,7 +340,7 @@ useFocusEffect(
                       ? 'checkmark-circle'
                       : 'checkmark-circle'
                   }
-                  size={28}
+                  size={24}
                   color={
                     items.selectAns === item.answer
                       ? colors.green
@@ -343,7 +350,7 @@ useFocusEffect(
                 />
                 <CusText
                   text={item.answer}
-                  size="SN"
+                  size="SS"
                   customStyles={{width: responsiveWidth(67)}}
                 />
               </Wrapper>
@@ -351,7 +358,8 @@ useFocusEffect(
           ))}
           </>:null}
       </Wrapper>)}
-
+      </ScrollView>
+</Wrapper>
       {/* <Wrapper customStyles={{gap: 20, marginBottom: responsiveWidth(2), borderBottomWidth: 1, paddingLeft: responsiveWidth(5), paddingVertical: responsiveWidth(4)}} borderColor={colors.gray}>
       <Wrapper row align="center" customStyles={{gap: 20}}> */}
         {/* <Wrapper justify="center" align="center" width={responsiveWidth(10)} height={responsiveWidth(10)} customStyles={{borderRadius: borderRadius.ring}}>
