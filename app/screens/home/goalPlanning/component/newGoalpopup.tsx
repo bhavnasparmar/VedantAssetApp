@@ -57,8 +57,36 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
 
     useEffect(() => {
         console.log('editGoalData : ', editGoalData)
+         setForm({
+                ...Form,
+                title: '',
+                targetammount: '',
+                inflation: 0,
+                months: '',
+            });
+            setFormError({
+                ...FormError,
+                title: '',
+                targetammount: '',
+                inflation: '',
+                months: '',
+            })
         if (isVisible) {
             if (editGoalData) {
+                setForm({
+                     ...Form,
+                title: '',
+                targetammount: '',
+                inflation: 0,
+                months: '',
+            });
+            setFormError({
+                 ...FormError,
+                title: '',
+                targetammount: '',
+                inflation: '',
+                months: '',
+            })
                 getEditDetails(editGoalData)
             }
         }
@@ -66,12 +94,14 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
 
         return () => {
             setForm({
+                ...Form,
                 title: '',
                 targetammount: '',
                 inflation: 0,
                 months: '',
             });
             setFormError({
+                ...FormError,
                 title: '',
                 targetammount: '',
                 inflation: '',
@@ -104,6 +134,7 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
             months: '',
         });
         setFormError({
+            ...FormError,
             title: '',
             targetammount: '',
             inflation: '',
@@ -115,13 +146,14 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
 
     const getEditDetails = async (data: any) => {
         try {
-             setForm({
-            title: '',
-            targetammount: '',
-            inflation: 0,
-            months: '',
-        });
+        //      setForm({
+        //     title: '',
+        //     targetammount: '',
+        //     inflation: 0,
+        //     months: '',
+        // });
         setFormError({
+            ...FormError,
             title: '',
             targetammount: '',
             inflation: '',
@@ -133,7 +165,11 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
             handleFormChange({ key: 'targetammount', value: String(data?.target_amt) })
             if (Number(data?.inflation_perc) === 0 || data?.inflation_perc === undefined) {
                 setIsEnabled(false)
-                handleFormChange({ key: 'inflation', value: 0 })
+                setFormError({
+                    ...FormError,
+                    inflation: '',
+                })
+                // handleFormChange({ key: 'inflation', value: '' })
             } else {
 
                 setIsEnabled(true)
