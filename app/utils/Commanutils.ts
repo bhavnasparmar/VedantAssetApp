@@ -6,7 +6,7 @@ import { getGoalPlanningDetails, getRiskObject, getuserDetails } from '../Redux/
 
 //live server base url
 // export const API_URL = 'https://prosesenv.com:9065/';
-//export const API_URL = 'http://192.168.1.26:9065/';
+// export const API_URL = 'http://192.168.1.62:3000/';
 export const API_URL = 'https://vedant.prosesenv.com:9065/';
 export const IMAGE_URL = `${API_URL}static/`;
 export const IMAGE_URL_GOAL = `${API_URL}static/`;

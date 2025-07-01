@@ -97,13 +97,13 @@ const DropDown = ({
         <Wrapper
           row
           customStyles={styles.DDRow}
-          color={colors.BACKGROUND_COLOR}>
+          color={colors.ddItemBg}>
           {/* <Wrapper customStyles={styles.DDLeft} color={colors.BACKGROUND_COLOR}></Wrapper> */}
           <Wrapper
             align="center"
             row
             customStyles={styles.DD}
-            color={colors.BACKGROUND_COLOR}>
+            color={colors.ddItemBg}>
             <CusText text={item[labelField]} size="S" color={colors.black} />
           </Wrapper>
           {/* <Wrapper customStyles={styles.DDRight}></Wrapper> */}
@@ -188,7 +188,7 @@ const DropDown = ({
               )}
               iconColor={colors.black}
               containerStyle={{
-                backgroundColor: colors.BACKGROUND_COLOR,
+                backgroundColor: colors.ddItemBg,
                 borderRadius: borderRadius.normal,
                 padding: responsiveWidth(2),
                 width: '100%',
@@ -282,7 +282,7 @@ const DropDown = ({
                 renderItem={(item: any) => renderDropdownItem(item)}
                 iconColor={colors.black}
                 containerStyle={{
-                  backgroundColor: colors.BACKGROUND_COLOR,
+                  backgroundColor: colors.ddItemBg,
                   borderRadius: borderRadius.normal,
                   padding: responsiveWidth(2),
                 }}

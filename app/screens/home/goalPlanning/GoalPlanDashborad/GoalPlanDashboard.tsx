@@ -42,15 +42,23 @@ const GoalDashboard = () => {
   const [pageName, setPageName] = useState<any>('')
 
   useEffect(() => {
-    if (route?.params?.tabNumber) {
-      console.log('Route Available')
-      setEditGoalData(route?.params?.goalPlanData)
+    if (route?.params?.tabNumber === 0) {
       setIndex(route?.params?.tabNumber)
-      setIsVisible(route?.params?.showAlert)
-      setPageName('')
+      setIsVisible(false)
     } else {
-      console.log('Route Not Available')
+      if (route?.params?.tabNumber) {
+        console.log('Route Available')
+        setEditGoalData(route?.params?.goalPlanData)
+        setIndex(route?.params?.tabNumber)
+        setIsVisible(route?.params?.tabNumber === 0 ? false : route?.params?.showAlert)
+        setPageName('')
+      } else {
+        // console.log('Route Not Available')
+        // setIsVisible(false)
+      }
     }
+
+
   }, [isFocused])
 
   const renderScene = ({ route }: any) => {

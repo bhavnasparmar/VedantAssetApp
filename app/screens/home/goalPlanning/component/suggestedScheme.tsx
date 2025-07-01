@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Modal from "react-native-modal";
 import Wrapper from '../../../../ui/wrapper';
 import CusText from '../../../../ui/custom-text';
-import { borderRadius, colors, responsiveHeight, responsiveWidth } from '../../../../styles/variables';
+import { borderRadius, colors, fontSize, responsiveHeight, responsiveWidth } from '../../../../styles/variables';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import DropDown from '../../../../ui/dropdown';
 import CusButton from '../../../../ui/custom-button';
@@ -248,7 +248,8 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
 
 
 
-    const color = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'];
+    // const color = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'];
+    const color = [colors.orange, '#DEDEDE', '#17BECF', '#4BC0C0'];
 
     const chartData = getGoalPlanning()?.allocArr.map((item: any, index: any) => ({
         value: Number(item.weightage),
@@ -359,9 +360,9 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                 console.log('allocPayload ==== >>> :', allocPayload)
                 const [resultAlloc, errorAlloc]: any = await saveGoalDataAllocApi(allocPayload);
                 if (resultAlloc) {
-                    console.log('resultAlloc  ==== >>> ', resultAlloc)
+                    console.log('resultAlloc Save Goal <<< ==== >>> ', resultAlloc)
                     showToast(toastTypes.success, result?.msg)
-                    navigation.navigate('GoalPlanDashboard', { tabNumber: 0 })
+                    navigation.navigate('GoalPlanDashboard', { tabNumber: 0})
                 } else {
                     console.log('saveGoalDataAllocApi Error', errorAlloc)
                     showToast(toastTypes.info, errorAlloc)
@@ -439,13 +440,15 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                         <Spacer y='XS' />
                     </Wrapper>
                 </Wrapper> */}
-                <Wrapper customStyles={{ marginBottom: responsiveWidth(1), }}>
+                <Wrapper customStyles={{ marginBottom: responsiveWidth(1),borderWidth:1,borderRadius:borderRadius.medium }}borderColor={colors.cardborder}>
                     <Wrapper customStyles={{ paddingHorizontal: responsiveWidth(2) }}>
-                        <Wrapper row align='center' justify='apart' customStyles={{ marginVertical: responsiveWidth(3) }}>
+                        <Spacer y='XS' />
+                        <CusText text={'Suggested Investments'} size='SS' semibold/>
+                        <Wrapper row align='center' justify='apart' customStyles={{ marginVertical: responsiveWidth(4) }}>
                             <Wrapper width={responsiveWidth(75)}>
-                                <CusText underline size='M' color={colors.label} semibold text={`${item?.SchemeCategory?.Name} - ${item?.SchemeSubcategory?.Name}`} />
+                                <CusText underline size='SS' color={colors.label} semibold text={`${item?.SchemeCategory?.Name} - ${item?.SchemeSubcategory?.Name}`} />
                             </Wrapper>
-                            <TouchableOpacity activeOpacity={0.6} onPress={() => {
+                            {/* <TouchableOpacity activeOpacity={0.6} onPress={() => {
                                 navigation.navigate('SchemeEdit',
                                     {
                                         currentScheme: item,
@@ -457,66 +460,67 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                                     })
                             }}>
                                 <CusText size='N' color={colors.orange} bold text={'Change'} />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
 
                         </Wrapper>
-                        <Wrapper align='center' row justify='apart'>
-                            <CusText size='N' color={colors.label} bold text={`${item?.SchemeMaster?.name}`} />
-
-
-                        </Wrapper>
-                        <Spacer y='XS' />
-
-
-                        {/* <Wrapper>
-                            <LinearGradient
-                                start={{ x: 1, y: 0 }}
-                                end={{ x: 0, y: 1 }}
-                                colors={[colors.transparent, colors.primary, colors.transparent]}
-                                style={{ width: '100%', height: 2, opacity: 0.5 }}></LinearGradient>
-                        </Wrapper>
-                        <Spacer y='XS' /> */}
-                        <Wrapper color={colors.lightGray} customStyles={{ borderWidth: 0, padding: responsiveWidth(2), borderRadius: borderRadius.middleSmall }}>
-                            <Wrapper row align='center' justify='apart'>
-                                <Wrapper position='center' align='start'>
-                                    <CusText size='SS' color={colors.label} text={'Amount'} />
-                                    <CusText size='M' color={colors.label} text={'₹ ' + amount} />
+                        <Wrapper customStyles={{gap:responsiveWidth(1.5)}}>
+                            <Wrapper align='center' row>
+                                <CusText size='SS' color={colors.label} bold text={`Scheme: `} />
+                                <CusText size='SS' color={colors.label} text={`${item?.SchemeMaster?.name}`} />
+                            </Wrapper>
+                            <Wrapper align='center' row>
+                                <CusText size='SS' color={colors.label} bold text={`Morningstar Rating: `} />
+                                <Wrapper row align='center' customStyles={{ gap: responsiveWidth(1) }}>
+                                    <CusText size='SS' color={colors.label} text={item?.SchemeMaster?.SchemePerformances[0]?.OverallRating || 0} />
+                                    <IonIcon name='star' color={colors.orange} size={10} />
                                 </Wrapper>
-                                <Wrapper align='center' position='center'>
-                                    <CusText size='SS' position='center' color={colors.label} text={'Morningstar Rating'} />
-                                    <Wrapper row align='center'>
-                                        <CusText size='M' color={colors.label} text={item?.SchemeMaster?.SchemePerformances[0]?.OverallRating || 0} />
-                                        <IonIcon name='star' color={colors.orange} size={responsiveWidth(4)} />
+                            </Wrapper>
+                            <Wrapper align='center' justify='apart' row customStyles={{}}>
+                                <Wrapper customStyles={{gap:responsiveWidth(1.5)}}>
+                                    <Wrapper align='center' row >
+                                        <CusText size='MS' color={colors.label} bold text={`Return 1y: `} />
+                                        <CusText size='MS' color={colors.label} text={item?.SchemeMaster?.SchemePerformances[0]?.Return1yr ? item?.SchemeMaster?.SchemePerformances[0]?.Return1yr.toFixed(2) + '%' : '----'} />
+                                    </Wrapper>
+                                    <Wrapper align='center' row >
+                                        <CusText size='MS' color={colors.label} bold text={`Weightage: `} />
+                                        <CusText size='MS' color={colors.label} text={item?.weightage + ' %'} />
                                     </Wrapper>
                                 </Wrapper>
-                                <Wrapper position='center' align='end'>
-                                    <CusText size='SS' color={colors.label} text={'Weightage'} />
-                                    <CusText size='M' color={colors.label} text={item?.weightage + ' %'} />
+                                 <Wrapper customStyles={{gap:responsiveWidth(1.5)}}>
+                                    <Wrapper align='center' row >
+                                        <CusText size='MS' color={colors.label} bold text={`Return 3y: `} />
+                                        <CusText size='MS' color={colors.label} text={item?.SchemeMaster?.SchemePerformances[0]?.Returns3yr ? item?.SchemeMaster?.SchemePerformances[0]?.Returns3yr.toFixed(2) + '%' : '----'} />
+                                    </Wrapper>
+                                    <Wrapper align='center' row>
+                                        <CusText size='MS' color={colors.label} bold text={`Amount: `} />
+                                        <CusText size='MS' color={colors.label} text={'₹ ' + amount} />
+                                    </Wrapper>
                                 </Wrapper>
-                            </Wrapper>
-                            <Spacer y='XXS' />
-                            <Wrapper row align='center' justify='apart'>
-                                <Wrapper position='center' align='start'>
-                                    <CusText size='SS' color={colors.label} text={'Return 1y'} />
-                                    <CusText size='M' color={colors.label} text={item?.SchemeMaster?.SchemePerformances[0]?.Return1yr ? item?.SchemeMaster?.SchemePerformances[0]?.Return1yr.toFixed(2) + '%' : '----'} />
-                                </Wrapper>
-                                <Wrapper align='center' position='center'>
-                                    <CusText size='SS' color={colors.label} text={'Return 3y'} />
-                                    <CusText size='M' color={colors.label} text={item?.SchemeMaster?.SchemePerformances[0]?.Returns3yr ? item?.SchemeMaster?.SchemePerformances[0]?.Returns3yr.toFixed(2) + '%' : '----'} />
-                                </Wrapper>
-                                <Wrapper position='center' align='end'>
-                                    <CusText size='SS' color={colors.label} text={'Return 5y'} />
-                                    <CusText size='M' color={colors.label} text={item?.SchemeMaster?.SchemePerformances[0]?.Returns5yr ? item?.SchemeMaster?.SchemePerformances[0]?.Returns5yr.toFixed(2) + '%' : '----'} />
+                                  <Wrapper customStyles={{gap:responsiveWidth(1.5)}}>
+                                    <Wrapper align='center' row >
+                                        <CusText size='MS' color={colors.label} bold text={`Return 5y: `} />
+                                        <CusText size='MS' color={colors.label} text={item?.SchemeMaster?.SchemePerformances[0]?.Returns5yr ? item?.SchemeMaster?.SchemePerformances[0]?.Returns5yr.toFixed(2) + '%' : '----'} />
+                                    </Wrapper>
+                                    <Wrapper align='center' row >
+                                        <TouchableOpacity activeOpacity={0.6} onPress={() => {
+                                            navigation.navigate('SchemeEdit',
+                                                {
+                                                    currentScheme: item,
+                                                    schemeData: schemeList,
+                                                    overAllData: allData,
+                                                    goalData: route?.params?.goalData,
+                                                    goalPlanID: route?.params?.goalPlanID,
+                                                    type: route?.params?.type,
+                                                })
+                                        }}>
+                                            <CusText size='MS' color={colors.orange} bold text={'Change'} />
+                                        </TouchableOpacity>
+                                    </Wrapper>
                                 </Wrapper>
                             </Wrapper>
                         </Wrapper>
+                        <Spacer y='XS' />
                     </Wrapper>
-                    <Spacer y='XXS' />
-                    {/* <TouchableOpacity activeOpacity={0.6} onPress={() => { }}>
-                        <Wrapper color={colors.primary} customStyles={{ paddingVertical: responsiveWidth(1), borderBottomLeftRadius: borderRadius.middleSmall, borderBottomRightRadius: borderRadius.middleSmall }}>
-                            <CusText position='center' bold size='M' color={colors.Hard_White} text={'Change'} />
-                        </Wrapper>
-                    </TouchableOpacity> */}
                 </Wrapper>
             </>
         )
@@ -560,16 +564,18 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                         }
                     </Wrapper>
                 </Wrapper>
-                <Wrapper color={colors.primary} customStyles={{ paddingVertical: responsiveWidth(2.5), borderRadius: borderRadius.middleSmall }}>
+                {/* <Wrapper color={colors.primary} customStyles={{ paddingVertical: responsiveWidth(2.5), borderRadius: borderRadius.middleSmall }}>
                     <CusText bold color={colors.Hard_White} size='L' position='center' text={'Suggested Investments'} />
-                </Wrapper>
-                <Wrapper>
-                    <LinearGradient
-                        start={{ x: 1, y: 0 }}
-                        end={{ x: 0, y: 1 }}
-                        colors={[colors.transparent, colors.primary, colors.transparent]}
-                        style={{ width: '100%', height: 2, opacity: 0.5 }}></LinearGradient>
-                </Wrapper>
+                </Wrapper> */}
+               <Wrapper
+                position='center'
+                    customStyles={{
+                        height: responsiveHeight(0.1),
+                        width: responsiveWidth(90),
+                        backgroundColor: colors.fieldborder,
+                    }}
+                />
+                <Spacer y='XXS' />
                 <FlatList
                     data={schemeList}
                     keyExtractor={(item, index) => index.toString()}
@@ -577,19 +583,19 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                 />
 
             </Container>
-            <Wrapper color={colors.Hard_White} row align='center' justify='apart' customStyles={{ paddingVertical: responsiveWidth(3), paddingHorizontal: responsiveWidth(4) }}>
+            <Wrapper width={'100%'} color={colors.Hard_White} row align='center' position='center' justify='center' customStyles={{gap:responsiveWidth(1) , paddingVertical: responsiveWidth(3), paddingHorizontal: responsiveWidth(3) }}>
                 <TouchableOpacity activeOpacity={0.6} onPress={() => { reCalculate() }}>
-                    <Wrapper width={responsiveWidth(30)} position='center' customStyles={{ padding: responsiveWidth(2.5), borderRadius: borderRadius.medium, borderColor: colors.gray, borderWidth: 1 }}>
-                        <CusText size='SS' bold position='center' text={'Recalculate'} />
+                    <Wrapper width={responsiveWidth(31)}  position='center' customStyles={{ padding: responsiveWidth(2.5),paddingHorizontal:responsiveWidth(0) , borderRadius: borderRadius.medium, borderColor: colors.gray, borderWidth: 1 }}>
+                        <CusText size='SS' bold position='center' text={'Back'} />
                     </Wrapper>
                 </TouchableOpacity>
                 <TouchableOpacity activeOpacity={0.6} onPress={() => { saveGoal() }}>
-                    <Wrapper width={responsiveWidth(30)} color={colors.orange} position='center' customStyles={{ padding: responsiveWidth(2.5), borderRadius: borderRadius.medium }}>
+                    <Wrapper width={responsiveWidth(31)} color={colors.orange} position='center' customStyles={{ padding: responsiveWidth(2.5),paddingHorizontal:responsiveWidth(0) , borderRadius: borderRadius.medium }}>
                         <CusText size='SS' bold position='center' color={colors.Hard_White} text={'Save Goal'} />
                     </Wrapper>
                 </TouchableOpacity>
                 <TouchableOpacity activeOpacity={0.6} onPress={() => { }}>
-                    <Wrapper width={responsiveWidth(30)} color={colors.orange} position='center' customStyles={{ padding: responsiveWidth(2.5), borderRadius: borderRadius.medium }}>
+                    <Wrapper width={responsiveWidth(31)} color={colors.orange} position='center' customStyles={{ padding: responsiveWidth(2.5),paddingHorizontal:responsiveWidth(0) , borderRadius: borderRadius.medium }}>
                         <CusText size='SS' bold position='center' color={colors.Hard_White} text={'Save & Execute'} />
                     </Wrapper>
                 </TouchableOpacity>

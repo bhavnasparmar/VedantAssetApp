@@ -17,6 +17,7 @@ import API from '../../../../utils/API';
 import { showToast, toastTypes } from '../../../../services/toastService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { goalcal } from '../../../../api/homeapi';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalPlanName, riskProfileData, editGoalData }: any) => {
 
@@ -114,6 +115,18 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
 
     const getEditDetails = async (data: any) => {
         try {
+             setForm({
+            title: '',
+            targetammount: '',
+            inflation: 0,
+            months: '',
+        });
+        setFormError({
+            title: '',
+            targetammount: '',
+            inflation: '',
+            months: '',
+        })
             console.log('Edit goal Data 1: ', data?.inflation_perc)
             setEditedData(data)
             handleFormChange({ key: 'title', value: data?.goal_label })
@@ -176,6 +189,7 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
                 data.goal_type_id = goalPlanID !== '' ? EditedData?.goal_type_id : goalID
                 setGoalPlanningDetails(data)
                 clearFomrData()
+                
                 showToast(toastTypes.success, 'Goal Calculated')
             }
             else {
@@ -268,6 +282,112 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
             backdropTransitionOutTiming={0}
             backdropTransitionInTiming={0}
             useNativeDriver={true}>
+            {/* <Wrapper color={colors.Hard_White} position='center' width={responsiveWidth(95)} customStyles={{ padding: responsiveWidth(1), borderRadius: borderRadius.middleSmall }}>
+                <Wrapper align='center' row justify='apart' customStyles={{paddingHorizontal:responsiveWidth(3),paddingVertical:responsiveWidth(2)}}>
+                    <CusText color={colors.label} semibold size='N' text={goalPlanName || 'Goal Plan'} />
+                    <Wrapper align='center' row customStyles={{ gap: responsiveWidth(2) }}>
+                        <Wrapper row align='center'>
+                            <CusText color={colors.label} text={'Risk Profile-'} size="SS" />
+                            <CusText color={colors.label} position='center' text={riskProfileData?.RiskCategory?.risk_type} size="SS" />
+                        </Wrapper>
+                        <IonIcon onPress={() => { clearData() }} name='close' size={responsiveWidth(5)} />
+                    </Wrapper>
+                </Wrapper>
+                <Wrapper position='center' color={colors.gray} height={responsiveWidth(0.3)} width={responsiveWidth(90)} customStyles={{}} />
+                <Wrapper align='center' row justify='apart' customStyles={{paddingHorizontal:responsiveWidth(4),paddingVertical:responsiveWidth(4)}}>
+                    <CusText size='SS' bold text={'Title'} />
+                    <InputField
+                        fieldColor={colors.Hard_White}
+                        width={responsiveWidth(50)}
+                        placeholder="Enter Title"
+                        value={''}
+                        onChangeText={(text: string) => {
+                           
+                        }}
+                        placeholderColor={colors.gray}
+                        borderColor={colors.fieldborder}
+                        fieldViewStyle={{
+                            height: responsiveWidth(8),
+                            borderRadius: borderRadius.normal
+                        }}
+                        style={{
+                            borderColor: colors.fieldborder
+                        }}
+                    />
+                </Wrapper>
+                 <Wrapper position='center' color={colors.gray} height={responsiveWidth(0.3)} width={responsiveWidth(90)} customStyles={{}} />
+                <Wrapper align='center'  customStyles={{paddingHorizontal:responsiveWidth(4),paddingVertical:responsiveWidth(4)}}>
+                         <CusText size='SS' bold text={'How much money do you need to start your goal Business?'} />
+                         <Spacer y='XXS' />
+                    <InputField
+                        fieldColor={colors.Hard_White}
+                        placeholder="Enter Title"
+                        value={''}
+                        onChangeText={(text: string) => {
+
+                        }}
+                        placeholderColor={colors.gray}
+                        borderColor={colors.fieldborder}
+                        fieldViewStyle={{
+                            height: responsiveWidth(8),
+                            borderRadius: borderRadius.normal
+                        }}
+                        style={{
+                            borderColor: colors.fieldborder
+                        }}
+                    />
+                </Wrapper>
+                 <Wrapper position='center' color={colors.gray} height={responsiveWidth(0.3)} width={responsiveWidth(90)} customStyles={{}} />
+                  <Wrapper align='center' row  customStyles={{paddingHorizontal:responsiveWidth(4),paddingVertical:responsiveWidth(4)}}>
+                          <Ionicons name={'square-outline'} size={responsiveWidth(5)} />
+                            <CusText text={' '} />
+                          <CusText size='S' text={'Do you want to adjust the goal amount for inflation ?'} />
+                 </Wrapper>
+                  <Wrapper position='center' color={colors.gray} height={responsiveWidth(0.3)} width={responsiveWidth(90)} customStyles={{}} />
+                   <Wrapper align='center'  customStyles={{paddingHorizontal:responsiveWidth(4),paddingVertical:responsiveWidth(4)}}>
+                         <CusText size='SS' position='left' bold text={'When do you need these funds for Custom ?'} />
+                         <Spacer y='XXS' />
+                    <Wrapper row align='center' justify='apart'>
+                        <InputField
+                            fieldColor={colors.Hard_White}
+                            width={responsiveWidth(40)}
+                            placeholder="Month/Years"
+                            value={''}
+                            onChangeText={(text: string) => {
+
+                            }}
+                            placeholderColor={colors.gray}
+                            borderColor={colors.fieldborder}
+                            fieldViewStyle={{
+                                height: responsiveWidth(8),
+                                borderRadius: borderRadius.normal
+                            }}
+                            style={{
+                                borderColor: colors.fieldborder
+                            }}
+                        />
+                        <Spacer x='S' />
+                        <InputField
+                            fieldColor={colors.Hard_White}
+                            width={responsiveWidth(40)}
+                            placeholder="Enter Title"
+                            value={''}
+                            onChangeText={(text: string) => {
+
+                            }}
+                            placeholderColor={colors.gray}
+                            borderColor={colors.fieldborder}
+                            fieldViewStyle={{
+                                height: responsiveWidth(8),
+                                borderRadius: borderRadius.normal
+                            }}
+                            style={{
+                                borderColor: colors.fieldborder
+                            }}
+                        />
+                    </Wrapper>
+                </Wrapper>
+            </Wrapper> */}
             <Wrapper position='center' width={responsiveWidth(95)} align='center'
                 customStyles={{
                     backgroundColor: colors.Hard_White,
@@ -276,13 +396,17 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
                 <Spacer y='XXS' />
                 <Wrapper width={responsiveWidth(90)} row justify='apart' align='center' customStyles={{
                     paddingVertical: responsiveWidth(2),
-                    paddingHorizontal: responsiveWidth(3)
+                    paddingHorizontal: responsiveWidth(2)
                 }}>
 
-                    <CusText semibold size='M' position='center'
-                        text={goalPlanName || 'Goal Plan'} />
-
-                    <IonIcon onPress={() => { clearData() }} name='close-outline' color={colors.black} size={25} ></IonIcon>
+                    <CusText semibold color={colors.label} size='M' position='center' text={goalPlanName || 'Goal Plan'} />
+                    <Wrapper row align='center' customStyles={{gap:responsiveWidth(2)}}>
+                        <Wrapper row align='center'>
+                            <CusText size='SS' color={colors.label} text={'Risk Profile-'} />
+                            <CusText size='SS' color={colors.label} text={riskProfileData?.RiskCategory?.risk_type} />
+                        </Wrapper>
+                        <IonIcon onPress={() => { clearData() }} name='close' color={colors.black} size={24} ></IonIcon>
+                    </Wrapper>
                 </Wrapper>
 
                 <Wrapper
@@ -292,24 +416,53 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
                         backgroundColor: colors.gray,
                     }}
                 />
-                <InputField
-
-                    label='Title'
-                    value={Form.title}
-                    width={responsiveWidth(90)}
-                    placeholder="Enter Title"
-                    onChangeText={(value: string) => {
-                        handleFormChange({ key: 'title', value })
+                  <Wrapper  width={responsiveWidth(90)} align='center' row justify='apart' customStyles={{paddingHorizontal:responsiveWidth(4),paddingVertical:responsiveWidth(3)}}>
+                    <CusText size='SS' bold text={'Title'} />
+                    {/* <InputField
+                        value={Form.title}
+                        width={responsiveWidth(50)}
+                        placeholder="Enter Title"
+                        onChangeText={(value: string) => {
+                            handleFormChange({ key: 'title', value })
+                        }}
+                        labelStyle={{ color: colors.inputLabel, fontSize: fontSize.semiSmall }}
+                        keyboardType="email-address"
+                        borderColor={colors.disablebtn}
+                        suffixColor={colors.placeholderColor}
+                        error={FormError.title}
+                        fieldColor={colors.disablebtn}
+                    /> */}
+                      <InputField
+                        fieldColor={colors.Hard_White}
+                        width={responsiveWidth(50)}
+                        placeholder="Enter Title"
+                         value={Form.title}
+                         onChangeText={(value: string) => {
+                            handleFormChange({ key: 'title', value })
+                        }}
+                        placeholderColor={colors.gray}
+                        borderColor={colors.fieldborder}
+                        fieldViewStyle={{
+                            height: responsiveWidth(10),
+                            borderRadius: borderRadius.normal
+                        }}
+                        style={{
+                            borderColor: colors.fieldborder
+                        }}
+                          error={FormError.title}
+                    />
+                </Wrapper>
+                 <Wrapper
+                    customStyles={{
+                        height: responsiveHeight(0.1),
+                        width: responsiveWidth(90),
+                        backgroundColor: colors.gray,
                     }}
-                    labelStyle={{ color: colors.inputLabel, fontSize: fontSize.semiSmall }}
-                    keyboardType="email-address"
-                    borderColor={colors.disablebtn}
-                    suffixColor={colors.placeholderColor}
-                    error={FormError.title}
-                    fieldColor={colors.disablebtn}
                 />
+                 {/* <Wrapper position='center'  width={responsiveWidth(90)}>
+                        <CusText size='SS' bold text={'How much money do you need to start your goal Business?'} />
                 <InputField
-                    label='How much money do you need to start your goal Business?'
+                  
                     value={Form.targetammount}
                     width={responsiveWidth(90)}
                     placeholder="Enter Amount"
@@ -324,8 +477,66 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
                     error={FormError.targetammount}
                     fieldColor={colors.disablebtn}
                 />
-                <Spacer y='XS' />
-                <Wrapper row align='center' width={responsiveWidth(85)} justify='apart'>
+                </Wrapper> */}
+                <Wrapper align='center' customStyles={{ paddingHorizontal: responsiveWidth(4), paddingVertical: responsiveWidth(3) }}>
+                    <CusText size='SS' bold text={'How much money do you need to start your goal Business?'} />
+                    <Spacer y='XXS' />
+                    <InputField
+                        fieldColor={colors.Hard_White}
+                        placeholder="Enter Amount"
+                        value={Form.targetammount}
+                        inputMode='numeric'
+                        onChangeText={(value: string) => {
+                            handleFormChange({ key: 'targetammount', value })
+                        }}
+                        placeholderColor={colors.gray}
+                        borderColor={colors.fieldborder}
+                        fieldViewStyle={{
+                            height: responsiveWidth(10),
+                            borderRadius: borderRadius.normal
+                        }}
+                        style={{
+                            borderColor: colors.fieldborder
+                        }}
+                        error={FormError.targetammount}
+                    />
+                </Wrapper>
+                <Wrapper
+                    customStyles={{
+                        height: responsiveHeight(0.1),
+                        width: responsiveWidth(90),
+                        backgroundColor: colors.gray,
+                    }}
+                />
+                 <Wrapper align='center' row customStyles={{ paddingHorizontal: responsiveWidth(3), paddingVertical: responsiveWidth(4) }}>
+                    <TouchableOpacity onPress={()=>{setIsEnabled(!isEnabled)}}>
+                     <Ionicons name={isEnabled ? 'checkbox' : 'square-outline'} size={responsiveWidth(4)} />
+                     </TouchableOpacity>
+                     <CusText text={' '} />
+                          <CusText size='S' text={'Do you want to adjust the goal amount for inflation ?'} />
+                    {/* <Spacer y='XXS' />
+                    <InputField
+                        fieldColor={colors.Hard_White}
+                        placeholder="Enter Amount"
+                        value={Form.targetammount}
+                        inputMode='numeric'
+                        onChangeText={(value: string) => {
+                            handleFormChange({ key: 'targetammount', value })
+                        }}
+                        placeholderColor={colors.gray}
+                        borderColor={colors.fieldborder}
+                        fieldViewStyle={{
+                            height: responsiveWidth(10),
+                            borderRadius: borderRadius.normal
+                        }}
+                        style={{
+                            borderColor: colors.fieldborder
+                        }}
+                        error={FormError.targetammount}
+                    /> */}
+                </Wrapper>
+                 
+                {/* <Wrapper row align='center' width={responsiveWidth(85)} justify='apart'>
                     <CusText semibold text={'Do you want to adjust the goal amount for inflation ?'}
                         size="SS" color={colors.inputLabel} customStyles={{ width: responsiveWidth(50) }} />
                     <Wrapper row align='center' justify='apart' >
@@ -344,12 +555,12 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
                         <Spacer x='XXS' />
                         <CusText text={'Yes'} size="SS" color={colors.inputLabel} medium customStyles={{}} />
                     </Wrapper>
-                </Wrapper>
+                </Wrapper> */}
 
                 {isEnabled ?
                     <>
-                        <Spacer y='S' />
-                        <Wrapper align='center' justify='apart' width={responsiveWidth(85)} row customStyles={{}}>
+                        {/* <Spacer y='S' /> */}
+                        <Wrapper align='center' justify='apart' width={responsiveWidth(85)} row customStyles={{paddingVertical:responsiveWidth(1)}}>
                             <Wrapper position='center' width={responsiveWidth(70)} row align='center'>
                                 <CusText text={0} size="SL" color={colors.inputLabel} semibold />
                                 <Slider
@@ -380,9 +591,78 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
                     </>
                     : null
                 }
+                 <Wrapper
+                    customStyles={{
+                        height: responsiveHeight(0.1),
+                        width: responsiveWidth(90),
+                        backgroundColor: colors.gray,
+                    }}
+                />
+                <Wrapper align='center' customStyles={{ paddingHorizontal: responsiveWidth(4), paddingVertical: responsiveWidth(3) }}>
+                    <CusText position='left' size='SS' bold text={'When do you need these funds for Business ?'} />
+                    <Spacer y='XXS' />
+                    <Wrapper row align='start' justify='apart'>
+                        <InputField
+                            fieldColor={colors.Hard_White}
 
-                <Spacer y='XS' />
-                <Wrapper row width={responsiveWidth(87)}>
+                            value={Form.months}
+                            inputMode='numeric'
+                            width={responsiveWidth(40)}
+                            placeholder={MYType === 1 ? "Enter Month" : "Enter Year"}
+                            onChangeText={(value: string) => {
+                                handleFormChange({ key: 'months', value })
+                            }}
+                            placeholderColor={colors.gray}
+                            borderColor={colors.fieldborder}
+                            fieldViewStyle={{
+                                height: responsiveWidth(10),
+                                borderRadius: borderRadius.normal
+                            }}
+                            style={{
+                                borderColor: colors.fieldborder
+                            }}
+                            error={FormError.months}
+                        />
+                        <Spacer x='XXS' />
+                        {/* <Wrapper position='center' align='center' justify='apart' color={colors.Hard_White} width={responsiveWidth(40)} height={responsiveWidth(10)} customStyles={{borderWidth:1,borderColor:colors.gray,borderRadius: borderRadius.middleSmall}}>
+                           <CusText text={'Select Month'} />
+                           <IonIcon  /> */}
+                            <DropDown
+                                data={months}
+                                placeholder={'Months'}
+                                width={responsiveWidth(40)}
+                                placeholdercolor={colors.Hard_White}
+                                value={MYType}
+                                fieldColor={colors.Hard_White}
+                                onFocus={() => {
+                                    setIsFocus(true);
+                                }}
+                                onBlur={() => setIsFocus(false)}
+                                valueField="id"
+                                labelField={'Name'}
+                                onChange={(item: any) => {
+                                    console.log(item?.id)
+                                    setMYType(item?.id)
+                                }}
+                                onClear={
+                                    () => {
+                                        setIsFocus(false);
+                                    }
+                                }
+                                fieldViewStyle={{height: responsiveWidth(10)}}
+                            />
+                        {/* </Wrapper> */}
+                    </Wrapper>
+                </Wrapper>
+                     <Wrapper
+                    customStyles={{
+                        height: responsiveHeight(0.1),
+                        width: responsiveWidth(90),
+                        backgroundColor: colors.gray,
+                    }}
+                />
+                {/* <Spacer y='XS' /> */}
+                {/* <Wrapper row width={responsiveWidth(87)}>
                     <CusText semibold text={'When do you need these funds for Business ?'}
                         size="SS" color={colors.inputLabel} customStyles={{}} />
                 </Wrapper>
@@ -430,15 +710,15 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
                         }
                     />
                 </Wrapper>
-                <Spacer y='S' />
+                <Spacer y='S' /> */}
 
-                <Wrapper row width={responsiveWidth(85)} align='center'>
+                {/* <Wrapper row width={responsiveWidth(85)} align='center'>
                     <CusText text={'Risk Profile'} size="N" color={colors.inputLabel} medium />
                     <Wrapper customStyles={styles.riskfield} align='center'>
                         <CusText position='center' text={riskProfileData?.RiskCategory?.risk_type} size="S" color={'#E59F39'} medium />
                     </Wrapper>
-                </Wrapper>
-                <Spacer y='S' />
+                </Wrapper> */}
+                <Spacer y='XS' />
                 <CusButton
                     loading={loader}
                     width={responsiveWidth(40)}

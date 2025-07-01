@@ -147,6 +147,7 @@ let reptativeColors = {
   fieldborder:'#EAECF0',
   bg:'#F4F6F8',
   action:'#3498DB',
+  cardborder:'#DEDEDE'
 };
 
 const colors: any = {
@@ -197,6 +198,8 @@ const colors: any = {
   bg:reptativeColors.bg,
   action:reptativeColors.action,
   tabBg: reptativeColors.tabBg, //extra
+
+  cardborder:reptativeColors.cardborder,
  
 
   //Header

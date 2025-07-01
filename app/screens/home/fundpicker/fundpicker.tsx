@@ -36,7 +36,7 @@ const FundPicker = () => {
   const [amcList, setAmcList] = useState<any>([]);
   const [filterObj, setFilterObj] = React.useState<any>({});
   const [loader, setloader] = React.useState<boolean>(false);
-  const pagesize = 10;
+  const pagesize = 30;
   const [page, setPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [sortField, setSortField] = useState('');
