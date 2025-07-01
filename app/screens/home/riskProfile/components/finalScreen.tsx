@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {AppearanceContext} from '../../../../context/appearanceContext';
 import Container from '../../../../ui/container';
 import Wrapper from '../../../../ui/wrapper';
@@ -28,6 +28,10 @@ import {
 } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {setRiskObject} from '../../../../utils/Commanutils';
+import * as echarts from 'echarts/core';
+import { LineChart,GaugeChart } from 'echarts/charts';
+import { GridComponent } from 'echarts/components';
+import { SVGRenderer, SvgChart } from '@wuba/react-native-echarts';
 const {width} = Dimensions.get('window');
 const HALF_CIRCLE_SIZE = width * 0.8;
 const COLORS = ['#2E7D32', '#DCE775', '#FFEB3B', '#FFB74D', '#D32F2F']; // Low → High
@@ -37,26 +41,60 @@ const FinalScreen = ({setIndex, data}: any) => {
   const {colors}: any = React.useContext(AppearanceContext);
   const [totaldata, settotaldata] = useState(data?.totalPoints || 0);
   const navigation: any = useNavigation();
-  const getColor = (score: any) => {
-    console.log('score', score);
+   echarts.use([SVGRenderer, LineChart,GridComponent,GaugeChart ]);
+      const chartRef = useRef<any>(null);
+  // const getColor = (score: any) => {
+  //   console.log('score', score);
 
-    let per = (score / 20) * 100;
-    if (per < 25) return '#D32F2F'; // Red for low score
-    if (per < 41) return '#FFB74D';
-    if (per < 58) return '#FFEB3B';
-    if (per < 83) return '#DCE775'; // Orange for moderate score
-    return '#2E7D32'; // Green for high score
-  };
-  const getLabel = (score: any) => {
-    console.log('score', score);
+  //   let per = (score / 20) * 100;
+  //   if (per < 25) return '#D32F2F'; // Red for low score
+  //   if (per < 41) return '#FFB74D';
+  //   if (per < 58) return '#FFEB3B';
+  //   if (per < 83) return '#DCE775'; // Orange for moderate score
+  //   return '#2E7D32'; // Green for high score
+  // };
+  // const getLabel = (score: any) => {
+  //   console.log('score', score);
 
-    let per = (score / 20) * 100;
-    if (per < 25) return 'High';
-    if (per < 41) return 'Moderately High'; // Red for low score
-    if (per < 58) return 'Moderate';
-    if (per < 83) return 'Moderately Low'; // Orange for moderate score
-    return 'Low'; // Green for high score
-  };
+  //   let per = (score / 20) * 100;
+  //   if (per < 25) return 'High';
+  //   if (per < 41) return 'Moderately High'; // Red for low score
+  //   if (per < 58) return 'Moderate';
+  //   if (per < 83) return 'Moderately Low'; // Orange for moderate score
+  //   return 'Low'; // Green for high score
+  // };
+  const getColor = (score: number): string => {
+
+
+    // [0.10, "#3e884d"],    // Low
+    //           [0.32, "#ced450"],    // Moderately Low
+    //           [0.64, "#f5e655"],    // Moderate
+    //           [0.95, "#efa647"],    // Moderately High
+    //           [1.00, "#cc3a3b"],    // High
+  const per = score /  100;
+
+  // if (per <= 25) return '#D32F2F';       // Very Low - Red
+  // if (per <= 40) return '#FFB74D';       // Low - Orange
+  // if (per <= 57) return '#FFEB3B';       // Moderate - Yellow
+  // if (per <= 82) return '#DCE775';       // Good - Light Green
+  // return '#2E7D32';                      // Excellent - Green
+     if (per <= 0.10) return "#3e884d";
+  if (per <= 0.32) return "#ced450";
+  if (per <= 0.64) return "#f5e655";
+  if (per <= 0.95) return "#efa647";
+  return "#cc3a3b";
+};
+
+// Returns label based on percentage score
+const getLabel = (score: number): string => {
+  const per = score / 100;
+  console.log('Percentage 11===>>>: ',per)
+  if (per <= 0.10) return 'Low';
+  if (per <= 0.32) return 'Moderately Low';
+  if (per <= 0.64) return 'Moderate';
+  if (per <= 0.95) return 'Moderately High';
+  return 'High';
+};
   useFocusEffect(
     React.useCallback(() => {
       console.log('data', data);
@@ -65,6 +103,205 @@ const FinalScreen = ({setIndex, data}: any) => {
       }
     }, [data]),
   );
+  // useEffect(() => {
+  //   let chart: any;
+  //   const option = {
+  //     series: [
+  //       {
+  //         type: 'gauge',
+  //         startAngle: 180,
+  //         endAngle: 0,
+  //         center: ['50%', '75%'],
+  //         radius: '90%',
+  //         min: 1,
+  //         max: 100,
+  //         // splitNumber: 1,
+  //         axisLine: {
+  //           lineStyle: {
+  //             width: responsiveWidth(8),
+  //             color: [
+  //               [0.20, '#2E7D32'],
+  //               [0.40, '#DCE775'],
+  //               [0.60, '#FFEB3B'],
+  //               [0.80, '#FFB74D'],
+  //               [1, '#D32F2F']
+  //             ]
+  //           }
+  //         },
+  //         pointer: {
+  //           icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+  //           length: '15%',
+  //           width: 20,
+  //           offsetCenter: [0, '-60%'],
+  //           itemStyle: {
+  //             color: 'black'
+  //           }
+  //         },
+  //         axisTick: {
+  //           length: 12,
+  //           lineStyle: {
+  //             color: 'white',
+  //             width: 2
+  //           }
+  //         },
+  //         splitLine: {
+  //           length: 0,
+  //           lineStyle: {
+  //             color: 'white',
+  //             width: 0
+  //           }
+  //         },
+  //         axisLabel: {
+  //           color: '#464646',
+  //           fontSize: 20,
+  //           distance: -60,
+  //           rotate: 'tangential',
+  //           formatter: function (value:any) {
+  //             console.log("Value Data === ... ",value)
+  //             if (value === 0.875) {
+  //               return 'Grade A';
+  //             } else if (value === 0.625) {
+  //               return 'Grade B';
+  //             } else if (value === 0.375) {
+  //               return 'Grade C';
+  //             } else if (value === 0.125) {
+  //               return 'Grade D';
+  //             }
+  //             return '';
+  //           }
+  //         },
+  //         title: {
+  //           offsetCenter: [0, '-10%'],
+  //           fontSize: 20
+  //         },
+  //         detail: {
+  //           fontSize: 30,
+          
+  //           offsetCenter: [0, '-35%'],
+  //           valueAnimation: true,
+  //           formatter: function (value) {
+  //             console.log('Value : ',value)
+  //             return value;
+  //           },
+  //           color: 'black'
+  //         },
+  //         data: [
+  //           {
+  //             value: totaldata,
+  //             name: 'Your Score'
+  //           }
+  //         ]
+  //       }
+  //     ]
+  //   };
+  //   if (chartRef.current) {
+  //     chart = echarts.init(chartRef.current, 'light', {
+  //       renderer: 'svg',
+  //       width: responsiveWidth(100),
+  //       height: responsiveWidth(70),
+  //     });
+  //     chart.setOption(option);
+  //   }
+  //   return () => chart?.dispose();
+  // }, [])
+
+   useEffect(() => {
+    let chart: any;
+    const option = {
+    series: [
+      {
+        type: "gauge",
+        startAngle: 180,
+        endAngle: 0,
+        center: ["50%", "75%"],
+        radius: "90%",
+        min: 0,
+        max: 1,
+        splitNumber: 8,
+        axisLine: {
+          lineStyle: {
+            width: 36,
+            color: [
+              [0.10, "#3e884d"],    // Low
+              [0.32, "#ced450"],    // Moderately Low
+              [0.64, "#f5e655"],    // Moderate
+              [0.95, "#efa647"],    // Moderately High
+              [1.00, "#cc3a3b"],    // High
+            ],
+            shadowColor: "rgba(0, 0, 0, 0.5)",
+            shadowBlur: 10,
+          },
+        },
+        pointer: {
+          icon: "path://M12.8,0.7l12,40.1H0.7L12.8,0.7z",
+          length: "12%",
+          width: 20,
+          offsetCenter: [0, "-60%"],
+          itemStyle: {
+            color: "rgba(0, 0, 0, 1)",
+          },
+        },
+        axisTick: {
+          length: 20,
+          lineStyle: {
+            color: "auto",
+            width: 0,
+          },
+        },
+        splitLine: {
+          length: 20,
+          lineStyle: {
+            color: "auto",
+            width: 0,
+          },
+        },
+        axisLabel: {
+          color: "#464646",
+          fontSize: 10,
+          distance: -60,
+          width: 65,
+          overflow: "break",
+          rotate: "tangential",
+          formatter: function (value: number) {
+            return "";
+          },
+        },
+        title: {
+          offsetCenter: [0, "-10%"],
+          fontSize: 14,
+          color: "#aaa",
+        },
+        detail: {
+          fontSize: 50,
+          offsetCenter: [0, "-35%"],
+          valueAnimation: true,
+          formatter: function (value: number) {
+            return Math.round(value * 100) + "";
+          },
+          color: "#000",
+        },
+        data: [
+          {
+            value: Number(totaldata) / 100,
+            name: "Your Score",
+            detail: {
+              color: "rgba(0, 0, 0, 1)",
+            },
+          },
+        ],
+      },
+    ],
+  };
+    if (chartRef.current) {
+      chart = echarts.init(chartRef.current, 'light', {
+        renderer: 'svg',
+        width: responsiveWidth(100),
+        height: responsiveWidth(70),
+      });
+      chart.setOption(option);
+    }
+    return () => chart?.dispose();
+  }, [totaldata])
   const handleBack = () => {
     setIndex('2');
   };
@@ -130,32 +367,37 @@ const FinalScreen = ({setIndex, data}: any) => {
               {/* <Wrapper>Put chart here</Wrapper> */}
 
               {data !== null ? (
-                <AnimatedCircularProgress
-                  style={{marginBottom: responsiveHeight(-12)}}
-                  size={HALF_CIRCLE_SIZE}
-                  width={15}
-                  fill={(totaldata / 20) * 100 || 0}
-                  tintColor={getColor(totaldata)}
-                  backgroundColor="#E0E0E0"
-                  arcSweepAngle={180}
-                  rotation={270}
-                  lineCap="round">
-                  {() => (
-                    <View style={styles.scoreContainer}>
-                      <CusText
-                        semibold
-                        customStyles={styles.scoreText}
-                        text={data?.totalPoints}
-                      />
-                      <CusText
-                        bold
-                        color={colors.gray}
-                        size="M"
-                        text={'Your Score'}
-                      />
-                    </View>
-                  )}
-                </AnimatedCircularProgress>
+                <>
+                  <Wrapper position='center'>
+                     <SvgChart ref={chartRef} />
+                     </Wrapper>
+                </>
+                // <AnimatedCircularProgress
+                //   style={{marginBottom: responsiveHeight(-12)}}
+                //   size={HALF_CIRCLE_SIZE}
+                //   width={15}
+                //   fill={(totaldata / 20) * 100 || 0}
+                //   tintColor={getColor(totaldata)}
+                //   backgroundColor="#E0E0E0"
+                //   arcSweepAngle={180}
+                //   rotation={270}
+                //   lineCap="round">
+                //   {() => (
+                //     <View style={styles.scoreContainer}>
+                //       <CusText
+                //         semibold
+                //         customStyles={styles.scoreText}
+                //         text={data?.totalPoints}
+                //       />
+                //       <CusText
+                //         bold
+                //         color={colors.gray}
+                //         size="M"
+                //         text={'Your Score'}
+                //       />
+                //     </View>
+                //   )}
+                // </AnimatedCircularProgress>
               ) : null}
 
               <Wrapper row align="center" customStyles={styles.legendContainer}>
