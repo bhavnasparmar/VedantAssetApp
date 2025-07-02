@@ -18,6 +18,7 @@ import {
 import CusText from '../../ui/custom-text';
 import Wrapper from '../../ui/wrapper';
 import Dashboard from '../../screens/home/Dashboard/Dashboard';
+import Spacer from '../../ui/spacer';
 
 const Tab = createBottomTabNavigator();
 type TabViewProps = {
@@ -79,37 +80,52 @@ const Tabs = ({route}: any) => {
   const TabView = ({focused, source, page, type, isCenter}: any) => {
     return (
       <Wrapper
+       
         justify="center"
         align="center"
-        width={responsiveWidth(20)}
+          position='center'
+        // width={responsiveWidth(20)}
         customStyles={{
-          marginTop: focused ? -responsiveWidth(15) : 0,
-          backgroundColor: focused ? colors.orange : 'transparent',
-          height: focused ? responsiveWidth(15) : undefined,
-          width: focused ? responsiveWidth(15) : undefined,
-          borderRadius: focused ? responsiveWidth(10) : 0,
+          // marginTop: focused ? -responsiveWidth(15) : 0,
+          // backgroundColor: focused ? colors.orange : 'transparent',
+          // height: focused ? responsiveWidth(15) : responsiveWidth(20),
+          // width: focused ? responsiveWidth(15) : responsiveWidth(20),
+          // borderRadius: focused ? responsiveWidth(10) : 0,
+
+          //  marginTop:  0,
+          backgroundColor:  'transparent',
+          height:  responsiveWidth(20),
+          width: responsiveWidth(20),
+          borderRadius:  0,
+
           shadowColor: '#000',
           shadowOffset: {width: 0, height: 4},
           shadowOpacity: 0.3,
           shadowRadius: 4.65,
-          elevation: focused ? 8 : 0,
+          // elevation: focused ? 8 : 0,
+          elevation: 0,
         }}>
         <Wrapper
-          row
+          justify='center'
           customStyles={{
             position: 'relative',
             zIndex: 0,
-            right: responsiveWidth(-1),
-            top: responsiveWidth(focused ? 1.5 : 0),
+            // right: responsiveWidth(0),
+            top: responsiveWidth(focused ? responsiveWidth(-1) : 0),
+            backgroundColor: focused ? colors.orange : 'transparent',
+             height: focused ? responsiveWidth(14) : undefined,
+             width: focused ? responsiveWidth(14) : undefined,
+              borderRadius: focused ? responsiveWidth(10) : 0,
           }}>
           {type === 'image' ? (
             <Image
               source={source}
               resizeMode="contain"
               style={{
-                tintColor: focused && tabIndex >= 0 ? null : colors.inputLabel,
-                height: responsiveWidth(8),
-                width: responsiveWidth(8),
+                tintColor: focused && tabIndex >= 0 ? colors.Hard_White : colors.orange,
+                height: responsiveWidth(7),
+                width: responsiveWidth(7),
+                alignSelf:'center',
               }}
             />
           ) : (
@@ -117,7 +133,7 @@ const Tabs = ({route}: any) => {
               name={source}
               style={{
                 color:
-                  focused && tabIndex >= 0 ? colors.Hard_White : colors.gray,
+                  focused && tabIndex >= 0 ? colors.Hard_White : colors.orange,
                 fontSize: isIpad() ? responsiveWidth(4) : fontSize.XL,
                 width: responsiveWidth(8),
                 height: responsiveWidth(8),
@@ -125,16 +141,34 @@ const Tabs = ({route}: any) => {
             />
           )}
         </Wrapper>
-        {focused ? (
+        {/* <Spacer y='XXS' /> */}
+        <Wrapper position='center' 
+        // customStyles={{marginTop:responsiveWidth(1)}}
+         customStyles={{
+            position: 'relative',
+            zIndex: 0,
+            // right: responsiveWidth(0),
+            top: responsiveWidth(focused ? responsiveWidth(-1) : 0),
+            // backgroundColor: focused ? colors.orange : 'transparent',
+            //  height: focused ? responsiveWidth(15) : undefined,
+            //  width: focused ? responsiveWidth(15) : undefined,
+              // borderRadius: focused ? responsiveWidth(10) : 0,
+              marginTop:responsiveWidth(1.5)
+          }}>
+        
+          <CusText bold position='center' color={colors.orange} text={page} size='XXS'/>
+        </Wrapper>
+        {/* {focused ? (
           <Wrapper
             customStyles={{top: responsiveWidth(7), zIndex: 10,borderRadius : borderRadius.ring}}
             color={colors.orange}
             width={responsiveWidth(5)}
             height={responsiveWidth(2)}></Wrapper>
-        ) : null}
+        ) : null} */}
       </Wrapper>
     );
   };
+
 
   return (
     <>
@@ -142,7 +176,7 @@ const Tabs = ({route}: any) => {
          backBehavior="history"
         screenOptions={screenOptions}
         tabBar={props => {
-          const newRoutes = props.state.routes.slice(0, 4);
+          const newRoutes = props.state.routes.slice(0, 5);
           const newIndex = newRoutes.findIndex(
             route => route.key === props.state.routes[props.state.index].key,
           );
@@ -160,10 +194,10 @@ const Tabs = ({route}: any) => {
           options={{
             tabBarIcon: ({focused}: any) => (
               <TabView
-                page="Dashboard"
+                page="Fund Explore"
                 focused={focused}
-                source={'home'}
-                type="icon"
+                source={require('../../assets/Images/fundExplo.png')}
+                type="image"
                 isCenter={false}
               />
             ),
@@ -176,26 +210,40 @@ const Tabs = ({route}: any) => {
           options={{
             tabBarIcon: ({focused}: any) => (
               <TabView
-                page=""
+                page="Goal Planning"
                 focused={focused}
-                source={'person'}
-                type="icon"
+               source={require('../../assets/Images/goalPlan.png')}
+                type="image"
                 isCenter={true} // The center button
               />
             ),
           }}
         />
-
+ <Tab.Screen
+          name="Dash"
+          component={Dashboard}
+          options={{
+            tabBarIcon: ({focused}: any) => (
+              <TabView
+                page="Dashboard"
+                focused={focused}
+                 source={require('../../assets/Images/dashboar.png')}
+                type="image"
+                isCenter={false}
+              />
+            ),
+          }}
+        />
         <Tab.Screen
           name="Chat"
           component={Dashboard}
           options={{
             tabBarIcon: ({focused}: any) => (
               <TabView
-                page="Chat"
+                page="Risk Profile"
                 focused={focused}
-                source="chatbubble"
-                type="icon"
+                source={require('../../assets/Images/RiskProfile.png')}
+                type="image"
                 isCenter={false}
               />
             ),
@@ -207,10 +255,10 @@ const Tabs = ({route}: any) => {
           options={{
             tabBarIcon: ({focused}: any) => (
               <TabView
-                page="Chat"
+                page="More"
                 focused={focused}
-                source="analytics"
-                type="icon"
+                source={require('../../assets/Images/more.png')}
+                type="image"
                 isCenter={false}
               />
             ),
