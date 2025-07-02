@@ -5,208 +5,189 @@ import { borderRadius, colors, fontSize, responsiveHeight, responsiveWidth } fro
 import CusText from "../../../../ui/custom-text";
 import Spacer from "../../../../ui/spacer";
 import Wrapper from "../../../../ui/wrapper";
-import styles from '../funpickerdetailstyles';
 
 const Performance = () => {
     const { colors }: any = useContext(AppearanceContext);
-    const [activeTimeframe, setActiveTimeframe] = useState('1Y');
     
-    // Sample data for performance periods
-    const timeframes = [
-        { id: '1D', label: '1 Day' },
-        { id: '1W', label: '1 Week' },
-        { id: '1M', label: '1 Month' },
-        { id: '3M', label: '3 Month' },
-        { id: '6M', label: '6 Month' },
-        { id: '1Y', label: '1 Year' },
-        { id: '3Y', label: '3Y' },
-        { id: '5Y', label: '5Y' },
-        { id: '10Y', label: '10Y' }
-    ];
-
     // Sample performance data
     const performanceData = [
         {
-            id: '1D',
-            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage',
-            date: '22 May 2023',
-            nav: '28'
+            period: '1 Day',
+            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage'
         },
         {
-            id: '1W',
-            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage',
-            date: '15 May 2023',
-            nav: '27.85'
+            period: '1 Week',
+            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage'
         },
         {
-            id: '1M',
-            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage',
-            date: '22 Apr 2023',
-            nav: '27.50'
+            period: '1 Month',
+            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage'
         },
         {
-            id: '3M',
-            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage',
-            date: '22 Feb 2023',
-            nav: '26.80'
+            period: '3 Month',
+            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage'
         },
         {
-            id: '6M',
-            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage',
-            date: '22 Nov 2022',
-            nav: '25.40'
+            period: '6 Month',
+            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage'
         },
         {
-            id: '1Y',
-            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage',
-            date: '22 May 2022',
-            nav: '23.10'
+            period: '1 Year',
+            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage'
         },
         {
-            id: '3Y',
-            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage',
-            date: '22 May 2020',
-            nav: '19.30'
+            period: '2 Year',
+            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage'
         },
         {
-            id: '5Y',
-            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage',
-            date: '22 May 2018',
-            nav: '16.50'
-        },
-        {
-            id: '10Y',
-            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage',
-            date: '22 May 2013',
-            nav: '10.20'
+            period: '3 Year',
+            title: 'ICICI Prudential Balanced Advantage Fund - Hybrid Balanced Advantage'
         }
     ];
 
-    // Filter to show only the selected timeframe
-    const selectedPerformance = performanceData.find(item => item.id === activeTimeframe);
+  
 
-    // Time period selector buttons
-    const renderTimeframeButtons = () => (
-        <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.timeframeContainerperformance}
-        >
-            {timeframes.map((item) => (
-                <TouchableOpacity
-                    key={item.id}
-                    style={[
-                        styles.timeframeButtonperformance,
-                        activeTimeframe === item.id && styles.activeTimeframeButtonperformance
-                    ]}
-                    onPress={() => setActiveTimeframe(item.id)}
-                >
+    // NAV header section
+    const renderNavHeader = () => (
+        <Wrapper>
+            <Wrapper row align="center">
+              
                     <CusText
-                        text={item.label}
-                        size="S"
-                        color={activeTimeframe === item.id ? colors.Hard_White : colors.black}
-                    />
-                </TouchableOpacity>
-            ))}
-        </ScrollView>
-    );
-
-    // Summary section showing NAV and date
-    const renderSummary = () => (
-        <Wrapper customStyles={styles.summaryContainerperformance}>
-            <Wrapper row justify="apart" align="center">
-                <CusText
-                    text="NAV"
-                    size="M"
-                    color={colors.gray}
-                />
-                <Wrapper row align="center">
-                    <CusText
-                        text={selectedPerformance?.nav}
-                        size="XL"
+                        text="NAV"
+                        size="N"
                         color={colors.black}
                         bold
                     />
-                </Wrapper>
-            </Wrapper>
-            <CusText
-                text={selectedPerformance?.date}
-                size="S"
-                color={colors.gray}
-            />
+                    <CusText
+                    text="28"
+                    size="XXXL"
+                    color={colors.black}
+                    bold
+                />
+                 </Wrapper>
+             <CusText
+                        text="22 May 2023"
+                        size="S"
+                        color={colors.black}
+                    />
+               
         </Wrapper>
     );
 
-    // Performance details
-    const renderPerformanceDetails = () => (
-        <Wrapper customStyles={styles.detailsContainerperformance}>
-            <CusText
-                text={selectedPerformance?.title}
-                size="S"
-                color={colors.black}
-                customStyles={{ lineHeight: 22 }}
-            />
-        </Wrapper>
-    );
-
-    // Holdings summary section
-    const renderHoldingsSummary = () => {
-        // Sample holdings data
-        const holdings = [
-            { name: 'Domestic Equities', percentage: 65 },
-            { name: 'Cash & Cash Equivalents', percentage: 12 },
-            { name: 'Corporate Debt', percentage: 8 },
-            { name: 'Government Securities', percentage: 6 },
-            { name: 'Treasury Bills', percentage: 4 },
-            { name: 'REITs & InvITs', percentage: 2 },
-            { name: 'Certificate of Deposit', percentage: 1 },
-            { name: 'PTC & Securitized Debt', percentage: 1 },
-            { name: 'Commercial Paper', percentage: 1 }
-        ];
-
-        return (
-            <Wrapper customStyles={styles.holdingsContainerperformance}>
-                <Wrapper row  customStyles={styles.tabContainerperformance}>
-                    <TouchableOpacity style={[styles.tabButton, styles.activeTabButtonperformance]}>
+    // Performance table
+    const renderPerformanceTable = () => (
+        <Wrapper customStyles={additionalStyles.performanceTableContainer}>
+            {performanceData.map((item, index) => (
+                <View 
+                    key={index} 
+                    style={[
+                        additionalStyles.performanceRow,
+                        index === performanceData.length - 1 && { borderBottomWidth: 0 }
+                    ]}
+                >
+                    <Wrapper width={responsiveWidth(20)} customStyles={additionalStyles.tabButton1} >
                         <CusText
-                            text="Summary"
-                            size="S"
-                            color={colors.Hard_White}
-                            bold
-                        />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.tabButtonperformance}>
-                        <CusText
-                            text="Domestic Equities"
-                            size="S"
-                            color={colors.black}
-                        />
-                    </TouchableOpacity>
-                </Wrapper>
-                
-                <Spacer y="N" />
-                
-                {holdings.map((holding, index) => (
-                    <Wrapper key={index} customStyles={styles.holdingItem}>
-                        <CusText
-                            text={holding.name}
+                            text={item.period}
                             size="S"
                             color={colors.black}
                         />
                     </Wrapper>
-                ))}
-            </Wrapper>
-        );
-    };
+                    <Wrapper width={responsiveWidth(65)}>
+                        <CusText
+                            text={item.title}
+                            size="S"
+                            color={colors.black}
+                            numberOfLines={2}
+                        />
+                    </Wrapper>
+                </View>
+            ))}
+        </Wrapper>
+    );
+
+  
 
     return (
-        <ScrollView style={styles.containerperformance} showsVerticalScrollIndicator={false}>
-            {/* Time period selector */}
-            {renderTimeframeButtons()}
+
+        <ScrollView style={additionalStyles.container} showsVerticalScrollIndicator={false}>
+           
+            {/* NAV header */}
+            {renderNavHeader()}
             
-          
+            <Spacer y="S" />
+            
+            {/* Performance table */}
+            {renderPerformanceTable()}
+            
+           
+            <Spacer y="L" />
         </ScrollView>
     );
 };
+
+// Add these styles to your funpickerdetailstyles.ts file
+// or define them inline if you prefer
+const additionalStyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: responsiveWidth(4),
+        backgroundColor: colors.Hard_white,
+    },
+      tabButton1: {
+      //  flex: 1,
+        padding: responsiveWidth(2),
+        alignItems: 'center',
+        borderRadius: borderRadius.small,
+       // width:responsiveWidth(25),
+        backgroundColor:colors.cardborder,
+        marginRight:responsiveWidth(2)
+    },
+    navHeaderContainer: {
+        padding: responsiveWidth(4),
+        backgroundColor: colors.Hard_White,
+        borderRadius: borderRadius.medium,
+    },
+    performanceTableContainer: {
+        backgroundColor: colors.Hard_White,
+        borderRadius: borderRadius.medium,
+        padding: responsiveWidth(2),
+    },
+    performanceRow: {
+        flexDirection: 'row',
+        paddingVertical: responsiveWidth(3),
+        paddingHorizontal: responsiveWidth(2),
+        borderBottomWidth: 1,
+        borderBottomColor: colors.cardborder,
+    },
+    holdingsContainer: {
+        backgroundColor: colors.Hard_White,
+        borderRadius: borderRadius.medium,
+        padding: responsiveWidth(4),
+    },
+    tabContainer: {
+        backgroundColor: colors.cardborder,
+        borderRadius: borderRadius.small,
+        padding: responsiveWidth(1),
+    },
+    tabButton: {
+        flex: 1,
+        paddingVertical: responsiveWidth(2),
+        alignItems: 'center',
+        borderRadius: borderRadius.small,
+    },
+    activeTabButton: {
+        backgroundColor: colors.orange,
+    },
+    holdingItem: {
+        paddingVertical: responsiveWidth(2),
+        borderBottomWidth: 1,
+        borderBottomColor: colors.cardborder,
+    },
+    comingSoonContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: responsiveWidth(10),
+    }
+});
 
 export default Performance;

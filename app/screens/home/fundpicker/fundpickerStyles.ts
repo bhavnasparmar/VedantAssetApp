@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
-    paddingVertical: 12,
+    // paddingVertical: 12,
     backgroundColor:  colors.fieldborder,
   },
   headerCell: {
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
    width:responsiveWidth(25)
   },
   fundName: {
-    fontWeight: '500',
+    fontFamily:fontFamily.semiBold,
     marginBottom: 4,
   },
   fundCategory: {

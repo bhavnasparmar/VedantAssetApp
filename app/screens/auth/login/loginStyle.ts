@@ -7,15 +7,15 @@ const styles = StyleSheet.create({
       tabBar: {
     flexDirection: 'row',
     // backgroundColor: '#f4f4f4',
-    backgroundColor: colors.Hard_White,
-    borderWidth:1,
+    backgroundColor: colors.background,
+ //   borderWidth:1,
     borderRadius: borderRadius.middleSmall,
     overflow: 'hidden',
     marginBottom: 20,
     width:responsiveWidth(60),
     alignSelf:'center',
     padding:responsiveWidth(2),
-    borderColor:colors.orange
+  //  borderColor:colors.orange
   },
   tabItem: {
     flex: 1,
@@ -26,14 +26,15 @@ const styles = StyleSheet.create({
     // borderBottomWidth: 3,
     // borderBottomColor: '#f58220',
    borderRadius:borderRadius.middleSmall,
-    backgroundColor: colors.fieldborder,
+    backgroundColor: colors.Hard_White,
   },
   activeTab1: {
     // borderBottomWidth: 3,
     // borderBottomColor: '#f58220',
     borderTopRightRadius:10,
     borderBottomRightRadius:10,
-    backgroundColor: colors.fieldborder,
+    backgroundColor: colors.Hard_White,
+    opacity:1
   },
   tabText: {
     color: '#888',

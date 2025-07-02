@@ -10,6 +10,9 @@ import NavTab from './component/newTab';
 import Information from './component/information';
 import RelatedScheme from './component/relatedscheme';
 import Performance from './component/performance';
+import Holding from './component/holding';
+import FundManager from './component/fundmanager';
+import Ratio from './component/ratio';
 
 const FunpickerDetail = () => {
     const { colors }: any = useContext(AppearanceContext);
@@ -38,7 +41,7 @@ const FunpickerDetail = () => {
                 );
             case 'information':
                 return (
-                   <Information totaldata={25}/>
+                    <Information totaldata={25} />
                 );
             case 'relatedscheme':
                 return <RelatedScheme />;
@@ -48,15 +51,15 @@ const FunpickerDetail = () => {
                 );
             case 'holding':
                 return (
-                    <></>
+                    <Holding />
                 );
             case 'fundmanager':
                 return (
-                    <></>
+                    <FundManager />
                 );
             case 'ratio':
                 return (
-                    <></>
+                    <Ratio />
                 );
             // <CompletedGoal />;
             default:
@@ -85,8 +88,8 @@ const FunpickerDetail = () => {
                                 borderTopRightRadius: borderRadius.medium,
                                 height: responsiveWidth(10)
                             }}
-pressOpacity={0}
-pressColor={colors.Hard_White}
+                            pressOpacity={0}
+                            pressColor={colors.tabBg}
                             style={{ backgroundColor: colors.tabBg }}
                             inactiveColor={colors.black}
                             activeColor={colors.black}
