@@ -94,6 +94,7 @@ let reptativeColors = {
   darkGrayShades: '#313131',
   gray: '#999999',
   lightGray: '#eeeeee',
+  gridHeader:'#F7F6F6',
   // primary: 'rgba(35, 59, 116, 1)',
   primary: '#233B74',
   primarylow: '#8505B41F',
@@ -133,7 +134,7 @@ let reptativeColors = {
   label:'#101828',
   headerlist:'#EAECF0',
   //extra color code
-
+  greenshade:'#E6F8E9',
   inputLabel: '#BCBCBC',
 
   gradient1: '#DA79FF',
@@ -161,6 +162,7 @@ const colors: any = {
   white: reptativeColors.white,
   darkGray: reptativeColors.darkGray,
   darkGrayShades: reptativeColors.darkGrayShades,
+  gridHeader:reptativeColors.gridHeader,
   gray: reptativeColors.gray,
   primary: reptativeColors.primary,
   primary1: reptativeColors.primary1,
@@ -198,7 +200,7 @@ const colors: any = {
   bg:reptativeColors.bg,
   action:reptativeColors.action,
   tabBg: reptativeColors.tabBg, //extra
-
+greenshade:reptativeColors.greenshade,
   cardborder:reptativeColors.cardborder,
  
 
@@ -224,7 +226,7 @@ const colors: any = {
   bottomTabTextActive: reptativeColors.white,
 
   //Input
-  inputBg: reptativeColors.lightGray,
+  inputBg: reptativeColors.white,
   inputLabel: reptativeColors.secondary3,
   inputValue: reptativeColors.black,
   inputText: reptativeColors.white,
@@ -338,6 +340,8 @@ export const darkColors: any = {
   primary3: reptativeColors.primary3,
   secondary: reptativeColors.secondary,
   secondary3: reptativeColors.secondary3,
+  greenshade:reptativeColors.greenshade,
+   gridHeader:reptativeColors.gridHeader,
   red: reptativeColors.red,
   orange: reptativeColors.orange,
   yellow: reptativeColors.yellow,
@@ -390,7 +394,7 @@ export const darkColors: any = {
   bottomTabTextActive: reptativeColors.white,
 
   //Input
-  inputBg: reptativeColors.darkGray,
+  inputBg: reptativeColors.white,
   inputLabel: reptativeColors.secondary3,
   inputValue: reptativeColors.white,
   inputText: reptativeColors.white,

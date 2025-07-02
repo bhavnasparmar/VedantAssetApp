@@ -1,4 +1,4 @@
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { debounce, sortBy } from 'lodash';
 import React, { useCallback, useEffect,  useState } from 'react';
 import {  FlatList, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -25,6 +25,7 @@ import { AppearanceContext } from '../../../context/appearanceContext';
 
 const FundPicker = () => {
   const isFocused: any = useIsFocused();
+  const navigation:any = useNavigation();
   const [isVisible, setIsVisible] = useState(false);
   const [isDownloadVisible, setIsDownloadVisible] = useState(false);
   const [isReturnsVisible, setIsReturnsVisible] = useState(false);
@@ -670,6 +671,9 @@ const [sortOrder, setSortOrder] = useState('');
 };
 
  const renderFundItem = ({ item }:any) => (
+  <TouchableOpacity onPress={() => {
+    navigation.navigate('FunpickerDetail', { item })
+  }}>
     <Wrapper customStyles={styles.row}>
      
       <View style={[styles.cell,{width:responsiveWidth(45)}]}>
@@ -874,6 +878,7 @@ const [sortOrder, setSortOrder] = useState('');
        </Wrapper>
      </View>
     </Wrapper>
+    </TouchableOpacity>
   );
   return (
     <>
