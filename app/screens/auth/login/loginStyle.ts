@@ -1,17 +1,21 @@
 import {StyleSheet} from 'react-native';
-import { responsiveWidth } from '../../../styles/variables';
+import { borderRadius, colors, fontSize, responsiveWidth } from '../../../styles/variables';
 const styles = StyleSheet.create({
     subtitle:{
         width:responsiveWidth(90)
     },
       tabBar: {
     flexDirection: 'row',
-    backgroundColor: '#f4f4f4',
-    borderRadius: 10,
+    // backgroundColor: '#f4f4f4',
+    backgroundColor: colors.Hard_White,
+    borderWidth:1,
+    borderRadius: borderRadius.middleSmall,
     overflow: 'hidden',
     marginBottom: 20,
     width:responsiveWidth(60),
-    alignSelf:'center'
+    alignSelf:'center',
+    padding:responsiveWidth(2),
+    borderColor:colors.orange
   },
   tabItem: {
     flex: 1,
@@ -19,13 +23,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeTab: {
-    borderBottomWidth: 3,
-    borderBottomColor: '#f58220',
-    backgroundColor: '#fff',
+    // borderBottomWidth: 3,
+    // borderBottomColor: '#f58220',
+   borderRadius:borderRadius.middleSmall,
+    backgroundColor: colors.fieldborder,
+  },
+  activeTab1: {
+    // borderBottomWidth: 3,
+    // borderBottomColor: '#f58220',
+    borderTopRightRadius:10,
+    borderBottomRightRadius:10,
+    backgroundColor: colors.fieldborder,
   },
   tabText: {
     color: '#888',
-    fontWeight: '600',
+    fontWeight: '700',
+    fontSize:fontSize.semiSmall
   },
   activeTabText: {
     color: '#f58220',

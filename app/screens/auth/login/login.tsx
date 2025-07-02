@@ -161,18 +161,19 @@ const Login = () => {
         <ScrollView
           style={{flex: 1}}
           contentContainerStyle={{justifyContent: 'center', minHeight: '100%'}}>
-          <Container Xcenter>
-            <Spacer y="L" />
+          <Container Xcenter bgcolor={colors.Hard_White}>
+            <Spacer y="N" />
             <Wrapper
               position="center"
               align="center"
               width={responsiveWidth(100)}>
-              <CusText title text="Welcome" size="L" color={colors.secondary} />
+              <CusText title position='center' text={`Hey there!\nLet's get you signed in.`} size="L" color={colors.secondary} />
+              {/* <CusText bold position='center' text={`Welcome`} size="L" color={colors.secondary} /> */}
             </Wrapper>
-            <Spacer y="S" />
-            <Wrapper position="center">
+            <Spacer y="N" />
+            <Wrapper position="center" customStyles={{gap:responsiveWidth(8)}}>
               <InputField
-                label="Email"
+                label="User Name"
                 value={Form.email}
                 width={responsiveWidth(90)}
                 placeholder="Enter Your Email"
@@ -184,6 +185,10 @@ const Login = () => {
                     ...Form,
                     email: value,
                   });
+                }}
+                fieldViewStyle={{
+                  height: responsiveWidth(11),
+                  borderRadius: borderRadius.normal
                 }}
                 keyboardType="email-address"
                 borderColor={colors.placeholderColor}
@@ -199,6 +204,7 @@ const Login = () => {
                     : null
                 }
               />
+
               <InputField
                 label="Password"
                 value={Form.password}
@@ -218,6 +224,14 @@ const Login = () => {
                 suffixColor={colors.placeholderColor}
                 placeholderColor={colors.placeholderColor}
                 suffixArea={30}
+                 fieldViewStyle={{
+                  height: responsiveWidth(11),
+                  borderRadius: borderRadius.normal
+                }}
+                style={{
+                            borderColor: colors.fieldborder
+                        }}
+                 borderColor={colors.fieldborder}
                 returnKeyType="done"
                 error={
                   passworderror && !Form.password
@@ -231,7 +245,7 @@ const Login = () => {
                 }}
               />
             </Wrapper>
-            <Spacer y="XXS" />
+            <Spacer y="N" />
             <Wrapper align="end" width={responsiveWidth(90)}>
               <TouchableOpacity
                 activeOpacity={0.6}
@@ -245,14 +259,45 @@ const Login = () => {
                 />
               </TouchableOpacity>
             </Wrapper>
-            <Spacer y="N" />
-            <CusButton
+            <Spacer y="SemiS" />
+            <Wrapper position='center' row align='center' justify='apart' customStyles={{ gap: responsiveWidth(2) }}>
+              <TouchableOpacity activeOpacity={0.6} onPress={() => { onSubmit() }}>
+                <Wrapper width={responsiveWidth(40)} color={colors.orange} customStyles={{ borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(2.5) }}>
+                  <CusText position='center' bold color={colors.Hard_White} text={'LOGIN'} />
+                </Wrapper>
+              </TouchableOpacity>
+              <TouchableOpacity activeOpacity={0.6} onPress={() => {
+                if (!Otploading) {
+                  onSubmitWithOTP();
+                }
+              }}
+              >
+                <Wrapper  width={responsiveWidth(40)} color={colors.Hard_White} customStyles={{ borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(2.5),borderColor:colors.orange,borderWidth:1 }}>
+                  
+                 
+                  {Otploading ? (
+                    <Wrapper>
+                      <ActivityIndicator
+                        color={colors.orange}
+                        size={fontSize.normal}
+                      />
+                    </Wrapper>
+                  ) 
+                  :
+ <CusText color={colors.orange} bold position='center' text={'Login with OTP'} />
+                }
+                </Wrapper>
+              </TouchableOpacity>
+            </Wrapper>
+            {/* <CusButton
               loading={loginloading}
               width={responsiveWidth(90)}
+              height={responsiveWidth(10)}
               title="Login"
+              textWeight='bold'
               color={colors.secondary}
               position="center"
-              radius={borderRadius.medium}
+              radius={borderRadius.middleSmall}
               onPress={() => {
                 onSubmit();
               }}
@@ -279,7 +324,7 @@ const Login = () => {
                   />
                 </Wrapper>
               )}
-            </Wrapper>
+            </Wrapper> */}
           </Container>
         </ScrollView>
       </KeyboardAvoidingView>

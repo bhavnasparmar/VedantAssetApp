@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, useWindowDimensions, Text,Image, TouchableOpacity } from 'react-native';
 import { TabView, SceneMap} from 'react-native-tab-view';
 import Login from '../login/login';
-import { responsiveHeight, responsiveWidth } from '../../../styles/variables';
+import { colors, responsiveHeight, responsiveWidth } from '../../../styles/variables';
 import Wrapper from '../../../ui/wrapper';
 import { styles } from '../login/loginStyle';
 import Register from '../Register/Register';
@@ -60,7 +60,7 @@ const TabviewLogin = () => {
 
     return (
         <>
-            <Wrapper align='center'>
+            <Wrapper align='center' color={colors.Hard_White}>
                 <Image source={require('../../../assets/Images/logo_light.png')} style={{
                     height: responsiveHeight(15),
                     width: responsiveWidth(50),
@@ -73,6 +73,7 @@ const TabviewLogin = () => {
                 onIndexChange={setIndex}
                 initialLayout={{ width: layout.width }}
                 renderTabBar={(props) => renderTabBar(props)}
+                style={{backgroundColor:'white'}}
             />
         </>
     );
