@@ -585,18 +585,18 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
             </Container>
             <Wrapper width={'100%'} color={colors.Hard_White} row align='center' position='center' justify='center' customStyles={{gap:responsiveWidth(1) , paddingVertical: responsiveWidth(3), paddingHorizontal: responsiveWidth(3) }}>
                 <TouchableOpacity activeOpacity={0.6} onPress={() => { reCalculate() }}>
-                    <Wrapper width={responsiveWidth(31)}  position='center' customStyles={{ padding: responsiveWidth(2.5),paddingHorizontal:responsiveWidth(0) , borderRadius: borderRadius.medium, borderColor: colors.gray, borderWidth: 1 }}>
-                        <CusText size='SS' bold position='center' text={'Back'} />
+                    <Wrapper width={responsiveWidth(31)}  position='center' customStyles={{ padding: responsiveWidth(2.5),paddingHorizontal:responsiveWidth(0) , borderRadius: borderRadius.middleSmall, borderColor: colors.gray, borderWidth: 1 }}>
+                        <CusText bold position='center' text={'Back'} />
                     </Wrapper>
                 </TouchableOpacity>
                 <TouchableOpacity activeOpacity={0.6} onPress={() => { saveGoal() }}>
-                    <Wrapper width={responsiveWidth(31)} color={colors.orange} position='center' customStyles={{ padding: responsiveWidth(2.5),paddingHorizontal:responsiveWidth(0) , borderRadius: borderRadius.medium }}>
-                        <CusText size='SS' bold position='center' color={colors.Hard_White} text={'Save Goal'} />
+                    <Wrapper width={responsiveWidth(31)} color={colors.orange} position='center' customStyles={{ padding: responsiveWidth(2.5),paddingHorizontal:responsiveWidth(0) , borderRadius: borderRadius.middleSmall }}>
+                        <CusText bold position='center' color={colors.Hard_White} text={'Save Goal'} />
                     </Wrapper>
                 </TouchableOpacity>
                 <TouchableOpacity activeOpacity={0.6} onPress={() => { }}>
-                    <Wrapper width={responsiveWidth(31)} color={colors.orange} position='center' customStyles={{ padding: responsiveWidth(2.5),paddingHorizontal:responsiveWidth(0) , borderRadius: borderRadius.medium }}>
-                        <CusText size='SS' bold position='center' color={colors.Hard_White} text={'Save & Execute'} />
+                    <Wrapper width={responsiveWidth(31)} color={colors.orange} position='center' customStyles={{ padding: responsiveWidth(2.5),paddingHorizontal:responsiveWidth(0) , borderRadius: borderRadius.middleSmall }}>
+                        <CusText bold position='center' color={colors.Hard_White} text={'Save & Execute'} />
                     </Wrapper>
                 </TouchableOpacity>
             </Wrapper>

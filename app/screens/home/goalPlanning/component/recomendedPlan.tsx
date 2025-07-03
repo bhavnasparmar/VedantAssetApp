@@ -165,7 +165,25 @@ const RecommendedPlan = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                     <CusText position='center' text={`${getGoalPlanning()?.inflation_rate !== 0 ? getGoalPlanning()?.inflation_rate + '%' : ' '}  ${getGoalPlanning()?.inflation_rate !== 0 ? 'Inflation adjusted' : ''} Projected amount after ${getGoalPlanning()?.months} months will be ₹ ${selectedOption === 'Lumpsum' ? getGoalPlanning()?.goal_projected_value : getGoalPlanning()?.goal_sip_projected_value} `} size="S" semibold />
                 </Wrapper>
                 <Spacer y='XS' />
-                <CusButton
+                 <TouchableOpacity activeOpacity={0.6} onPress={() => { submit() }}>
+                    {
+
+                        <Wrapper position='center' width={responsiveWidth(40)} color={colors.orange} customStyles={{ borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(2.5) }}>
+                            {/* {!loader ? */}
+                                <CusText position='center' bold color={colors.Hard_White} text={'PROCEED'} />
+                                {/* <Wrapper>
+                                    <ActivityIndicator
+                                        color={colors.Hard_White}
+                                        size={fontSize.normal}
+                                    />
+                                </Wrapper>
+
+                            } */}
+                        </Wrapper>
+                    }
+
+                </TouchableOpacity>
+                {/* <CusButton
                     width={responsiveWidth(40)}
                     height={responsiveHeight(5)}
                     title="Proceed"
@@ -176,7 +194,7 @@ const RecommendedPlan = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                         submit()
 
                     }}
-                />
+                /> */}
                 <Spacer y='S' />
             </Wrapper>
         </Modal>

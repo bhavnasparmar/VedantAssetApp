@@ -87,9 +87,9 @@ const NewGoal = ({ setisVisible, setgoalId, setGoalPlanID, setGoalName,riskprofi
                     borderBottomRightRadius: borderRadius.medium,
                 }}
             >
-                <Wrapper row color={colors.containerBg} customStyles={{ flexWrap: 'wrap',  marginVertical: responsiveWidth(2), paddingBottom: responsiveWidth(2), borderRadius: borderRadius.medium }}>
+                <Wrapper row color={colors.containerBg} customStyles={{ flexWrap: 'wrap', rowGap:responsiveWidth(3) , marginVertical: responsiveWidth(2), paddingBottom: responsiveWidth(2), borderRadius: borderRadius.medium }}>
                    {goalTypesData?.map((item: any, i: number) =>
-                    <Wrapper width={responsiveWidth(29)} customStyles={{ flexWrap: 'wrap', marginHorizontal: responsiveWidth(2), }}>
+                    <Wrapper width={responsiveWidth(29)} customStyles={{ flexWrap: 'wrap', marginHorizontal: responsiveWidth(2) }}>
                         <TouchableOpacity style={{
                             width: responsiveWidth(29),
                             height: responsiveWidth(29),
@@ -103,14 +103,14 @@ const NewGoal = ({ setisVisible, setgoalId, setGoalPlanID, setGoalName,riskprofi
                         }} onPress={() => { setgoalId(item?.id), setGoalPlanID(item?.id), setisVisible(true), 
                         setGoalName(item?.goal_name),setPageName('NewGoal') }}>
                             <Image resizeMode='contain' source={{ uri: getGoalTypeImage(item?.goal_icon) }} style={{
-                                height: responsiveWidth(26),
-                                width: responsiveWidth(26)
+                                height: responsiveWidth(20),
+                                width: responsiveWidth(20)
                             }}></Image>
                         </TouchableOpacity>
-                        <Spacer y='XXS' />
-                        <Wrapper position='center'>
+                        {/* <Spacer y='XXS' /> */}
+                        <Wrapper position='center' customStyles={{marginTop:responsiveWidth(2)}}>
                             <CusText semibold position="center" text={item?.goal_name} size='SS' color={colors.black}
-                                customStyles={{ width: responsiveWidth(21) }} />
+                                customStyles={{ width: responsiveWidth(22) }} />
                         </Wrapper>
                     </Wrapper>
                 )}

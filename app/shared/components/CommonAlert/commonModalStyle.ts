@@ -23,11 +23,11 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     title: {
-        marginVertical: responsiveWidth(4),
+        marginVertical: responsiveWidth(1.5),
     },
     description: {
         textAlign: 'center',
-        marginBottom: responsiveHeight(3),
+        marginBottom: responsiveHeight(2),
 
     },
     buttonContainer: {

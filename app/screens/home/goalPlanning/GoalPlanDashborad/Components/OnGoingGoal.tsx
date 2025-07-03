@@ -318,7 +318,7 @@ const OnGoingGoal = ({ setgoalId, setGoalPlanID, setGoalName, riskprofileData }:
                                paddingHorizontal: responsiveWidth(2),
                                width:responsiveWidth(20) }}>
                               {/* <IonIcon size={responsiveWidth(5)} name={aitem?.icon} color={colors.orange} /> */}
-                              <CusText semibold size='SS' text={aitem?.name} color={colors.white}/>
+                              <CusText semibold  text={aitem?.name} color={colors.white}/>
                             </Wrapper>
                           </TouchableOpacity>
                         </>

@@ -8,7 +8,7 @@ import DropDown from '../../../../ui/dropdown';
 import CusButton from '../../../../ui/custom-button';
 import Spacer from '../../../../ui/spacer';
 import { useIsFocused } from '@react-navigation/native';
-import { Switch, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Switch, TouchableOpacity } from 'react-native';
 import InputField from '../../../../ui/InputField';
 import Slider from '@react-native-community/slider';
 import { styles } from '../goaltabview/goalDashboardStyle';
@@ -772,7 +772,25 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
                     </Wrapper>
                 </Wrapper> */}
                 <Spacer y='XS' />
-                <CusButton
+                <TouchableOpacity activeOpacity={0.6} onPress={() => { submit() }}>
+                    {
+
+                        <Wrapper width={responsiveWidth(40)} color={colors.orange} customStyles={{ borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(2.5) }}>
+                            {!loader ?
+                                <CusText position='center' bold color={colors.Hard_White} text={'CALCULATE'} /> :
+                                <Wrapper>
+                                    <ActivityIndicator
+                                        color={colors.Hard_White}
+                                        size={fontSize.normal}
+                                    />
+                                </Wrapper>
+
+                            }
+                        </Wrapper>
+                    }
+
+                </TouchableOpacity>
+                {/* <CusButton
                     loading={loader}
                     width={responsiveWidth(40)}
                     height={responsiveHeight(5)}
@@ -785,7 +803,7 @@ const NewGoalpopup = ({ isVisible, goalID, setisVisible, flag, goalPlanID, goalP
 
                         submit()
                     }}
-                />
+                /> */}
                 <Spacer y='S' />
             </Wrapper>
         </Modal>
