@@ -1,8 +1,9 @@
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { debounce, sortBy } from 'lodash';
 import React, { useCallback, useEffect,  useState } from 'react';
-import {  FlatList, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {  ActivityIndicator, Alert, FlatList, Image, PermissionsAndroid, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import {
+  downloadPDFApi,
   getAmcApi,
   getCategoryWithSubCategoryApi,
   getFundPickerListDataApi,
@@ -10,7 +11,7 @@ import {
 } from '../../../api/homeapi';
 import { showToast, toastTypes } from '../../../services/toastService';
 import Header from '../../../shared/components/Header/Header';
-import {  borderRadius, colors, responsiveHeight, responsiveWidth } from '../../../styles/variables';
+import {  borderRadius, colors, fontSize, responsiveHeight, responsiveWidth } from '../../../styles/variables';
 import InputField from '../../../ui/InputField';
 import CusButton from '../../../ui/custom-button';
 import CusText from '../../../ui/custom-text';
@@ -19,9 +20,12 @@ import Wrapper from '../../../ui/wrapper';
 import FundPickerFilter from './component/fundPickerFilter';
 import { styles } from './fundpickerStyles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { convertToCrores, toFixedDataForReturn } from '../../../utils/Commanutils';
+import { convertToCrores, PDF_URL, toFixedDataForReturn } from '../../../utils/Commanutils';
 import moment from 'moment';
 import { AppearanceContext } from '../../../context/appearanceContext';
+import ReactNativeBlobUtil from 'react-native-blob-util';
+import * as Progress from 'react-native-progress';
+import DownloadProgressModal from '../../../shared/components/DownloadProgress/DownloadProgress';
 
 const FundPicker = () => {
   const isFocused: any = useIsFocused();
@@ -37,6 +41,9 @@ const FundPicker = () => {
   const [amcList, setAmcList] = useState<any>([]);
   const [filterObj, setFilterObj] = React.useState<any>({});
   const [loader, setloader] = React.useState<boolean>(false);
+  const [downloadProgress, setDownloadProgress] = useState(0); 
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [isDownloaded, setIsDownload] = useState<boolean>(false);
   const pagesize = 30;
   const [page, setPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -670,6 +677,131 @@ const [sortOrder, setSortOrder] = useState('');
   });
 };
 
+  const downloadFile = (type: any) => {
+    if (type === 'PDF') {
+      setIsReturnsVisible(false),
+      setIsDownloadVisible(!isDownloadVisible)
+      donwloadPDF()
+    }else{
+      showToast('info','Coming Soon...')
+       setIsReturnsVisible(false),
+      setIsDownloadVisible(!isDownloadVisible)
+    }
+
+  }
+
+  const generateTimestamp = () => {
+  const now = new Date();
+  const day = now.getDate().toString().padStart(2, '0');
+  const month = (now.getMonth() + 1).toString().padStart(2, '0'); 
+  const year = now.getFullYear().toString().slice(-2); 
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+
+  return `${day}_${month}_${year}_${seconds}`;
+};
+
+  const donwloadPDF = async () => {
+    try {
+      setIsDownload(true)
+      let payload: any = {
+        exportData: fundPickerList,
+        visibleColumns: {
+          "return1day": selectedReturn?.includes(1) ? true : false,
+          "return7days": selectedReturn?.includes(2) ? true : false,
+          "return1month": selectedReturn?.includes(3) ? true : false,
+          "return3months": selectedReturn?.includes(4) ? true : false,
+          "return6months": selectedReturn?.includes(5) ? true : false,
+          "return1y": selectedReturn?.includes(6) ? true : false,
+          "return2y": selectedReturn?.includes(7) ? true : false,
+          "return3y": selectedReturn?.includes(8) ? true : false,
+          "return5y": selectedReturn?.includes(9) ? true : false,
+          "return7y": selectedReturn?.includes(10) ? true : false,
+          "return10y": selectedReturn?.includes(11) ? true : false,
+        },
+        visibleColumnsCount: selectedReturn?.length ? selectedReturn?.length : 0
+      }
+      console.log('Payload PDF: ', payload)
+      const [result, error]: any = await downloadPDFApi(payload);
+      if (result) {
+        console.log('Result : ', result)
+        let pdfPath:any = `${PDF_URL}Fundpdf/${result?.data}`
+        console.log('pdfPath : ', pdfPath)
+          const timestamp = generateTimestamp();
+           const fileName = `Fund${timestamp}_data.pdf`;
+        donloadFiles(pdfPath,fileName)
+      } else {
+        console.log('error ', error)
+         setIsDownload(false)
+        showToast(toastTypes.info, error)
+        
+      }
+    } catch (error: any) {
+      console.log('donwloadPDF catch error ', error)
+      showToast(toastTypes.error, error)
+       setIsDownload(false)
+    }
+
+  }
+
+  
+
+  const donloadFiles = async (pdfPath: any, fileName: any) => {
+    try {
+    
+    const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE);
+    console.log('Permission Granted : ', granted)
+    // if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+       setModalVisible(false);
+      setDownloadProgress(0);
+      const { config, fs, ios } = ReactNativeBlobUtil;
+      const downloadDir = Platform.OS === 'ios' ? fs.dirs.DocumentDir : fs.dirs.LegacyDownloadDir;
+      const configOptions : any = Platform.select({
+        ios: {
+          title: fileName,
+          path: `${downloadDir}/${fileName}`,
+        },
+        android: {
+          useDownloadManager: true,
+          notification: true,
+          mediaScannable: true,
+          title: fileName,
+          path: `${downloadDir}/${fileName}`,
+          mime: 'application/pdf',
+        },
+      });
+      config(configOptions)
+      .fetch('GET', pdfPath)
+      .progress({ interval: 250 }, (received, total) => { 
+        const percentage = (received / total) * 100;
+        setDownloadProgress(percentage);
+      })
+      .then(res => {
+        if (Platform.OS === 'ios') {
+          ios.openDocument(res.data);
+        } else {
+          console.log('PDF downloaded successfully to:', res.path());
+          showToast('success','Downloaded Successfully')
+           
+        }
+        setIsDownload(false)
+         setModalVisible(false);
+          setDownloadProgress(0);
+      })
+      .catch(error => {
+        console.error('Download error:', error);
+         setIsDownload(false)
+         setModalVisible(false);
+      setDownloadProgress(0);
+      });
+    // } else {
+    //   Alert.alert('Permission Denied!', 'You need to give storage permission to download the file');
+    // }
+    } catch (error:any) {
+      console.log('donloadFiles catch Error : ',error)
+       setIsDownload(false)
+    }
+  }
+
  const renderFundItem = ({ item }:any) => (
   <TouchableOpacity onPress={() => {
     navigation.navigate('FunpickerDetail', { item })
@@ -919,19 +1051,29 @@ const [sortOrder, setSortOrder] = useState('');
         <Wrapper customStyles={{ position: "relative" }}>
           <TouchableOpacity activeOpacity={0.6} onPress={() => {setIsReturnsVisible(false) , setIsDownloadVisible(!isDownloadVisible) }}>
             <Wrapper customStyles={{ padding: responsiveWidth(2.5), borderRadius: borderRadius.normal, borderColor: colors.inputBorder, borderWidth: 1 }}>
+              {
+                isDownloaded ? 
+                <Wrapper>
+                   <ActivityIndicator
+                        color={colors.orange}
+                        size={fontSize.normal}
+                      />
+                    </Wrapper>:
               <Image resizeMode='contain' source={require('../../../assets/Images/downloadfile.png')} style={{ height: responsiveWidth(5), width: responsiveWidth(5) }} />
+
+              }
             </Wrapper>
           </TouchableOpacity>
           {
             isDownloadVisible ?
               <Wrapper position='end' width={responsiveWidth(20)} color={colors.Hard_White} customStyles={{ position: "absolute", top: "95%", zIndex: 1, borderRadius: borderRadius.normal,borderColor:colors.inputBorder,borderWidth:1 }}>
-                <TouchableOpacity onPress={() => {setIsReturnsVisible(false) , setIsDownloadVisible(!isDownloadVisible) }}>
+                <TouchableOpacity onPress={() => {downloadFile('EXCEL') }}>
                   <Wrapper row align='center' position='start' justify='center' customStyles={{ paddingHorizontal:responsiveWidth(2), paddingVertical: responsiveHeight(1),gap:responsiveWidth(1) }}>
                    <Image resizeMode='contain' style={{height:responsiveWidth(3.5),width:responsiveWidth(3.5)}} source={require('../../../assets/Images/excelpic.png')} />
                     <CusText semibold text={'EXCEL'} />
                   </Wrapper>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {setIsReturnsVisible(false) , setIsDownloadVisible(!isDownloadVisible) }}>
+                <TouchableOpacity onPress={() => { downloadFile('PDF') }}>
                   <Wrapper row align='center' position='start' justify='center' customStyles={{ paddingHorizontal:responsiveWidth(2), paddingVertical: responsiveHeight(1),gap:responsiveWidth(1) }}>
                     <Image resizeMode='contain' style={{height:responsiveWidth(3.5),width:responsiveWidth(3.5)}} source={require('../../../assets/Images/pdfpic.png')} />
                     <CusText semibold text={'PDF'} />
@@ -1018,6 +1160,7 @@ const [sortOrder, setSortOrder] = useState('');
           )
         }
       />
+       <DownloadProgressModal isVisible={isModalVisible} progress={downloadProgress} />
     </>
   );
 };

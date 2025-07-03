@@ -10,6 +10,7 @@ import { getGoalPlanningDetails, getRiskObject, getuserDetails } from '../Redux/
 export const API_URL = 'https://vedant.prosesenv.com:9065/';
 export const IMAGE_URL = `${API_URL}static/`;
 export const IMAGE_URL_GOAL = `${API_URL}static/`;
+export const PDF_URL = `${API_URL}static/`;
 export const TOKEN_PREFIX = 'TOKEN_PREFIX';
 export const REFRESH_TOKEN_PREFIX = 'REFRESH_TOKEN_PREFIX';
 export const FCM_TOKEN = 'FCM_TOKEN';
@@ -43,6 +44,7 @@ const endPoints = {
   adduseralloc : 'goal-plan/add-user-alloc',
   getSuggestedSchemes: 'goal-plan/suggested-subcategory-schemes',
   deleteGoal: 'goal-plan/deleteGoalPlanData',
+  downloadPDF:'fund-picker/get-FundPicker-schemes-pdf-export'
 };
 
 export { endPoints };

@@ -77,6 +77,12 @@ export const getFundPickerListDataApi = (payload: any) => {
     return promiseHandler(promise);
 };
 
+export const downloadPDFApi = (payload: any) => {
+   
+    const promise = API.post(`${API_URL}${endPoints.downloadPDF}`,payload);
+    return promiseHandler(promise);
+};
+
 export const getCategoryWithSubCategoryApi = () => {
     const promise = API.get(`${API_URL}${endPoints.getCategoryWithSubCategoryData}`);
     return promiseHandler(promise);
