@@ -1014,8 +1014,8 @@ const [sortOrder, setSortOrder] = useState('');
   );
   return (
     <>
-      <Header menubtn name={'Fund Picker'} />
-      <Wrapper  color='white' row align='center'  customStyles={{paddingHorizontal:responsiveWidth(2.5),gap:responsiveWidth(1.5),paddingVertical:responsiveWidth(2)}}>
+      <Header backBtn menubtn name={'Fund Explore'} />
+      <Wrapper  color={colors.headerColor} row align='center'  customStyles={{paddingHorizontal:responsiveWidth(2.5),gap:responsiveWidth(1.5),paddingVertical:responsiveWidth(2)}}>
         <InputField
           fieldColor={colors.Hard_White}
           width={responsiveWidth(60)}
@@ -1031,6 +1031,7 @@ const [sortOrder, setSortOrder] = useState('');
             height:responsiveWidth(11),
             borderRadius:borderRadius.normal
           }}
+          
           style={{
             borderColor:colors.fieldborder
           }}
@@ -1123,6 +1124,7 @@ const [sortOrder, setSortOrder] = useState('');
               data={fundPickerList}
               renderItem={renderFundItem}
               keyExtractor={item => item.id}
+              // style={{paddingBottom:responsiveWidth(10)}}
             />
           </View>
         </ScrollView>

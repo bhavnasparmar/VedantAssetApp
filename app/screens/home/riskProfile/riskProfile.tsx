@@ -129,7 +129,7 @@ const RiskProfile = () => {
   };
   return (
     <>
-      <Header menubtn name={'Risk Profile'} />
+      <Header backBtn name={'Risk Profile'} />
 
       {index == '1' && !finalScreen ? (
         <StartProfile

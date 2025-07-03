@@ -114,7 +114,7 @@ export function DrawerContent(props: any) {
               style={{ width: "90%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
             ></LinearGradient>
           </Wrapper>
-          <Wrapper width={responsiveWidth(100)} color={currentRoute === 'FundPicker' ? colors.Hard_White : colors.primary}>
+          <Wrapper color={currentRoute === 'FundPicker' ? colors.Hard_White : colors.primary}>
             <DrawerItem
               icon={({ focused }) => (
 
@@ -154,7 +154,7 @@ export function DrawerContent(props: any) {
             ></LinearGradient>
           </Wrapper>
 
-          <Wrapper width={responsiveWidth(100)} color={currentRoute === 'GoalPlanDashboard' ? colors.Hard_White : colors.primary}>
+          <Wrapper color={currentRoute === 'GoalPlanDashboard' ? colors.Hard_White : colors.primary}>
 
             <DrawerItem
               icon={({ focused }) => (
@@ -188,7 +188,7 @@ export function DrawerContent(props: any) {
               style={{ width: "90%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
             ></LinearGradient>
           </Wrapper>
-          <Wrapper width={responsiveWidth(100)} color={currentRoute === 'RiskProfile' ? colors.Hard_White : colors.primary}>
+          <Wrapper  color={currentRoute === 'RiskProfile' ? colors.Hard_White : colors.primary}>
             <DrawerItem
               icon={({ focused }) => (
                 <Image
@@ -210,7 +210,7 @@ export function DrawerContent(props: any) {
 });
               }}
             />
-            <LinearGradient
+            {/* <LinearGradient
               start={{ x: 1, y: 0 }}
               end={{ x: 0, y: 1 }}
               colors={[
@@ -219,7 +219,7 @@ export function DrawerContent(props: any) {
                 colors.Hard_White,
               ]}
               style={{ width: "90%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
-            ></LinearGradient>
+            ></LinearGradient> */}
           </Wrapper>
           {/* </View> */}
           {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}

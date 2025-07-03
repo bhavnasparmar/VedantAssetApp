@@ -529,7 +529,7 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
 
     return (
         <>
-            <Header name={'MF Allocation'} menubtn />
+            <Header name={'MF Allocation'} backBtn />
             <Container Xcenter contentWidth={responsiveWidth(95)} bgcolor={colors.Hard_White}>
                 <Wrapper align='center' row position='center' customStyles={{ gap: responsiveWidth(5), paddingVertical: responsiveWidth(5) }}>
                     <PieChart

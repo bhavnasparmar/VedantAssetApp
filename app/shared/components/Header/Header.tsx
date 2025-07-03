@@ -71,7 +71,7 @@ const Header = ({
         }}
       >
         <Spacer x='S' />
-        <Wrapper align='center' row  >
+        <Wrapper align='center' row >
           {/* {menubtn ? 
            
           <></>  
@@ -84,7 +84,7 @@ const Header = ({
                   navigation.goBack();
                 }}
                 name="chevron-back-outline"
-                size={responsiveWidth(7)}
+                size={responsiveWidth(6)}
                color={colors.primary}
                 style={{
                   padding: responsiveWidth(0.5),
@@ -93,7 +93,7 @@ const Header = ({
             </>
           ) : null}
           {/* <Spacer x='XXS' /> */}
-          <CusText semibold color={colors.primary} text={name} size='SL' />
+          <CusText semibold position='center' color={colors.primary} text={name} size='SL' />
         </Wrapper>
 
         {/* <Wrapper

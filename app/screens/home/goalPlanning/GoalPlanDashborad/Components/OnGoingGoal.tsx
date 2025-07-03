@@ -348,6 +348,7 @@ const OnGoingGoal = ({ setgoalId, setGoalPlanID, setGoalName, riskprofileData }:
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderItem}
           ListEmptyComponent={() => <NoRecords />}
+          style={{marginBottom:responsiveWidth(10)}}
           // ItemSeparatorComponent={() =>
           //   <>
           //     <Wrapper customStyles={{ marginTop: responsiveWidth(2) }}>
@@ -359,6 +360,7 @@ const OnGoingGoal = ({ setgoalId, setGoalPlanID, setGoalName, riskprofileData }:
           //     </Wrapper>
           //   </>}
         />
+        {/* <Spacer y='L' /> */}
       </Wrapper>
       {/* <DeleteAlert
         isVisible={isVisible}

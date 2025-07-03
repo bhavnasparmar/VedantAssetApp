@@ -14,6 +14,7 @@ import Holding from './component/holding';
 import FundManager from './component/fundmanager';
 import Ratio from './component/ratio';
 import CusText from '../../../ui/custom-text';
+import IonIcon from 'react-native-vector-icons/Ionicons';
 
 const FunpickerDetail = () => {
     const { colors }: any = useContext(AppearanceContext);
@@ -26,7 +27,7 @@ const FunpickerDetail = () => {
 
     const [index, setIndex] = useState(0);
     const [routes] = useState([
-        { key: 'nav', title: 'Nav' },
+        { key: 'nav', title: 'NAV' },
         { key: 'information', title: 'Information' },
         { key: 'relatedscheme', title: 'Related Scheme' },
         { key: 'performance', title: 'Performance' },
@@ -93,9 +94,10 @@ const FunpickerDetail = () => {
 
     return (
         <>
-            <Header menubtn name="Scheme Details" />
+            <Header backBtn name="Scheme Details" />
             <Wrapper color={colors.Hard_White} height={responsiveHeight(92)}>
                 <Wrapper color={colors.headerColor} row align='center' customStyles={{ paddingVertical: responsiveWidth(1.5), paddingHorizontal: responsiveWidth(5) }}>
+                                            {/* <IonIcon name={'chevron-back-outline'} color={colors.primary1} size={25} /> */}
                     <CusText semibold size='N' text={'HDFC Mid-Cap Opportunities Gr'} />
                 </Wrapper>
                 <Wrapper color={colors.tabBg} height={responsiveWidth(10)}>

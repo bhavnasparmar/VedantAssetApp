@@ -286,11 +286,11 @@ useFocusEffect(
   return (
     <Container Xcenter contentWidth={responsiveWidth(100)}>
       {/* sample */}
-      <Wrapper position='center' color={colors.Hard_White} width={responsiveWidth(94)} height={responsiveHeight(80)} 
+      <Wrapper position='center' color={colors.Hard_White} width={responsiveWidth(94)} height={responsiveHeight(90)} 
       customStyles={{ borderRadius: borderRadius.large, 
       marginVertical: responsiveWidth(3), padding: responsiveWidth(5), 
       paddingHorizontal: responsiveWidth(3),justifyContent:'center'}}>
-        <ScrollView>
+        <ScrollView nestedScrollEnabled>
        {questionList?.map((items:any,ini:number)=>
       <Wrapper customStyles={{gap: 20, marginBottom: responsiveWidth(1), borderBottomWidth: 1, paddingLeft: responsiveWidth(0),
          paddingVertical: responsiveWidth(1)}}
@@ -532,22 +532,24 @@ useFocusEffect(
         position="center"
         width={responsiveWidth(84)}>
         <CusButton
-          radius={borderRadius.ring}
+          radius={borderRadius.middleSmall}
           title="Back"
           width={responsiveWidth(35)}
+            height={responsiveWidth(10)}
           onPress={() =>
             setIndex('1')
           }
-          color={colors.transparent}
-          textcolor={colors.black}
-          textSize='M'
+          color={colors.secondary}
+          textcolor={colors.white}
+          textSize='SS'
         />
 
         <CusButton
           width={responsiveWidth(35)}
-          radius={borderRadius.ring}
+          height={responsiveWidth(10)}
+          radius={borderRadius.middleSmall}
           color={isNextEnabled ? colors.orange : colors.gray}
-          textSize='M'
+          textSize='SS'
           title={
             currentIndex === questionList.length - 1 ? 'Finish' : 'Continue'
           }

@@ -76,7 +76,8 @@ const FundPickerFilter = ({
   'Index': 'selectIndex',
   'ETF': 'selectETF',
 };
-  const [selectNature, setSelectNature] = useState<number | null>(1);
+
+  const [selectNature, setSelectNature] = useState<any | null>();
   const [selectReturn, setSelectReturn] = useState<number | null>(null);
   const [selectIncluded, setSelectIncluded] = useState<any>([]);
   const [selectType, setSelectType] = useState<number | null>(null);
@@ -96,12 +97,12 @@ const FundPickerFilter = ({
   console.log('Category Data ====>>>: ', categoryData)
 
   useEffect(() => {
-    setSelectNature(1)
+    setSelectNature('1')
     if (isVisible && filterObj) {
       setSelectCategory(filterObj?.categoryid || []);
       setSelectSubCategory(filterObj?.subcategory_id || []);
       setSelectAmc(filterObj?.amc_id || []);
-      setSelectNature(filterObj?.option_id || null);
+      setSelectNature(filterObj?.option_id || 1);
     }
   }, [isVisible]);
 
@@ -320,11 +321,11 @@ const toggleIncluded = (item: any) => {
               <>
                 <TouchableOpacity
                   onPress={() => {
-                    if (item?.id == selectNature) {
-                      setSelectNature(null);
-                    } else {
+                    // if (item?.id == selectNature) {
+                    //   setSelectNature(null);
+                    // } else {
                       setSelectNature(item.id);
-                    }
+                    // }
                   }}>
                   <Wrapper
                     color={
