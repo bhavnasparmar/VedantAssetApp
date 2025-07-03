@@ -42,6 +42,8 @@ export function DrawerContent(props: any) {
   const [AlertVisible, setAlertVisible] = useState(false);
   const isDrawerOpen = useDrawerStatus() === 'open';
   const isFocused = useIsFocused();
+  const state = props.navigation.getState();
+  const currentRoute = state.routes[state.index].name;
   useEffect(() => {
     console.log("---", getTokenExpiredflagChange())
     Keyboard.dismiss();
@@ -63,40 +65,41 @@ export function DrawerContent(props: any) {
           }} source={require('../../../assets/Images/FeatureGraphic.png')} />
         </Wrapper>
         <DrawerContentScrollView
-          style={{ paddingTop: 0 }}
-          contentContainerStyle={{ paddingTop: responsiveWidth(2) }}>
+          style={{ width: '100%', padding: 0, gap: 0 }}
+          contentContainerStyle={{ paddingTop: responsiveWidth(2), flex: 1 }}>
           {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}
           {/* <View style={styles.iconSet}></View> */}
-          <Wrapper>
-           
-              <DrawerItem
+          <Wrapper customStyles={{ flex: 1, }}>
 
-                icon={({ }) => (
-                  // <IonIcon
-                  //   name="home"
-                  //   color={colors.white}
-                  //   size={responsiveWidth(7)}
-                  // // style={styles.menuIcon}
-                  // />
-                  <Image
-                    source={require('../../../assets/Images/dashboar.png')} 
-                    style={{
-                      height:responsiveWidth(6),
-                      width:responsiveWidth(6)
-                    }}
-                   />
-                )}
-                label={({ }) => (
-                  <CusText customStyles={{ marginLeft: responsiveWidth(0) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Dashboard" />
-                )}
+            <DrawerItem
 
-                onPress={() => {
-                  // props.navigation.navigate("Tabs");
-                  props.navigation.navigate('Dashboard');
-                }}
-              />
-           
-            
+              icon={({ focused }) => (
+                // <IonIcon
+                //   name="home"
+                //   color={colors.white}
+                //   size={responsiveWidth(7)}
+                // // style={styles.menuIcon}
+                // />
+                <Image
+                  source={require('../../../assets/Images/dashboar.png')}
+                  style={{
+                    height: responsiveWidth(6),
+                    width: responsiveWidth(6)
+                  }}
+                />
+              )}
+              label={({ }) => (
+                <CusText customStyles={{}} color={colors.white} size='N' style={styles.menuTextstyle} text="Dashboard" />
+              )}
+
+              onPress={() => {
+                // props.navigation.navigate("Tabs");
+                props.navigation.navigate('Dashboard');
+              }}
+
+            />
+
+
             <LinearGradient
               start={{ x: 1, y: 0 }}
               end={{ x: 0, y: 1 }}
@@ -105,33 +108,31 @@ export function DrawerContent(props: any) {
                 colors.Hard_White,
                 colors.Hard_White,
               ]}
-                style={{ width: "90%",alignSelf:'center', height: 0.5, opacity: 0.2 }}
+              style={{ width: "90%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
             ></LinearGradient>
           </Wrapper>
-             <Wrapper>
+          <Wrapper width={responsiveWidth(100)} color={currentRoute === 'FundPicker' ? colors.Hard_White : colors.primary}>
             <DrawerItem
-              icon={({ }) => (
-                // <IonIcon
-                //   name="cash"
-                //   color={colors.white}
-                //   size={responsiveWidth(7)}
-                // // style={styles.menuIcon}
-                // />
-                   <Image
-                    source={require('../../../assets/Images/fundExplo.png')} 
-                    style={{
-                      height:responsiveWidth(6),
-                      width:responsiveWidth(6),
-                      tintColor:colors.Hard_White
-                    }}
-                   />
-              )}
-              label={({ }) => (
-                <CusText customStyles={{ marginLeft: responsiveWidth(0) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Fund Explore" />
-              )}
+              icon={({ focused }) => (
 
+                <Image
+                  source={require('../../../assets/Images/fundExplo.png')}
+                  style={{
+                    height: currentRoute === 'FundPicker' ? responsiveWidth(8) : responsiveWidth(6),
+                    width: currentRoute === 'FundPicker' ? responsiveWidth(8) : responsiveWidth(6),
+                    tintColor: currentRoute === 'FundPicker' ? colors.primary : colors.Hard_White
+                  }}
+                />
+              )}
+              label={({ focused }) => {
+                return (
+                  <>
+                    <CusText bold={currentRoute === 'FundPicker' ? true : false} customStyles={{}} color={currentRoute === 'FundPicker' ? colors.primary : colors.Hard_White} size={currentRoute === 'FundPicker' ? 'N' : 'SS'} style={styles.menuTextstyle} text="Fund Explore" />
+                  </>
+                )
+              }
+              }
               onPress={() => {
-                // props.navigation.navigate("Tabs");
                 props.navigation.navigate('FundPicker');
               }}
             />
@@ -143,68 +144,27 @@ export function DrawerContent(props: any) {
                 colors.Hard_White,
                 colors.Hard_White,
               ]}
-                  style={{ width: "90%",alignSelf:'center', height: 0.5, opacity: 0.2 }}
+              style={{ width: "90%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
             ></LinearGradient>
           </Wrapper>
 
-          {/* </View> */}
-          {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}
-          {/* <Wrapper>
-        
+          <Wrapper width={responsiveWidth(100)} color={currentRoute === 'GoalPlanDashboard' ? colors.Hard_White : colors.primary}>
+
             <DrawerItem
-              icon={({ }) => (
-                <IonIcon
-                  name="lock-closed"
-                  color={colors.white}
-                  size={responsiveWidth(7)}
-               
+              icon={({ focused }) => (
+                <Image
+                  source={require('../../../assets/Images/goalPlan.png')}
+                  style={{
+                    height: currentRoute === 'GoalPlanDashboard' ? responsiveWidth(8): responsiveWidth(6),
+                    width: currentRoute === 'GoalPlanDashboard' ? responsiveWidth(8):responsiveWidth(6),
+                    tintColor:currentRoute === 'GoalPlanDashboard' ? colors.primary : colors.Hard_White
+                  }}
                 />
               )}
               label={({ }) => (
-                <CusText customStyles={{ marginLeft: responsiveWidth(4) }} color={colors.white} size='N' style={styles.menuTextstyle} text="ChangePassword" />
+                <CusText bold={currentRoute === 'GoalPlanDashboard' ? true : false} customStyles={{ marginLeft: responsiveWidth(0) }} color={currentRoute === 'GoalPlanDashboard' ? colors.primary : colors.Hard_White} size={currentRoute === 'GoalPlanDashboard' ? 'N' : 'SS'} style={styles.menuTextstyle} text="Goal Planning" />
               )}
               onPress={() => {
-              
-                props.navigation.navigate('ChangePassword');
-              }}
-            />
-            <LinearGradient
-              start={{ x: 1, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              colors={[
-                colors.Hard_White,
-                colors.Hard_White,
-                colors.Hard_White,
-              ]}
-              style={{ width: "100%", height: 1, opacity: 0.5 }}
-            ></LinearGradient>
-          </Wrapper> */}
-          {/* </View> */}
-          {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}
-          <Wrapper>
-            {/* <View style={styles.iconSet}></View> */}
-            <DrawerItem
-              icon={({ }) => (
-                // <IonIcon
-                //   name="golf"
-                //   color={colors.white}
-                //   size={responsiveWidth(7)}
-                // // style={styles.menuIcon}
-                // />
-                 <Image
-                    source={require('../../../assets/Images/goalPlan.png')} 
-                    style={{
-                      height:responsiveWidth(6),
-                      width:responsiveWidth(6),
-                      tintColor:colors.Hard_White
-                    }}
-                   />
-              )}
-              label={({ }) => (
-                <CusText customStyles={{ marginLeft: responsiveWidth(0) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Goal Planning" />
-              )}
-              onPress={() => {
-                // props.navigation.navigate("Tabs");
                 props.navigation.navigate('GoalPlanDashboard');
               }}
             />
@@ -216,36 +176,25 @@ export function DrawerContent(props: any) {
                 colors.Hard_White,
                 colors.Hard_White,
               ]}
-                    style={{ width: "90%",alignSelf:'center', height: 0.5, opacity: 0.2 }}
+              style={{ width: "90%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
             ></LinearGradient>
           </Wrapper>
-          {/* </View> */}
-
-          {/* <View style={[styles.menuItem, { borderColor: colors.gray }]}> */}
-          {/* <View style={styles.iconSet}></View> */}
-          <Wrapper>
+          <Wrapper width={responsiveWidth(100)} color={currentRoute === 'RiskProfile' ? colors.Hard_White : colors.primary}>
             <DrawerItem
-              icon={({ }) => (
-                // <IonIcon
-                //   name="speedometer"
-                //   color={colors.white}
-                //   size={responsiveWidth(7)}
-                // // style={styles.menuIcon}
-                // />
-                 <Image
-                    source={require('../../../assets/Images/RiskProfile.png')} 
-                    style={{
-                      height:responsiveWidth(6),
-                      width:responsiveWidth(6),
-                      tintColor:colors.Hard_White,
-                    }}
-                   />
+              icon={({ focused }) => (
+                <Image
+                  source={require('../../../assets/Images/RiskProfile.png')}
+                  style={{
+                    height:currentRoute === 'RiskProfile' ? responsiveWidth(8) : responsiveWidth(6),
+                    width: currentRoute === 'RiskProfile' ? responsiveWidth(8) :responsiveWidth(6),
+                    tintColor: currentRoute === 'RiskProfile' ? colors.primary : colors.Hard_White,
+                  }}
+                />
               )}
               label={({ }) => (
-                <CusText customStyles={{ marginLeft: responsiveWidth(0) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Risk Profile" />
+                <CusText bold={currentRoute === 'RiskProfile' ? true : false} customStyles={{ marginLeft: responsiveWidth(0) }} color={currentRoute === 'RiskProfile' ? colors.primary : colors.Hard_White} size={currentRoute === 'RiskProfile' ? 'N' : 'SS'} style={styles.menuTextstyle} text="Risk Profile" />
               )}
               onPress={() => {
-                // props.navigation.navigate("Tabs");
                 props.navigation.navigate('RiskProfile');
               }}
             />
@@ -257,7 +206,7 @@ export function DrawerContent(props: any) {
                 colors.Hard_White,
                 colors.Hard_White,
               ]}
-              style={{ width: "90%",alignSelf:'center', height: 0.5, opacity: 0.2 }}
+              style={{ width: "90%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
             ></LinearGradient>
           </Wrapper>
           {/* </View> */}
@@ -315,8 +264,8 @@ export function DrawerContent(props: any) {
             */}
           {/* </View> */}
         </DrawerContentScrollView>
-         
-           
+
+
         {/* <Alert
           AlertVisible={AlertVisible}
           setAlertVisible={(value: any) => setAlertVisible(value)}
@@ -349,26 +298,37 @@ export function DrawerContent(props: any) {
           AlertMsg={'Your Session is expired, Please login again'}
         />
       </Container>
-      <Wrapper customStyles={{paddingHorizontal:responsiveWidth(0)}} color={colors.primary}>
-            <DrawerItem
-              icon={({ }) => (
-                <IonIcon
-                  name="power-outline"
-                  color={colors.white}
-                  size={responsiveWidth(7)}
-                // style={styles.menuIcon}
-                />
-              )}
-              label={({ }) => (
-                <CusText customStyles={{ marginLeft: responsiveWidth(0) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Logout" />
-              )}
-              onPress={() => {
-                // props.navigation.navigate("Tabs");
-                // props.navigation.navigate('RiskProfile');
-                setAlertVisible(true);
-              }}
+      <Wrapper  width={'100%'} customStyles={{ paddingHorizontal: responsiveWidth(0) }} color={colors.primary}>
+          <LinearGradient
+              start={{ x: 1, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              colors={[
+                colors.Hard_White,
+                colors.Hard_White,
+                colors.Hard_White,
+              ]}
+              style={{ width: "100%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
+            ></LinearGradient>
+        <DrawerItem
+          icon={({ }) => (
+            <IonIcon
+              name="power-outline"
+              color={colors.white}
+              size={responsiveWidth(7)}
+            // style={styles.menuIcon}
             />
-          </Wrapper>
+          )}
+          label={({ }) => (
+            <CusText  customStyles={{ marginLeft: responsiveWidth(0)}} color={colors.white} size='N' style={styles.menuTextstyle} text="Logout" />
+          )}
+          
+          onPress={() => {
+            // props.navigation.navigate("Tabs");
+            // props.navigation.navigate('RiskProfile');
+            setAlertVisible(true);
+          }}
+        />
+      </Wrapper>
 
       {/* <Wrapper
         width={'100%'}

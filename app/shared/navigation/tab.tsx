@@ -19,6 +19,10 @@ import CusText from '../../ui/custom-text';
 import Wrapper from '../../ui/wrapper';
 import Dashboard from '../../screens/home/Dashboard/Dashboard';
 import Spacer from '../../ui/spacer';
+import FundPicker from '../../screens/home/fundpicker/fundpicker';
+import GoalDashboards from '../../screens/home/goalPlanning/goaltabview/goalDashboard';
+import GoalDashboard from '../../screens/home/goalPlanning/GoalPlanDashborad/GoalPlanDashboard';
+import RiskProfile from '../../screens/home/riskProfile/riskProfile';
 
 const Tab = createBottomTabNavigator();
 type TabViewProps = {
@@ -31,6 +35,7 @@ const Tabs = ({route}: any) => {
   const navigation: any = useNavigation();
   const {colors}: any = React.useContext(AppearanceContext);
   const [tabIndex, setTabIndex] = useState<any>(0);
+
 
   const screenOptions: any = {
     headerShown: false,
@@ -189,8 +194,8 @@ const Tabs = ({route}: any) => {
           return <BottomTabBar {...props} state={newState} />;
         }}>
         <Tab.Screen
-          name="Dashboard"
-          component={Dashboard}
+          name="FundPicker"
+          component={FundPicker}
           options={{
             tabBarIcon: ({focused}: any) => (
               <TabView
@@ -205,8 +210,8 @@ const Tabs = ({route}: any) => {
         />
 
         <Tab.Screen
-          name="Center"
-          component={Dashboard}
+          name="GoalPlanDashboard"
+          component={GoalDashboard}
           options={{
             tabBarIcon: ({focused}: any) => (
               <TabView
@@ -236,7 +241,7 @@ const Tabs = ({route}: any) => {
         />
         <Tab.Screen
           name="Chat"
-          component={Dashboard}
+          component={RiskProfile}
           options={{
             tabBarIcon: ({focused}: any) => (
               <TabView
@@ -249,11 +254,11 @@ const Tabs = ({route}: any) => {
             ),
           }}
         />
-          <Tab.Screen
+        <Tab.Screen
           name="route"
           component={Dashboard}
           options={{
-            tabBarIcon: ({focused}: any) => (
+            tabBarIcon: ({ focused }: any) => (
               <TabView
                 page="More"
                 focused={focused}
