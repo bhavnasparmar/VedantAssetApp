@@ -103,205 +103,105 @@ const getLabel = (score: number): string => {
       }
     }, [data]),
   );
-  // useEffect(() => {
-  //   let chart: any;
-  //   const option = {
-  //     series: [
-  //       {
-  //         type: 'gauge',
-  //         startAngle: 180,
-  //         endAngle: 0,
-  //         center: ['50%', '75%'],
-  //         radius: '90%',
-  //         min: 1,
-  //         max: 100,
-  //         // splitNumber: 1,
-  //         axisLine: {
-  //           lineStyle: {
-  //             width: responsiveWidth(8),
-  //             color: [
-  //               [0.20, '#2E7D32'],
-  //               [0.40, '#DCE775'],
-  //               [0.60, '#FFEB3B'],
-  //               [0.80, '#FFB74D'],
-  //               [1, '#D32F2F']
-  //             ]
-  //           }
-  //         },
-  //         pointer: {
-  //           icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
-  //           length: '15%',
-  //           width: 20,
-  //           offsetCenter: [0, '-60%'],
-  //           itemStyle: {
-  //             color: 'black'
-  //           }
-  //         },
-  //         axisTick: {
-  //           length: 12,
-  //           lineStyle: {
-  //             color: 'white',
-  //             width: 2
-  //           }
-  //         },
-  //         splitLine: {
-  //           length: 0,
-  //           lineStyle: {
-  //             color: 'white',
-  //             width: 0
-  //           }
-  //         },
-  //         axisLabel: {
-  //           color: '#464646',
-  //           fontSize: 20,
-  //           distance: -60,
-  //           rotate: 'tangential',
-  //           formatter: function (value:any) {
-  //             console.log("Value Data === ... ",value)
-  //             if (value === 0.875) {
-  //               return 'Grade A';
-  //             } else if (value === 0.625) {
-  //               return 'Grade B';
-  //             } else if (value === 0.375) {
-  //               return 'Grade C';
-  //             } else if (value === 0.125) {
-  //               return 'Grade D';
-  //             }
-  //             return '';
-  //           }
-  //         },
-  //         title: {
-  //           offsetCenter: [0, '-10%'],
-  //           fontSize: 20
-  //         },
-  //         detail: {
-  //           fontSize: 30,
-          
-  //           offsetCenter: [0, '-35%'],
-  //           valueAnimation: true,
-  //           formatter: function (value) {
-  //             console.log('Value : ',value)
-  //             return value;
-  //           },
-  //           color: 'black'
-  //         },
-  //         data: [
-  //           {
-  //             value: totaldata,
-  //             name: 'Your Score'
-  //           }
-  //         ]
-  //       }
-  //     ]
-  //   };
-  //   if (chartRef.current) {
-  //     chart = echarts.init(chartRef.current, 'light', {
-  //       renderer: 'svg',
-  //       width: responsiveWidth(100),
-  //       height: responsiveWidth(70),
-  //     });
-  //     chart.setOption(option);
-  //   }
-  //   return () => chart?.dispose();
-  // }, [])
+  
 
    useEffect(() => {
     let chart: any;
-    const option = {
-    series: [
-      {
-        type: "gauge",
-        startAngle: 180,
-        endAngle: 0,
-        center: ["50%", "75%"],
-        radius: "90%",
-        min: 0,
-        max: 1,
-        splitNumber: 8,
-        axisLine: {
-          lineStyle: {
-            width: 36,
-            color: [
-              [0.10, "#3e884d"],    // Low
-              [0.32, "#ced450"],    // Moderately Low
-              [0.64, "#f5e655"],    // Moderate
-              [0.95, "#efa647"],    // Moderately High
-              [1.00, "#cc3a3b"],    // High
-            ],
-            shadowColor: "rgba(0, 0, 0, 0.5)",
-            shadowBlur: 10,
-          },
-        },
-        pointer: {
-          icon: "path://M12.8,0.7l12,40.1H0.7L12.8,0.7z",
-          length: "12%",
-          width: 20,
-          offsetCenter: [0, "-60%"],
-          itemStyle: {
-            color: "rgba(0, 0, 0, 1)",
-          },
-        },
-        axisTick: {
-          length: 20,
-          lineStyle: {
-            color: "auto",
-            width: 0,
-          },
-        },
-        splitLine: {
-          length: 20,
-          lineStyle: {
-            color: "auto",
-            width: 0,
-          },
-        },
-        axisLabel: {
-          color: "#464646",
-          fontSize: 10,
-          distance: -60,
-          width: 65,
-          overflow: "break",
-          rotate: "tangential",
-          formatter: function (value: number) {
-            return "";
-          },
-        },
-        title: {
-          offsetCenter: [0, "-10%"],
-          fontSize: 14,
-          color: "#aaa",
-        },
-        detail: {
-          fontSize: 50,
-          offsetCenter: [0, "-35%"],
-          valueAnimation: true,
-          formatter: function (value: number) {
-            return Math.round(value * 100) + "";
-          },
-          color: "#000",
-        },
-        data: [
-          {
-            value: Number(totaldata) / 100,
-            name: "Your Score",
-            detail: {
-              color: "rgba(0, 0, 0, 1)",
-            },
-          },
-        ],
-      },
-    ],
-  };
+     const option = {
+       series: [
+         {
+           type: "gauge",
+           startAngle: 180,
+           endAngle: 0,
+           center: ["50%", "75%"],
+           radius: "100%",
+           min: 0,
+           max: 1,
+           splitNumber: 8,
+           axisLine: {
+             lineStyle: {
+               width: 30,
+               color: [
+                 [0.10, "#3e884d"],    // Low
+                 [0.32, "#ced450"],    // Moderately Low
+                 [0.64, "#f5e655"],    // Moderate
+                 [0.95, "#efa647"],    // Moderately High
+                 [1.00, "#cc3a3b"],    // High
+               ],
+               shadowColor: "rgba(0, 0, 0, 0.5)",
+               shadowBlur: 10,
+             },
+           },
+           pointer: {
+             icon: "path://M12.8,0.7l12,40.1H0.7L12.8,0.7z",
+             length: "12%",
+             width: 15,
+             offsetCenter: [0, "-70%"],
+             itemStyle: {
+               color: "rgba(0, 0, 0, 1)",
+             },
+           },
+           axisTick: {
+             length: 20,
+             lineStyle: {
+               color: "auto",
+               width: 0,
+             },
+           },
+           splitLine: {
+             length: 20,
+             lineStyle: {
+               color: "auto",
+               width: 0,
+             },
+           },
+           axisLabel: {
+             color: "#464646",
+             fontSize: 10,
+             distance: -60,
+             width: 65,
+             overflow: "break",
+             rotate: "tangential",
+             formatter: function (value: number) {
+               return "";
+             },
+           },
+           title: {
+             offsetCenter: [0, "-10%"],
+             fontSize: 14,
+             color: "#aaa",
+           },
+           detail: {
+             fontSize: 50,
+             offsetCenter: [0, "-35%"],
+             valueAnimation: true,
+             formatter: function (value: number) {
+               return Math.round(value * 100) + "";
+             },
+             color: "#000",
+           },
+           data: [
+             {
+               value: Number(totaldata) / 100,
+               name: "Your Score",
+               detail: {
+                 color: "rgba(0, 0, 0, 1)",
+               },
+             },
+           ],
+         },
+       ],
+     };
     if (chartRef.current) {
       chart = echarts.init(chartRef.current, 'light', {
         renderer: 'svg',
         width: responsiveWidth(100),
-        height: responsiveWidth(70),
+        height: responsiveWidth(65),
       });
       chart.setOption(option);
     }
     return () => chart?.dispose();
-  }, [totaldata])
+  }, [totaldata,data])
   const handleBack = () => {
     setIndex('2');
   };
@@ -334,8 +234,8 @@ const getLabel = (score: number): string => {
             
               <CusText
                 text={'Your Risk Profile is '}
-                size="SL"
-                medium
+                size="SN"
+                bold
                 position="center"
               />
 
@@ -361,14 +261,14 @@ const getLabel = (score: number): string => {
             </Wrapper>
             <Wrapper
               customStyles={{
-                padding: responsiveWidth(5),
-                minHeight: responsiveHeight(45),
+                // padding: responsiveWidth(1),
+                // minHeight: responsiveHeight(45),
               }}>
               {/* <Wrapper>Put chart here</Wrapper> */}
 
               {data !== null ? (
                 <>
-                  <Wrapper position='center'>
+                  <Wrapper position='center' width={responsiveWidth(100)} height={responsiveWidth(65)}>
                      <SvgChart ref={chartRef} />
                      </Wrapper>
                 </>
@@ -410,20 +310,21 @@ const getLabel = (score: number): string => {
                   </View>
                 ))}
               </Wrapper>
-              <Spacer y="S" />
+              <Spacer y="XS" />
               <CusText
                 text={'Your Investment Style'}
-                size="XL"
+                size="M"
                 semibold
                 color={colors.primary}
                 position="center"
               />
-              <Spacer y="S" />
+              <Spacer y="XXS" />
               <CusText
                 text={data?.RiskCategory?.risk_desc || '-'}
-                size="MS"
+                size="S"
                 medium
                 position="center"
+                customStyles={{width:responsiveWidth(90)}}
               />
               <Spacer y="S" />
               <Wrapper
@@ -433,21 +334,27 @@ const getLabel = (score: number): string => {
                 width={responsiveWidth(84)}>
                 <CusButton
                   textcolor="black"
-                  radius={borderRadius.ring}
+                  radius={borderRadius.middleSmall}
                   title="Retake"
                   width={responsiveWidth(35)}
+                  height={responsiveWidth(10)}
                   onPress={() => {
                     setRiskObject(null), setIndex('1');
                   }}
                   color={colors.transparent}
+                  textSize='S'
+                  textWeight='semibold'
                   customStyle={{
                     borderWidth: 1,
-                    borderRadius: borderRadius.ring,
+                    borderRadius: borderRadius.middleSmall,
                   }}
                 />
                 <CusButton
-                  radius={borderRadius.ring}
+                  radius={borderRadius.middleSmall}
                   title="Finish"
+                   textSize='S'
+                  textWeight='semibold'
+                  height={responsiveWidth(10)}
                   width={responsiveWidth(35)}
                   // onPress={() => { setIndex('4') }}
                   onPress={() => {
@@ -509,7 +416,7 @@ const styles = StyleSheet.create({
     marginRight: responsiveWidth(2),
   },
   legendText: {
-    fontSize: fontSize.normal,
+    fontSize: fontSize.semiSmall,
     color: '#222',
   },
   investmentText: {
