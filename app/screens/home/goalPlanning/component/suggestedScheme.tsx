@@ -362,7 +362,11 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                 if (resultAlloc) {
                     console.log('resultAlloc Save Goal <<< ==== >>> ', resultAlloc)
                     showToast(toastTypes.success, result?.msg)
-                    navigation.navigate('GoalPlanDashboard', { tabNumber: 0})
+                    // navigation.navigate('GoalPlanDashboard', { tabNumber: 0})
+                      navigation.navigate('Main', {
+                  screen: 'Tabs',
+                  params: { screen: 'GoalPlanDashboard', tabNumber: 0 }
+                });
                 } else {
                     console.log('saveGoalDataAllocApi Error', errorAlloc)
                     showToast(toastTypes.info, errorAlloc)

@@ -94,10 +94,10 @@ export function DrawerContent(props: any) {
 
               onPress={() => {
                 // props.navigation.navigate("Tabs");
-                               props.navigation.navigate('Main', { 
-  screen: 'Tabs',
-  params: { screen: 'Dashboard' }
-});
+                props.navigation.navigate('Main', {
+                  screen: 'Tabs',
+                  params: { screen: 'Dashboard' }
+                });
               }}
 
             />
@@ -136,10 +136,10 @@ export function DrawerContent(props: any) {
               }
               }
               onPress={() => {
-               props.navigation.navigate('Main', { 
-  screen: 'Tabs',
-  params: { screen: 'FundPicker' }
-});
+                props.navigation.navigate('Main', {
+                  screen: 'Tabs',
+                  params: { screen: 'FundPicker' }
+                });
               }}
             />
             <LinearGradient
@@ -161,9 +161,9 @@ export function DrawerContent(props: any) {
                 <Image
                   source={require('../../../assets/Images/goalPlan.png')}
                   style={{
-                    height: currentRoute === 'GoalPlanDashboard' ? responsiveWidth(8): responsiveWidth(6),
-                    width: currentRoute === 'GoalPlanDashboard' ? responsiveWidth(8):responsiveWidth(6),
-                    tintColor:currentRoute === 'GoalPlanDashboard' ? colors.primary : colors.Hard_White
+                    height: currentRoute === 'GoalPlanDashboard' ? responsiveWidth(8) : responsiveWidth(6),
+                    width: currentRoute === 'GoalPlanDashboard' ? responsiveWidth(8) : responsiveWidth(6),
+                    tintColor: currentRoute === 'GoalPlanDashboard' ? colors.primary : colors.Hard_White
                   }}
                 />
               )}
@@ -171,10 +171,10 @@ export function DrawerContent(props: any) {
                 <CusText bold={currentRoute === 'GoalPlanDashboard' ? true : false} customStyles={{ marginLeft: responsiveWidth(0) }} color={currentRoute === 'GoalPlanDashboard' ? colors.primary : colors.Hard_White} size={currentRoute === 'GoalPlanDashboard' ? 'N' : 'SS'} style={styles.menuTextstyle} text="Goal Planning" />
               )}
               onPress={() => {
-              props.navigation.navigate('Main', { 
-  screen: 'Tabs',
-  params: { screen: 'GoalPlanDashboard' }
-});
+                props.navigation.navigate('Main', {
+                  screen: 'Tabs',
+                  params: { screen: 'GoalPlanDashboard' }
+                });
               }}
             />
             <LinearGradient
@@ -188,14 +188,14 @@ export function DrawerContent(props: any) {
               style={{ width: "90%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
             ></LinearGradient>
           </Wrapper>
-          <Wrapper  color={currentRoute === 'RiskProfile' ? colors.Hard_White : colors.primary}>
+          <Wrapper color={currentRoute === 'RiskProfile' ? colors.Hard_White : colors.primary}>
             <DrawerItem
               icon={({ focused }) => (
                 <Image
                   source={require('../../../assets/Images/RiskProfile.png')}
                   style={{
-                    height:currentRoute === 'RiskProfile' ? responsiveWidth(8) : responsiveWidth(6),
-                    width: currentRoute === 'RiskProfile' ? responsiveWidth(8) :responsiveWidth(6),
+                    height: currentRoute === 'RiskProfile' ? responsiveWidth(8) : responsiveWidth(6),
+                    width: currentRoute === 'RiskProfile' ? responsiveWidth(8) : responsiveWidth(6),
                     tintColor: currentRoute === 'RiskProfile' ? colors.primary : colors.Hard_White,
                   }}
                 />
@@ -204,10 +204,10 @@ export function DrawerContent(props: any) {
                 <CusText bold={currentRoute === 'RiskProfile' ? true : false} customStyles={{ marginLeft: responsiveWidth(0) }} color={currentRoute === 'RiskProfile' ? colors.primary : colors.Hard_White} size={currentRoute === 'RiskProfile' ? 'N' : 'SS'} style={styles.menuTextstyle} text="Risk Profile" />
               )}
               onPress={() => {
-               props.navigation.navigate('Main', { 
-  screen: 'Tabs',
-  params: { screen: 'RiskProfile' }
-});
+                props.navigation.navigate('Main', {
+                  screen: 'Tabs',
+                  params: { screen: 'RiskProfile' }
+                });
               }}
             />
             {/* <LinearGradient
@@ -310,17 +310,17 @@ export function DrawerContent(props: any) {
           AlertMsg={'Your Session is expired, Please login again'}
         />
       </Container>
-      <Wrapper  width={'100%'} customStyles={{ paddingHorizontal: responsiveWidth(0) }} color={colors.primary}>
-          <LinearGradient
-              start={{ x: 1, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              colors={[
-                colors.Hard_White,
-                colors.Hard_White,
-                colors.Hard_White,
-              ]}
-              style={{ width: "100%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
-            ></LinearGradient>
+      <Wrapper width={'100%'} customStyles={{ paddingHorizontal: responsiveWidth(0) }} color={colors.primary}>
+        <LinearGradient
+          start={{ x: 1, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          colors={[
+            colors.Hard_White,
+            colors.Hard_White,
+            colors.Hard_White,
+          ]}
+          style={{ width: "100%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
+        ></LinearGradient>
         <DrawerItem
           icon={({ }) => (
             <IonIcon
@@ -331,9 +331,9 @@ export function DrawerContent(props: any) {
             />
           )}
           label={({ }) => (
-            <CusText  customStyles={{ marginLeft: responsiveWidth(0)}} color={colors.white} size='N' style={styles.menuTextstyle} text="Logout" />
+            <CusText customStyles={{ marginLeft: responsiveWidth(0) }} color={colors.white} size='N' style={styles.menuTextstyle} text="Logout" />
           )}
-          
+
           onPress={() => {
             // props.navigation.navigate("Tabs");
             // props.navigation.navigate('RiskProfile');
