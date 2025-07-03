@@ -108,7 +108,8 @@ const GoalDashboard = () => {
               {...props}
               indicatorStyle={{ backgroundColor: colors.Hard_White,
               borderTopLeftRadius: borderRadius.medium, borderTopRightRadius: borderRadius.medium, height: responsiveWidth(10) }}
-                
+                pressOpacity={0}
+                pressColor={colors.tabBg}
               style={{ backgroundColor: colors.tabBg }}
               inactiveColor={colors.black}
               activeColor={colors.black}

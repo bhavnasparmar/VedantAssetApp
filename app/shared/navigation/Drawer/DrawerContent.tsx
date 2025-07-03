@@ -94,7 +94,10 @@ export function DrawerContent(props: any) {
 
               onPress={() => {
                 // props.navigation.navigate("Tabs");
-                props.navigation.navigate('Dashboard');
+                               props.navigation.navigate('Main', { 
+  screen: 'Tabs',
+  params: { screen: 'Dashboard' }
+});
               }}
 
             />
@@ -133,7 +136,10 @@ export function DrawerContent(props: any) {
               }
               }
               onPress={() => {
-                props.navigation.navigate('FundPicker');
+               props.navigation.navigate('Main', { 
+  screen: 'Tabs',
+  params: { screen: 'FundPicker' }
+});
               }}
             />
             <LinearGradient
@@ -165,7 +171,10 @@ export function DrawerContent(props: any) {
                 <CusText bold={currentRoute === 'GoalPlanDashboard' ? true : false} customStyles={{ marginLeft: responsiveWidth(0) }} color={currentRoute === 'GoalPlanDashboard' ? colors.primary : colors.Hard_White} size={currentRoute === 'GoalPlanDashboard' ? 'N' : 'SS'} style={styles.menuTextstyle} text="Goal Planning" />
               )}
               onPress={() => {
-                props.navigation.navigate('GoalPlanDashboard');
+              props.navigation.navigate('Main', { 
+  screen: 'Tabs',
+  params: { screen: 'GoalPlanDashboard' }
+});
               }}
             />
             <LinearGradient
@@ -195,7 +204,10 @@ export function DrawerContent(props: any) {
                 <CusText bold={currentRoute === 'RiskProfile' ? true : false} customStyles={{ marginLeft: responsiveWidth(0) }} color={currentRoute === 'RiskProfile' ? colors.primary : colors.Hard_White} size={currentRoute === 'RiskProfile' ? 'N' : 'SS'} style={styles.menuTextstyle} text="Risk Profile" />
               )}
               onPress={() => {
-                props.navigation.navigate('RiskProfile');
+               props.navigation.navigate('Main', { 
+  screen: 'Tabs',
+  params: { screen: 'RiskProfile' }
+});
               }}
             />
             <LinearGradient
