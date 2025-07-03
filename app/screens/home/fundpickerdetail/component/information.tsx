@@ -220,7 +220,7 @@ const Information = ({ totaldata }: any) => {
 
     return (
         <>
-        <Wrapper customStyles={{ padding: responsiveWidth(4) }}>
+        <Wrapper customStyles={{ padding: responsiveWidth(4), width:responsiveWidth(100) }}>
             {/* Tab buttons */}
             <Wrapper row customStyles={styles.tabContainer}>
                 <TouchableOpacity

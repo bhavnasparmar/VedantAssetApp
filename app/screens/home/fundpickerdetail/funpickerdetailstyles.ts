@@ -113,6 +113,7 @@ const styles = StyleSheet.create({
      container: {
         flex: 1,
         padding: responsiveWidth(4),
+        width:responsiveWidth(100)
     },
    
     summaryContainer: {

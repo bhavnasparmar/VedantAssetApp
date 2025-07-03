@@ -1,5 +1,5 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { Dimensions, ScrollView, Text } from 'react-native';
+import React, { useState, useContext, useEffect, useRef } from 'react';
+import { Dimensions, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { TabBar, TabView } from 'react-native-tab-view';
 import { useIsFocused, useRoute } from '@react-navigation/native';
 import { AppearanceContext } from '../../../context/appearanceContext';
@@ -13,12 +13,16 @@ import Performance from './component/performance';
 import Holding from './component/holding';
 import FundManager from './component/fundmanager';
 import Ratio from './component/ratio';
+import CusText from '../../../ui/custom-text';
 
 const FunpickerDetail = () => {
     const { colors }: any = useContext(AppearanceContext);
     const route: any = useRoute()
     const isFocused: any = useIsFocused()
     const layout = Dimensions.get('window');
+    const [active, setActive] = useState(0)
+    const headerScrollView: any = useRef(undefined);
+    const itemScrollView: any = useRef(undefined);
 
     const [index, setIndex] = useState(0);
     const [routes] = useState([
@@ -31,9 +35,28 @@ const FunpickerDetail = () => {
         { key: 'ratio', title: 'Ratio' },
     ]);
 
+    useEffect(()=>{
 
 
-    const renderScene = ({ route }: any) => {
+
+    },[isFocused])
+
+    useEffect(() => {
+        headerScrollView.current.scrollToIndex({ index: active, viewPosition: 0.5 })
+    }, [active])
+
+    const onPressHeader = (index: any) => {
+        itemScrollView.current.scrollToIndex({ index })
+        setActive(index);
+    }
+
+    const onMomentumScrollEnd = (e: any) => {
+        const newIndex = Math.round(e.nativeEvent.contentOffset.x / responsiveWidth(100));
+        if (active != newIndex) {
+            setActive(newIndex)
+        }
+    }
+    const renderScene = (route: any) => {
         switch (route.key) {
             case 'nav':
                 return (
@@ -61,46 +84,60 @@ const FunpickerDetail = () => {
                 return (
                     <Ratio />
                 );
-            // <CompletedGoal />;
             default:
                 return null;
         }
     };
+
+
+
     return (
         <>
             <Header menubtn name="Scheme Details" />
             <Wrapper color={colors.Hard_White} height={responsiveHeight(92)}>
-                <TabView
-                    lazy
-                    navigationState={{ index, routes }}
-                    renderScene={renderScene}
-                    onIndexChange={setIndex}
-                    // initialLayout={{ width: layout.width }}
-                    style={{
-                        marginBottom: responsiveWidth(3),
-                    }}
-                    renderTabBar={props => (
-                        <TabBar
-                            {...props}
-                            indicatorStyle={{
-                                backgroundColor: colors.Hard_White,
-                                borderTopLeftRadius: borderRadius.medium,
-                                borderTopRightRadius: borderRadius.medium,
-                                height: responsiveWidth(10)
-                            }}
-                            pressOpacity={0}
-                            pressColor={colors.tabBg}
-                            style={{ backgroundColor: colors.tabBg }}
-                            inactiveColor={colors.black}
-                            activeColor={colors.black}
-                            tabStyle={{
-                                width: 'auto',
-                                paddingHorizontal: responsiveWidth(3),
-                                paddingBottom: 0
-                            }}
+                <Wrapper color={colors.headerColor} row align='center' customStyles={{ paddingVertical: responsiveWidth(1.5), paddingHorizontal: responsiveWidth(5) }}>
+                    <CusText semibold size='N' text={'HDFC Mid-Cap Opportunities Gr'} />
+                </Wrapper>
+                <Wrapper color={colors.tabBg} height={responsiveWidth(10)}>
+                    <FlatList
+                        data={routes}
+                        ref={headerScrollView}
+                        keyExtractor={(item) => item?.key}
+                        horizontal
+                        style={{ paddingHorizontal: responsiveWidth(2) }}
+                        showsHorizontalScrollIndicator={false}
+                        renderItem={({ item, index }: any) => (
 
-                        />
-                    )}
+                            <Wrapper position='end' justify='center'
+
+                                customStyles={{
+                                    paddingVertical: responsiveWidth(1),
+                                    paddingHorizontal: responsiveWidth(3),
+                                    borderTopLeftRadius: active == index ? borderRadius.medium : 0,
+                                    borderTopRightRadius: active == index ? borderRadius.medium : 0,
+                                }}
+                                color={active == index ? colors.Hard_White : colors.tabBg}
+                                height={responsiveWidth(7)}>
+                                <TouchableOpacity activeOpacity={0.6} onPress={() => { onPressHeader(index) }}>
+                                    <CusText semibold position='center' text={item?.title} customStyles={{ alignSelf: 'center' }} />
+                                </TouchableOpacity>
+                                {/* {active == index && <View style={styles.headerBar} />} */}
+
+                            </Wrapper>
+
+                        )}
+                    />
+                </Wrapper>
+                <FlatList
+                    data={routes}
+                    ref={itemScrollView}
+                    keyExtractor={(item) => item?.key}
+                    horizontal
+                    pagingEnabled
+                    decelerationRate='fast'
+                    showsHorizontalScrollIndicator={false}
+                    onMomentumScrollEnd={onMomentumScrollEnd}
+                    renderItem={({ item, index }: any) => renderScene(item)}
                 />
             </Wrapper>
         </>
@@ -108,3 +145,34 @@ const FunpickerDetail = () => {
 };
 
 export default FunpickerDetail;
+
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    // headerScroll: {
+    //     flexGrow: 0,
+    // },
+    headerItem: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+    },
+    mainItem: {
+        width: responsiveWidth(100),
+        borderWidth: 5,
+        borderColor: '#fff',
+        backgroundColor: '#ccc',
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+    },
+    headerBar: {
+        height: 2,
+        width: '90%',
+        alignSelf: 'center',
+        backgroundColor: '#000',
+        position: 'absolute',
+        bottom: 0
+    }
+})

@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.Hard_white,
     padding: responsiveWidth(4),
+    width:responsiveWidth(100)
   },
   schemeHeader: {
     backgroundColor: colors.Hard_White,

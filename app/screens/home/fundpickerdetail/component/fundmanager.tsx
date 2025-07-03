@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.Hard_white,
+    width:responsiveWidth(100)
   },
    periodButton: {
         paddingVertical: responsiveWidth(1.5),

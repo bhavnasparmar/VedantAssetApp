@@ -66,16 +66,16 @@ const Header = ({
 
   return (
     <>
-      <Wrapper  height={responsiveWidth(13)} row align='center'
+      <Wrapper color={colors.headerColor}  height={responsiveWidth(13)} row align='center'
         customStyles={{
         }}
       >
         <Spacer x='S' />
         <Wrapper align='center' row  >
-          {menubtn ? 
+          {/* {menubtn ? 
            
           <></>  
-          : null}  
+          : null}   */}
 
           {backBtn ? (
             <>
@@ -92,7 +92,7 @@ const Header = ({
               />
             </>
           ) : null}
-          <Spacer x='S' />
+          {/* <Spacer x='XXS' /> */}
           <CusText semibold color={colors.primary} text={name} size='SL' />
         </Wrapper>
 

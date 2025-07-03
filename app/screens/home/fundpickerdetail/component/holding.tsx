@@ -104,6 +104,7 @@ const additionalStyles = StyleSheet.create({
         flex: 1,
         padding: responsiveWidth(4),
         backgroundColor: colors.Hard_white,
+        width:responsiveWidth(100)
     },
       tabButton1: {
       //  flex: 1,

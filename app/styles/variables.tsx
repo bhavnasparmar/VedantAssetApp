@@ -136,7 +136,7 @@ let reptativeColors = {
   //extra color code
   greenshade:'#E6F8E9',
   inputLabel: '#BCBCBC',
-
+  headerColor:'#F8F8F8',
   gradient1: '#DA79FF',
   gradient2: '#7200E4',
   // placeholderColor: 'rgba(153,153,153,0.6)',
@@ -202,6 +202,7 @@ const colors: any = {
   tabBg: reptativeColors.tabBg, //extra
 greenshade:reptativeColors.greenshade,
   cardborder:reptativeColors.cardborder,
+  headerColor:reptativeColors.headerColor,
  
 
   //Header
@@ -348,6 +349,7 @@ export const darkColors: any = {
   green: reptativeColors.green,
   tabBg: reptativeColors.tabBg, //extra
   errorText: reptativeColors.errorText,
+   headerColor:reptativeColors.headerColor,
   bannerBg1: reptativeColors.bannerBg1,
   itemDec: reptativeColors.itemDec,
   dashBorder: reptativeColors.dashBorder,
