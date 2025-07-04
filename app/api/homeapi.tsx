@@ -83,6 +83,12 @@ export const downloadPDFApi = (payload: any) => {
     return promiseHandler(promise);
 };
 
+export const downloadEXCELApi = (payload: any) => {
+   
+    const promise = API.post(`${API_URL}${endPoints.downloadExcel}`,payload);
+    return promiseHandler(promise);
+};
+
 export const getCategoryWithSubCategoryApi = () => {
     const promise = API.get(`${API_URL}${endPoints.getCategoryWithSubCategoryData}`);
     return promiseHandler(promise);

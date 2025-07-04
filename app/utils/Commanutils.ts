@@ -44,7 +44,8 @@ const endPoints = {
   adduseralloc : 'goal-plan/add-user-alloc',
   getSuggestedSchemes: 'goal-plan/suggested-subcategory-schemes',
   deleteGoal: 'goal-plan/deleteGoalPlanData',
-  downloadPDF:'fund-picker/get-FundPicker-schemes-pdf-export'
+  downloadPDF:'fund-picker/get-FundPicker-schemes-pdf-export',
+  downloadExcel:'fund-picker/get-FundPicker-schemes-xlsx-export'
 };
 
 export { endPoints };
