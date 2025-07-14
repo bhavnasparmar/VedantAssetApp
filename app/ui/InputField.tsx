@@ -193,7 +193,7 @@ const InputField = React.forwardRef(
                     // semibold
                     medium
                   />
-                  <CusText text={'*'} color={colors.red} size="S" semibold />
+                  <CusText text={'*'} color={colors.Hard_Black} size="S" semibold />
                 </Wrapper>
               ) : (
                 <CusText
@@ -425,6 +425,6 @@ const styles = StyleSheet.create({
     color: colors.black,
     fontFamily: fontFamily.regular,
     fontSize: fontSize.middleSmall,
-    minHeight: responsiveWidth(9),
+    minHeight: responsiveWidth(5),
   },
 });

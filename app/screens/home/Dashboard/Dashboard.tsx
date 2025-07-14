@@ -15,16 +15,26 @@ import {
   USER_DATA,
 } from '../../../utils/Commanutils';
 import {getRiskProfileInvestorAPi} from '../../../api/homeapi';
+import CommonModal from '../../../shared/components/CommonAlert/commonModal';
 
 const Dashboard = () => {
   const isFocused: any = useIsFocused();
   const navigation: any = useNavigation();
   const {colors}: any = React.useContext(AppearanceContext);
   const [desc, setDesc] = useState<any>('');
+  const [isVisible, setisVisible] = useState<boolean>(false);
 
   useEffect(() => {
     //getRiskProfile();
+    checkKyc()
   }, [isFocused]);
+
+  const checkKyc=async ()=>{
+     const useretail: any = await AsyncStorage.getItem(USER_DATA);
+    let useretail1 = JSON.parse(useretail);
+    // console.log('USER_DATA data', useretail1);
+    setisVisible(true)
+  }
 
   const getRiskProfile = async () => {
     try {
@@ -56,6 +66,19 @@ const Dashboard = () => {
         </Wrapper>
         <Spacer y="XS" />
       </Container>
+      <CommonModal
+        visible={isVisible}
+        onClose={() => { setisVisible(false) }}
+        description={`Your on-boarding process is pending, please click on continue to proceed.`}
+        button1Text="Continue!"
+        onButton1Press={() => {
+          setisVisible(false)
+          navigation.navigate('PancardVerify')
+        }}
+        // button2Text="Yes"
+        // onButton2Press={async () => { deleteGoal(id) }}
+
+      />
     </>
   );
 };

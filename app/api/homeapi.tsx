@@ -108,3 +108,9 @@ export const goalcal = (payload: any) => {
     const promise = API.post(`${API_URL}${endPoints.goalcalss}`, payload);
     return promiseHandler(promise);
 };
+
+export const CheckKycStatus = (payload: any) => {
+
+    const promise = API.post(`${API_URL}${endPoints.kycStatus}`, payload);
+    return promiseHandler(promise);
+};

@@ -13,6 +13,8 @@ import FunpickerDetail from '../../../screens/home/fundpickerdetail/funpickerdet
 import FundPicker from '../../../screens/home/fundpicker/fundpicker';
 import GoalDashboard from '../../../screens/home/goalPlanning/GoalPlanDashborad/GoalPlanDashboard';
 import Dashboard from '../../../screens/home/Dashboard/Dashboard';
+import PancardVerify from '../../../screens/home/PancardVerify/pancardVerify';
+import AnnualInvest from '../../../screens/home/AnnualInvest/annualInvest';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -33,6 +35,8 @@ const AppStack = () => {
       <Stack.Screen name="Cart" component={Cart} />
       <Stack.Screen name="SuggestedScheme" component={SuggestedScheme} />
       <Stack.Screen name="FunpickerDetail" component={FunpickerDetail} />
+      <Stack.Screen name="PancardVerify" component={PancardVerify} />
+      <Stack.Screen name="AnnualInvest" component={AnnualInvest} />
     </Stack.Navigator>
   );
 };

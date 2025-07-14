@@ -5,6 +5,11 @@ import { borderRadius, colors, responsiveHeight, responsiveWidth } from "../../.
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
+        // alignSelf:'center',
+        // justifyContent:'center',
+        // alignContent:"center",
+        // alignItems:'center',
+        // height:responsiveHeight(85)
     },
     modalContainer: {
         borderRadius: borderRadius.large,

@@ -45,7 +45,8 @@ const endPoints = {
   getSuggestedSchemes: 'goal-plan/suggested-subcategory-schemes',
   deleteGoal: 'goal-plan/deleteGoalPlanData',
   downloadPDF:'fund-picker/get-FundPicker-schemes-pdf-export',
-  downloadExcel:'fund-picker/get-FundPicker-schemes-xlsx-export'
+  downloadExcel:'fund-picker/get-FundPicker-schemes-xlsx-export',
+  kycStatus:'kyc/checkKYCStatus'
 };
 
 export { endPoints };
