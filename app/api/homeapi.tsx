@@ -72,20 +72,20 @@ export const getFundPickerListDataApi = (payload: any) => {
     console.log('get getFundPickerListDataApi Scheme API111', `${API_URL}${endPoints.getFundPickerListData}?filters=${JSON.stringify(payload?.filters)}&limit=${payload?.limit}&sort=${JSON.stringify(payload?.sort)}&page=${payload?.page}`)
     // const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}`,{params:payload});
     const promise = API.get(`${API_URL}${endPoints.getFundPickerListData}?filters=${JSON.stringify(payload?.filters)}&limit=${payload?.limit}&sort=${JSON.stringify(payload?.sort)}&page=${payload?.page}`);
-        
-       
+
+
     return promiseHandler(promise);
 };
 
 export const downloadPDFApi = (payload: any) => {
-   
-    const promise = API.post(`${API_URL}${endPoints.downloadPDF}`,payload);
+
+    const promise = API.post(`${API_URL}${endPoints.downloadPDF}`, payload);
     return promiseHandler(promise);
 };
 
 export const downloadEXCELApi = (payload: any) => {
-   
-    const promise = API.post(`${API_URL}${endPoints.downloadExcel}`,payload);
+
+    const promise = API.post(`${API_URL}${endPoints.downloadExcel}`, payload);
     return promiseHandler(promise);
 };
 
@@ -112,5 +112,20 @@ export const goalcal = (payload: any) => {
 export const CheckKycStatus = (payload: any) => {
 
     const promise = API.post(`${API_URL}${endPoints.kycStatus}`, payload);
+    return promiseHandler(promise);
+};
+
+export const ValidateStatus = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.kycotpStatus}`, payload);
+    return promiseHandler(promise);
+};
+
+export const ValidateOtpVerify = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.kycotpVerify}`, payload);
+    return promiseHandler(promise);
+};
+
+export const CreateKYCInvs = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.createKycInv}`, payload);
     return promiseHandler(promise);
 };

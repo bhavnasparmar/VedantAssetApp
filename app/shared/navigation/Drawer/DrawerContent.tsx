@@ -45,7 +45,6 @@ export function DrawerContent(props: any) {
   const state = props.navigation.getState();
   const currentRoute = state.routes[state.index].name;
   useEffect(() => {
-    console.log("---", getTokenExpiredflagChange())
     Keyboard.dismiss();
   }, [isDrawerOpen, isFocused]);
 

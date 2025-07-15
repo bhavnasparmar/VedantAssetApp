@@ -22,7 +22,7 @@ import { ActivityIndicator, Keyboard, TouchableOpacity } from 'react-native';
 import { showToast, toastTypes } from '../../../services/toastService';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 
-const AnnualInvest = () => {
+const KycInfoPage = () => {
     const isFocused: any = useIsFocused();
     const navigation: any = useNavigation();
     const route: any = useRoute()
@@ -197,4 +197,4 @@ const AnnualInvest = () => {
     );
 };
 
-export default AnnualInvest;
+export default KycInfoPage;

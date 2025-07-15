@@ -15,6 +15,7 @@ import GoalDashboard from '../../../screens/home/goalPlanning/GoalPlanDashborad/
 import Dashboard from '../../../screens/home/Dashboard/Dashboard';
 import PancardVerify from '../../../screens/home/PancardVerify/pancardVerify';
 import AnnualInvest from '../../../screens/home/AnnualInvest/annualInvest';
+import EditDetails from '../../../screens/home/EditDetailsKYC/editDetails';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -37,6 +38,7 @@ const AppStack = () => {
       <Stack.Screen name="FunpickerDetail" component={FunpickerDetail} />
       <Stack.Screen name="PancardVerify" component={PancardVerify} />
       <Stack.Screen name="AnnualInvest" component={AnnualInvest} />
+      <Stack.Screen name="EditDetails" component={EditDetails} />
     </Stack.Navigator>
   );
 };

@@ -3,6 +3,7 @@ import { tokenExpiredToggle } from '../Redux/Actions/TokenAction';
 import { store } from '../Redux/Store';
 import { parseJSON } from 'date-fns';
 import { getGoalPlanningDetails, getRiskObject, getuserDetails } from '../Redux/Actions/userAction';
+import { KYCDetailsObj, KYCPanDetailsObj } from '../Redux/Actions/KycAction';
 
 //live server base url
 // export const API_URL = 'https://prosesenv.com:9065/';
@@ -26,27 +27,30 @@ const endPoints = {
   registerVerify: 'user/register-otp',
   resendOTP: 'user/resend-otp',
   forgotPassword: 'user/forgotPassword',
-  changePassword: 'user/changePassword',  
+  changePassword: 'user/changePassword',
   //home api
   getAllGoalType: 'goal-plan/getAllGoalType',
-  getAllGoalPalnList:'goal-plan/getAllGoalPalnList',
-  goalcalss:'goal-plan/calculator/goal',
+  getAllGoalPalnList: 'goal-plan/getAllGoalPalnList',
+  goalcalss: 'goal-plan/calculator/goal',
   getRiskCatWiseSchemeData: 'goal-plan/getRiskCatWiseSchemeData',
   getRiskProfileInvestor: 'risk-profile/get-risk-profile-investor',
   getAllRiskQuestion: 'risk-profile/getAllRiskQuestion',
   addRiskProfileQuestionAnswer: 'risk-profile/add-question-answer',
-  getFundPickerListData : 'fund-picker/getFundPickerData',
-  getCategoryWithSubCategoryData : 'fund-picker/get-category-with-subCategory',
-  getNatureData : 'fund-picker/get-nature-list',
-  getAmcListData : 'fund-picker/get-AMC',
-  getGoalPlanWiseSchemeData : 'goal-plan/getGoalPlanWiseSchemeData',
-  addGoalPlanData : 'goal-plan/addGoalPlanData',
-  adduseralloc : 'goal-plan/add-user-alloc',
+  getFundPickerListData: 'fund-picker/getFundPickerData',
+  getCategoryWithSubCategoryData: 'fund-picker/get-category-with-subCategory',
+  getNatureData: 'fund-picker/get-nature-list',
+  getAmcListData: 'fund-picker/get-AMC',
+  getGoalPlanWiseSchemeData: 'goal-plan/getGoalPlanWiseSchemeData',
+  addGoalPlanData: 'goal-plan/addGoalPlanData',
+  adduseralloc: 'goal-plan/add-user-alloc',
   getSuggestedSchemes: 'goal-plan/suggested-subcategory-schemes',
   deleteGoal: 'goal-plan/deleteGoalPlanData',
-  downloadPDF:'fund-picker/get-FundPicker-schemes-pdf-export',
-  downloadExcel:'fund-picker/get-FundPicker-schemes-xlsx-export',
-  kycStatus:'kyc/checkKYCStatus'
+  downloadPDF: 'fund-picker/get-FundPicker-schemes-pdf-export',
+  downloadExcel: 'fund-picker/get-FundPicker-schemes-xlsx-export',
+  kycStatus: 'kyc/checkKYCStatus',
+  kycotpStatus: 'kyc/kyc-otp-generate',
+  kycotpVerify: 'kyc/kyc-otp-verify',
+  createKycInv: 'kyc/create_kyc_investor',
 };
 
 export { endPoints };
@@ -90,15 +94,15 @@ export const REGEX = {
 };
 const key = 'va*proses';
 
- export const toFixedDataForReturn = (number: number) => {
-    return number ? `${number?.toFixed(2)}%` : "--";
-  };
+export const toFixedDataForReturn = (number: number) => {
+  return number ? `${number?.toFixed(2)}%` : "--";
+};
 
-  export const convertToCrores = (amount: number) => {
+export const convertToCrores = (amount: number) => {
   const crores = amount / 10000000;
   return `${crores.toFixed(2)}`;
 }
-  
+
 
 
 export const getNew_User = () => {
@@ -137,7 +141,7 @@ export const tokenExpiredflagChange = async (data: any) => {
 };
 
 export const getTokenExpiredflagChange = async () => {
-  console.log('token---', store?.getState()?.tokenReducer?.tokenExpiredFlag);
+  // console.log('token---', store?.getState()?.tokenReducer?.tokenExpiredFlag);
   return store?.getState()?.tokenReducer?.tokenExpiredFlag;
 };
 export const setGoalPlanningDetails = (data: any) => {
@@ -157,9 +161,42 @@ export const getLoginUserDetails = () => {
 export const setLoginUserDetails = (data: any) => {
   store.dispatch(getuserDetails(data));
 };
+
+export const setKYC_PanDetails = (data: any) => {
+  store.dispatch(KYCPanDetailsObj(data));
+};
+export const getKYC_PanDetails = () => {
+  return store?.getState()?.kycReducer?.PanDetailsObj;
+};
+
+export const setKYC_Details = (data: any) => {
+  store.dispatch(KYCDetailsObj(data));
+};
+export const getKYC_Details = () => {
+  return store?.getState()?.kycReducer?.KycDetailsObj;
+};
+
 export const getGoalPlanning = () => {
   return store?.getState()?.userReducer?.GoalPlanningDetails;
 };
+export const updateObjectKey_BUP = (obj: any, keyPath: any, value: any) => {
+  const keys = keyPath.split('.');
+  const lastKey = keys.pop();
+
+  // Navigate through the object to the second-to-last key
+  const nestedObj = keys.reduce((acc: any, key: any) => {
+    if (!acc[key]) {
+      acc[key] = {}; // Create an empty object if it doesn't exist
+    }
+    return acc[key];
+  }, obj);
+
+  // Update the value at the specified key
+  nestedObj[lastKey] = value;
+
+  return { ...obj }; // Return a new object
+};
+
 export const updateObjectKey = (obj: any, keyPath: any, value: any) => {
   const keys = keyPath.split('.');
   const lastKey = keys.pop();
@@ -178,21 +215,21 @@ export const updateObjectKey = (obj: any, keyPath: any, value: any) => {
   return { ...obj }; // Return a new object
 };
 
-  export const showArraow = (returnNumber: number, categoryNumber: number) => {
-    let ratio: any =
-      categoryNumber && categoryNumber > 0
-        ? ((returnNumber - categoryNumber) / categoryNumber) * 100
-        : returnNumber;
-    ratio = ratio?.toFixed(2);
-    if (ratio >= 10) {
-      return '#056106';
-    } else if (5 <= ratio || ratio >= 9.99) {
-      return '#00ff00';
-    } else if (0 <= ratio || ratio >= 4.99) {
-      return '#ffff00';
-    } else if (-5 <= ratio || ratio >= -0.99) {
-      return '#f79b00';
-    } else if (ratio < -5) {
-      return '#ff0000';
-    }
-  };
+export const showArraow = (returnNumber: number, categoryNumber: number) => {
+  let ratio: any =
+    categoryNumber && categoryNumber > 0
+      ? ((returnNumber - categoryNumber) / categoryNumber) * 100
+      : returnNumber;
+  ratio = ratio?.toFixed(2);
+  if (ratio >= 10) {
+    return '#056106';
+  } else if (5 <= ratio || ratio >= 9.99) {
+    return '#00ff00';
+  } else if (0 <= ratio || ratio >= 4.99) {
+    return '#ffff00';
+  } else if (-5 <= ratio || ratio >= -0.99) {
+    return '#f79b00';
+  } else if (ratio < -5) {
+    return '#ff0000';
+  }
+};

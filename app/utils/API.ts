@@ -88,7 +88,7 @@ const fetchClient = (): AxiosInstance => {
   instance.interceptors.request.use(async config => {
     try {
       const token = await getData(TOKEN_PREFIX);
-      console.log('config : ', config)
+      // console.log('config : ', config)
       if (token) config.headers.Authorization = token;
     } catch (error) {
       console.log('Token fetch error:', error);

@@ -4,19 +4,21 @@ import { persistReducer, persistStore } from 'redux-persist';
 import tokenReducer from './Reducer/TokenReducer';
 import { thunk } from 'redux-thunk';
 import userReducer from './Reducer/userReducer';
+import kycReducer from './Reducer/KycReducer';
 
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
   //Persist reducers
-  whitelist: ['tokenReducer', 'CartReducer', 'LabTestUserReducer'],
+  whitelist: ['tokenReducer', 'CartReducer', 'LabTestUserReducer', 'kycReducer'],
   blacklist: [],
 };
 
 const rootReducer = combineReducers({
   tokenReducer: tokenReducer,
   userReducer: userReducer,
+  kycReducer: kycReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -18,8 +18,8 @@ import {
   responsiveWidth,
 } from '../../../styles/variables';
 import InputField from '../../../ui/InputField';
-import React, {useContext, useRef, useState} from 'react';
-import {AppearanceContext} from '../../../context/appearanceContext';
+import React, { useContext, useRef, useState } from 'react';
+import { AppearanceContext } from '../../../context/appearanceContext';
 import Container from '../../../ui/container';
 import CusButton from '../../../ui/custom-button';
 import {
@@ -27,16 +27,16 @@ import {
   useIsFocused,
   useNavigation,
 } from '@react-navigation/native';
-import {AuthContext} from '../../../context/AuthContext';
-import {showToast} from '../../../services/toastService';
-import {toastTypes} from '../../../constant/constants';
+import { AuthContext } from '../../../context/AuthContext';
+import { showToast } from '../../../services/toastService';
+import { toastTypes } from '../../../constant/constants';
 import DeviceInfo from 'react-native-device-info';
-import {regularLogin, regularLoginWithOtp} from '../../../api/authapi';
+import { regularLogin, regularLoginWithOtp } from '../../../api/authapi';
 
 const Login = () => {
-  const {colors}: any = React.useContext(AppearanceContext);
+  const { colors }: any = React.useContext(AppearanceContext);
   const navigation: any = useNavigation();
-  const {signIn}: any = useContext(AuthContext);
+  const { signIn }: any = useContext(AuthContext);
   const [loginloading, setloginloading] = useState(false);
   const [Otploading, setOtploading] = useState(false);
   const [emailerror, setemailerror] = useState(false);
@@ -47,7 +47,7 @@ const Login = () => {
     /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
   const CRED = {
-    email: 'proses@yopmail.com',
+    email: 'rajan.proses@yopmail.com',
     password: '123456',
   };
 
@@ -91,7 +91,6 @@ const Login = () => {
     };
     try {
       const [result, error]: any = await regularLogin(loginData);
-
       if (result != null) {
         setloginloading(false);
         showToast(
@@ -155,12 +154,12 @@ const Login = () => {
   return (
     <>
       <KeyboardAvoidingView
-        style={{flex: 1}}
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 20 : 40}>
         <ScrollView
-          style={{flex: 1}}
-          contentContainerStyle={{justifyContent: 'center', minHeight: '100%'}}>
+          style={{ flex: 1 }}
+          contentContainerStyle={{ justifyContent: 'center', minHeight: '100%' }}>
           <Container Xcenter bgcolor={colors.Hard_White}>
             <Spacer y="N" />
             <Wrapper
@@ -171,7 +170,7 @@ const Login = () => {
               {/* <CusText bold position='center' text={`Welcome`} size="L" color={colors.secondary} /> */}
             </Wrapper>
             <Spacer y="N" />
-            <Wrapper position="center" customStyles={{gap:responsiveWidth(8)}}>
+            <Wrapper position="center" customStyles={{ gap: responsiveWidth(8) }}>
               <InputField
                 label="User Name"
                 value={Form.email}
@@ -224,14 +223,14 @@ const Login = () => {
                 suffixColor={colors.placeholderColor}
                 placeholderColor={colors.placeholderColor}
                 suffixArea={30}
-                 fieldViewStyle={{
+                fieldViewStyle={{
                   height: responsiveWidth(11),
                   borderRadius: borderRadius.normal
                 }}
                 style={{
-                            borderColor: colors.fieldborder
-                        }}
-                 borderColor={colors.fieldborder}
+                  borderColor: colors.fieldborder
+                }}
+                borderColor={colors.fieldborder}
                 returnKeyType="done"
                 error={
                   passworderror && !Form.password
@@ -272,9 +271,9 @@ const Login = () => {
                 }
               }}
               >
-                <Wrapper  width={responsiveWidth(40)} color={colors.Hard_White} customStyles={{ borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(2.5),borderColor:colors.orange,borderWidth:1 }}>
-                  
-                 
+                <Wrapper width={responsiveWidth(40)} color={colors.Hard_White} customStyles={{ borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(2.5), borderColor: colors.orange, borderWidth: 1 }}>
+
+
                   {Otploading ? (
                     <Wrapper>
                       <ActivityIndicator
@@ -282,10 +281,10 @@ const Login = () => {
                         size={fontSize.normal}
                       />
                     </Wrapper>
-                  ) 
-                  :
- <CusText color={colors.orange} bold position='center' text={'Login with OTP'} />
-                }
+                  )
+                    :
+                    <CusText color={colors.orange} bold position='center' text={'Login with OTP'} />
+                  }
                 </Wrapper>
               </TouchableOpacity>
             </Wrapper>
