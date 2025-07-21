@@ -91,6 +91,8 @@ const Login = () => {
     };
     try {
       const [result, error]: any = await regularLogin(loginData);
+      console.log('result ===>> ',result)
+      console.log('error ===>> ',error)
       if (result != null) {
         setloginloading(false);
         showToast(

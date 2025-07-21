@@ -7,7 +7,7 @@ import { KYCDetailsObj, KYCPanDetailsObj } from '../Redux/Actions/KycAction';
 
 //live server base url
 // export const API_URL = 'https://prosesenv.com:9065/';
-// export const API_URL = 'http://192.168.1.62:3000/';
+// export const API_URL = 'http://192.168.1.40:9065/';
 export const API_URL = 'https://vedant.prosesenv.com:9065/';
 export const IMAGE_URL = `${API_URL}static/`;
 export const IMAGE_URL_GOAL = `${API_URL}static/`;
@@ -51,6 +51,17 @@ const endPoints = {
   kycotpStatus: 'kyc/kyc-otp-generate',
   kycotpVerify: 'kyc/kyc-otp-verify',
   createKycInv: 'kyc/create_kyc_investor',
+  signZyApi: 'kyc/investorSignzyLogin',
+  updatePersonalDetail: 'kyc/updatePersonalDetail',
+  onBoardingListings: 'kyc/on-boarding-listings',
+  initiateDlConsent: 'kyc/initiate_dlConsent',
+  getDLDetails: 'kyc/getDLDetails',
+  getAddressType: 'addressType/getAllAddressType',
+  getPersonalInfo: 'kyc/get-personal-info',
+  getAllCountry: 'country/getAllCountry',
+  getAllStateByCountry: 'state/getAllStateByCountry',
+  getAddressInfo: 'kyc/get-address-info',
+  updateAddress: 'kyc/updateAddressDetail',
 };
 
 export { endPoints };
@@ -114,7 +125,7 @@ export const setNew_User = (data: any) => {
 };
 
 export const decryptData = async (data: string) => {
-  console.log('Data : ', data);
+  // console.log('Data : ', data);
   try {
     if (!data) {
       return null;

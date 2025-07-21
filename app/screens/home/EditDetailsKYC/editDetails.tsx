@@ -156,6 +156,7 @@ const EditDetails = () => {
 
     const createUserKyc = async () => {
         try {
+            setIsLaod(true); // Start loader
 
             const data: any = await AsyncStorage.getItem(USER_DATA);
             const parsedData: any = JSON.parse(data)
@@ -179,14 +180,18 @@ const EditDetails = () => {
 
             const [result, error]: any = await CreateKYCInvs(payload)
             if (result) {
-                const update_data = updateObjectKey({}, 'user_basic_details', result?.data?.newKyc)
+                const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.newKyc)
                 setKYC_Details(update_data)
                 showToast('success', result?.msg)
+                setIsLaod(false); // Stop loader before navigation
+                navigation.navigate('KycInfoPage')
             } else {
+                setIsLaod(false); // Stop loader on error
                 console.log('createUserKyc error ', result)
                 showToast(toastTypes.error, error?.msg)
             }
         } catch (error: any) {
+            setIsLaod(false); // Stop loader on catch error
             console.log('createUserKyc catch Error ', error)
             showToast(toastTypes.error, error)
         }
@@ -337,17 +342,16 @@ const EditDetails = () => {
                             </TouchableOpacity>
                             <TouchableOpacity activeOpacity={0.6} onPress={() => { validate() }}>
                                 <Wrapper position='center' width={responsiveWidth(40)} color={colors.orange} customStyles={{ borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(2.5), marginTop: responsiveWidth(5) }}>
-                                    {/* {
-                                    isLoad ? */}
-                                    {/* <Wrapper>
-                                            <ActivityIndicator
-                                                color={colors.Hard_White}
-                                                size={fontSize.normal}
-                                            />
-                                        </Wrapper> : */}
-                                    <CusText position='center' bold color={colors.Hard_White} text={'Next'} />
-                                    {/* } */}
-
+                                    {
+                                        isLoad ?
+                                            <Wrapper>
+                                                <ActivityIndicator
+                                                    color={colors.Hard_White}
+                                                    size={fontSize.normal}
+                                                />
+                                            </Wrapper> :
+                                            <CusText position='center' bold color={colors.Hard_White} text={'Next'} />
+                                    }
                                 </Wrapper>
                             </TouchableOpacity>
                         </Wrapper>

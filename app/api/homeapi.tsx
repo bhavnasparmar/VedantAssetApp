@@ -129,3 +129,63 @@ export const CreateKYCInvs = (payload: any) => {
     const promise = API.post(`${API_URL}${endPoints.createKycInv}`, payload);
     return promiseHandler(promise);
 };
+
+export const CreateKYCInvsSignZy = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.signZyApi}`, payload);
+    return promiseHandler(promise);
+};
+
+export const initiateDlConsent = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.initiateDlConsent}`, payload);
+    return promiseHandler(promise);
+};
+
+export const getDlDetailsApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.getDLDetails}`, payload);
+    return promiseHandler(promise);
+};
+
+export const getOnBoardingListingsApi = () => {
+    const promise = API.get(`${API_URL}${endPoints.onBoardingListings}`);
+    return promiseHandler(promise);
+};
+
+export const updatePersonalDetailApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.updatePersonalDetail}`, payload, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        }
+    });
+    return promiseHandler(promise);
+};
+
+
+export const getAddressTypeApi = () => {
+    const promise = API.get(`${API_URL}${endPoints.getAddressType}`);
+    return promiseHandler(promise);
+};
+
+export const getPersonalInfoApi = (userId: any) => {
+    const promise = API.get(`${API_URL}${endPoints.getPersonalInfo}/${userId}`);
+    return promiseHandler(promise);
+};
+
+export const getAllCountryApi = () => {
+    const promise = API.get(`${API_URL}${endPoints.getAllCountry}`);
+    return promiseHandler(promise);
+};
+
+export const getAllStateByCountryApi = (countryId: any) => {
+    const promise = API.get(`${API_URL}${endPoints.getAllStateByCountry}/${countryId}`);
+    return promiseHandler(promise);
+};
+
+export const getAddressInfoApi = (userId: any) => {
+    const promise = API.get(`${API_URL}${endPoints.getAddressInfo}/${userId}`);
+    return promiseHandler(promise);
+};
+
+export const updateAddressDetailApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.updateAddress}`, payload);
+    return promiseHandler(promise);
+};

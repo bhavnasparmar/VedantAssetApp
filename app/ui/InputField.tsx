@@ -200,7 +200,7 @@ const InputField = React.forwardRef(
                   customStyles={{
                     // paddingHorizontal: marginHorizontal.extraSmall,
                     paddingLeft: marginHorizontal.extraSmall,
-                    paddingTop: marginHorizontal.extraSmall,
+                    // paddingTop: marginHorizontal.extraSmall,
                     marginBottom: spaceVertical.XXS / 2,
                     ...labelStyle,
                   }}
@@ -221,7 +221,7 @@ const InputField = React.forwardRef(
                 width: width ? width : '100%',
                 maxWidth: '100%',
                 borderWidth: IsFocus || error ? 1 : 1,
-                borderRadius: borderRadius.medium,
+                borderRadius: borderRadius.middleSmall,
                 borderColor: ''
                   ? IsFocus
                     ? error

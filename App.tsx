@@ -14,7 +14,7 @@ import { BaseToast } from 'react-native-toast-message/lib/src/components/BaseToa
 import { ErrorToast } from 'react-native-toast-message/lib/src/components/ErrorToast';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { endPoints, TOKEN_PREFIX, USER_DATA } from './app/utils/Commanutils';
+import { endPoints, getKYC_Details, setKYC_Details, TOKEN_PREFIX, updateObjectKey, USER_DATA } from './app/utils/Commanutils';
 import { showToast } from './app/services/toastService';
 import { toastTypes } from './app/constant/constants';
 import NetInfo from '@react-native-community/netinfo';
@@ -233,9 +233,10 @@ export default function App() {
       signIn: async (data: any) => {
         console.log("data", data);
         try {
-          await AsyncStorage.setItem(TOKEN_PREFIX, data?.token ?  data?.token : "");
+          await AsyncStorage.setItem(TOKEN_PREFIX, data?.token ? data?.token : "");
           await AsyncStorage.setItem(USER_DATA, JSON.stringify(data?.user));
-
+          const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', data?.user?.UserBasicDetail)
+          setKYC_Details(update_data)
           showToast(toastTypes.success, 'Login SuccessFully');
 
           let initialRoute = 'App';

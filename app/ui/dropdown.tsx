@@ -7,7 +7,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import React from 'react';
-import {Dropdown, MultiSelect} from 'react-native-element-dropdown';
+import { Dropdown, MultiSelect } from 'react-native-element-dropdown';
 import {
   borderRadius,
   colors,
@@ -21,8 +21,8 @@ import {
 import CusText from './custom-text';
 import Wrapper from './wrapper';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import {AppearanceContext} from '../context/appearanceContext';
-import {DropdownProps} from 'react-native-element-dropdown/lib/typescript/components/Dropdown/model';
+import { AppearanceContext } from '../context/appearanceContext';
+import { DropdownProps } from 'react-native-element-dropdown/lib/typescript/components/Dropdown/model';
 
 // type item = {
 //   label: string,
@@ -90,7 +90,7 @@ const DropDown = ({
   errorStyle,
   disable,
 }: dropdownProps) => {
-  const {colors}: any = React.useContext(AppearanceContext);
+  const { colors }: any = React.useContext(AppearanceContext);
   const renderDropdownItem = (item: any) => {
     return (
       <>
@@ -115,8 +115,8 @@ const DropDown = ({
   const renderDataItem = (item: any) => {
     return (
       <View style={styles.item} key={item?.id}>
-         <CusText text={item[labelField]} size="S" color={colors.black} />
-       
+        <CusText text={item[labelField]} size="S" color={colors.black} />
+
       </View>
     );
   };
@@ -154,32 +154,32 @@ const DropDown = ({
               labelField={labelField}
               valueField={valueField}
               placeholder={placeholder}
-              placeholderStyle={[styles.selected, {color: colors.placeholder}]}
+              placeholderStyle={[styles.selected, { color: colors.placeholder }]}
               value={value}
               onChange={onChange}
               activeColor={colors.secondary}
               style={[
                 {
-                 // height: responsiveHeight(2),
+                  // height: responsiveHeight(2),
                   width: width ? width : '100%',
                   borderColor: borderColor ? borderColor : colors.inputBorder,
                   borderWidth: 1,
                   backgroundColor: fieldColor ? fieldColor : colors.inputBg,
                   borderRadius: 12,
                   paddingHorizontal: responsiveWidth(2),
-                  paddingVertical : responsiveWidth(3)
+                  paddingVertical: responsiveWidth(3)
                 },
               ]}
-              selectedTextStyle={[styles.selected, {color: colors.black}]}
+              selectedTextStyle={[styles.selected, { color: colors.black }]}
               // renderItem={(item: any) => renderDropdownItem(item)}
               renderItem={renderDataItem}
               renderSelectedItem={(item, unSelect) => (
                 <TouchableOpacity key={valueField} onPress={() => unSelect && unSelect(item)}>
-                  <View style={[styles.selectedStyle, {borderColor: colors.lightGray}]}>
+                  <View style={[styles.selectedStyle, { borderColor: colors.lightGray }]}>
                     <CusText
                       size="XS"
-                    customStyles={styles.textSelectedStyle}
-                     // style={styles.textSelectedStyle}
+                      customStyles={styles.textSelectedStyle}
+                      // style={styles.textSelectedStyle}
                       text={item[labelField]}
                     />
                     <IonIcon color={colors.red} name="close" size={17} style={styles.remove} />
@@ -203,11 +203,11 @@ const DropDown = ({
             {label ? (
               <View
                 style={{
-                  marginTop: spaceVertical.small,
+                  // marginTop: spaceVertical.small,
                 }}>
                 <CusText
                   customStyles={{
-                    marginBottom: spaceVertical.extraSmall,
+                    marginBottom: spaceVertical.XXS / 2,
                     ...labelStyle,
                   }}
                   text={label}
@@ -272,13 +272,13 @@ const DropDown = ({
                 placeholder={placeholder}
                 placeholderStyle={[
                   styles.selected,
-                  {color: colors.placeholder},
+                  { color: colors.placeholder },
                 ]}
                 value={value}
                 onChange={onChange}
                 activeColor={colors.secondary}
-                style={{width: '100%'}}
-                selectedTextStyle={[styles.selected, {color: colors.black}]}
+                style={{ width: '100%', minHeight: responsiveWidth(8) }}
+                selectedTextStyle={[styles.selected, { color: colors.black }]}
                 renderItem={(item: any) => renderDropdownItem(item)}
                 iconColor={colors.black}
                 containerStyle={{
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: marginHorizontal.extraSmall,
     paddingVertical: responsiveWidth(1),
     // borderBottomWidth: 1,
-    borderRadius: borderRadius.normal,
+    borderRadius: borderRadius.middleSmall,
     borderWidth: 1,
   },
   prefix: {
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
     // backgroundColor: colors.lightGray,
     shadowColor: '#000',
     marginTop: 8,
-    marginRight : responsiveWidth(1),
+    marginRight: responsiveWidth(1),
     paddingHorizontal: 2,
     paddingVertical: 2,
     // shadowOffset: {
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     marginLeft: 2,
   },
   textSelectedStyle: {
-    marginRight: 1,  
+    marginRight: 1,
   },
   icon: {
     marginRight: 5,

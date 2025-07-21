@@ -66,7 +66,7 @@ const Header = ({
 
   return (
     <>
-      <Wrapper color={colors.headerColor}  height={responsiveWidth(13)} row align='center'
+      <Wrapper color={'rgba(248, 248, 248, 1)'}  height={responsiveWidth(13)} row align='center'
         customStyles={{
         }}
       >
