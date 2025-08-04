@@ -209,6 +209,38 @@ export function DrawerContent(props: any) {
                 });
               }}
             />
+            <LinearGradient
+              start={{ x: 1, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              colors={[
+                colors.Hard_White,
+                colors.Hard_White,
+                colors.Hard_White,
+              ]}
+              style={{ width: "90%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
+            ></LinearGradient>
+          </Wrapper>
+          <Wrapper color={colors.primary}>
+            <DrawerItem
+              icon={({ focused }) => (
+                <Image
+                  source={require('../../../assets/Images/profile.png')}
+                  style={{
+                    height: responsiveWidth(6),
+                    width: responsiveWidth(6),
+                    tintColor: colors.Hard_White,
+                  }}
+                />
+              )}
+              label={({ }) => (
+                <CusText bold={false} customStyles={{ marginLeft: responsiveWidth(0) }} color={colors.Hard_White} size={'SS'} style={styles.menuTextstyle} text="Profile" />
+              )}
+              onPress={() => {
+                props.navigation.navigate('Main', {
+                  screen: 'Profile'
+                });
+              }}
+            />
             {/* <LinearGradient
               start={{ x: 1, y: 0 }}
               end={{ x: 0, y: 1 }}

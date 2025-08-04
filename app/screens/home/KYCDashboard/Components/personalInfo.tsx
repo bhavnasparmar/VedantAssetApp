@@ -90,9 +90,9 @@ const PersonalInfo = ({ setSelectedTab }: any) => {
     const [identityTypeOptions, setIdentityTypeOptions] = useState([]);
     const [nomineeGuardianRelationOptions, setNomineeGuardianRelationOptions] = useState([]);
     const [relationOptions, setRelationOptions] = useState([
-        { value: 'Father', label: 'FATHER' },
+        { value: 'FATHER', label: 'FATHER' },
         // { value: 'Mother', label: 'Mother' },
-        { value: 'Spouse', label: 'SPOUSE' },
+        { value: 'SPOUSE', label: 'SPOUSE' },
         // { value: 'Self', label: 'Self' },
         // { value: 'Other', label: 'Other' }
     ]);
@@ -176,7 +176,7 @@ const PersonalInfo = ({ setSelectedTab }: any) => {
 
     const setPrefieldData = () => {
         const basicDetails = getKYC_Details()?.user_basic_details;
-        console.log('getKYC_Details() == ...', basicDetails?.relationship_proof)
+        console.log('getKYC_Details() == ...', basicDetails)
 
         setForm({
             ...Form,
@@ -705,7 +705,7 @@ const PersonalInfo = ({ setSelectedTab }: any) => {
             // Add PAN card image if available
             if (fileData) {
                 const name = fileData.fileName || fileData.name;
-                let tempName = name.replace(/\s/g, '').replace(/[()]/g, '_');
+                // let tempName = name.replace(/\s/g, '').replace(/[()]/g, '_');
 
                 const panCardImage = {
                     name: name,
@@ -719,9 +719,9 @@ const PersonalInfo = ({ setSelectedTab }: any) => {
             console.log('Scan PAN Card FormData:', formData);
 
             const [result, error]: any = await updatePersonalDetailApi(formData);
-
+ console.log('Scan PAN Card Result:', result);
             if (result) {
-                console.log('Scan PAN Card Result:', result);
+                // console.log('Scan PAN Card Result:', result);
                 showToast(toastTypes.success, result?.msg || 'PAN card details scanned successfully');
 
                 // Update form with scanned details from kycbody
@@ -774,7 +774,7 @@ const PersonalInfo = ({ setSelectedTab }: any) => {
                 userToken: signZyData?.id,
                 synzyuserId: signZyData?.userId,
                 kycStatus: false,
-                poiConsent: false,
+                poiConsent: !getKYC_Details()?.user_basic_details?.poiConsent ? false : true,
                 dob: Form.dateOfBirth ? new Date(Form.dateOfBirth).toISOString().split('T')[0] : null,
                 fathers_name: Form.fatherSpouseName,
                 father_title: Form.fatherTitle || "Mr.",
@@ -824,7 +824,8 @@ const PersonalInfo = ({ setSelectedTab }: any) => {
 
             } else {
                 console.log('Save Personal Details Error:', error);
-                showToast(toastTypes.error, error?.msg || 'Failed to save personal details');
+                console.log('Save Personal Details Error:', result);
+                showToast(toastTypes.error, error?.data?.err?.message || 'Failed to save personal details');
             }
         } catch (error: any) {
             console.log('Save Personal Details Catch Error:', error);
@@ -1190,6 +1191,7 @@ const PersonalInfo = ({ setSelectedTab }: any) => {
                             valueField="value"
                             labelField={'label'}
                             onChange={(data: any) => {
+                                console.log('Relation selected:', data);
                                 setForm({ ...Form, relation: data.value });
                                 setFormErrors({ ...formErrors, relation: '' });
                             }}

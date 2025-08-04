@@ -19,6 +19,7 @@ import EditDetails from '../../../screens/home/EditDetailsKYC/editDetails';
 import KycInfoPage from '../../../screens/home/KycInfoPage/kycInfoPage';
 import KycDigiLockerInfo from '../../../screens/home/KycInfoPage/kycDigiLockerInfo';
 import KycDashboard from '../../../screens/home/KYCDashboard/kycDashboard';
+import Profile from '../../../screens/home/Profile/profile';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -45,6 +46,7 @@ const AppStack = () => {
       <Stack.Screen name="KycInfoPage" component={KycInfoPage} />
       <Stack.Screen name="KycDigiLockerInfo" component={KycDigiLockerInfo} />
       <Stack.Screen name="KycDashboard" component={KycDashboard} />
+      <Stack.Screen name="Profile" component={Profile} />
     </Stack.Navigator>
   );
 };

@@ -150,7 +150,7 @@ const AddressDetails = ({ setSelectedTab }: any) => {
         try {
             const basicDetails = getKYC_Details()?.user_basic_details;
             const userId = basicDetails?.id;
-
+            console.log('getStateCorr basicDetails:', basicDetails);
             if (userId) {
                 const [result, error]: any = await getPersonalInfoApi(userId);
 
@@ -284,7 +284,8 @@ const AddressDetails = ({ setSelectedTab }: any) => {
 
                     // Check poaConsent to show/hide Aadhar upload fields
                     setShowAadharUpload(!apiData?.poaConsent);
-
+                    console.log('getAddressInfo API Data:', apiData?.doc_no);
+                    console.log('getAddressInfo API Data:', apiData);
                     // Set same as permanent address toggle
                     setSameAsPermanent(apiData?.same_as_permanent || false);
                     setDoc_HolderName(apiData?.doc_holder_name || '');
@@ -293,7 +294,7 @@ const AddressDetails = ({ setSelectedTab }: any) => {
                         poaNumber: apiData?.doc_no || '',
                         address1: apiData?.address1 || '',
                         address2: apiData?.address2 || '',
-                        addressType: apiData?.address_type || '',
+                        addressType: apiData?.address_type !== null ? apiData?.address_type.toString() : '',
                         country: apiData?.country_id.toString() || '',
                         state: apiData?.state_id || '',
                         city: apiData?.city || '',
@@ -756,33 +757,33 @@ const AddressDetails = ({ setSelectedTab }: any) => {
 
             const payload = {
                 "request_type": "updatePOA",
-                "investor_id": 60,
+                "investor_id": getKYC_Details()?.user_basic_details?.id,
                 "address_type": Form.addressType,
                 "doc_holder_name": doc_HolderName,
                 "kycStatus": false,
                 "POAConsent": !showAadharUpload,
                 "doc_no": Form.poaNumber,
-                "address_front_doc": Form.adharFront ? Form.adharFront : null,
-                "address_back_doc": Form.adharBack ? Form.adharBack : null,
-                "corr_aadhaar_front_doc": FormAddress2.adharFront ? FormAddress2.adharFront : null,
-                "corr_aadhaar_back_doc": FormAddress2.adharBack ? FormAddress2.adharBack : null,
-                "address1": Form.address1 || null,
-                "address2": Form.address2 || null,
-                "district": Form.District || null,
-                "pincode": Form.pincode || null,
-                "city": Form.city || null,
-                "state_id": Form.state.toString() || null,
-                "country_id": Form.country || null,
+                "address_front_doc": Form.adharFront ? Form.adharFront : '',
+                "address_back_doc": Form.adharBack ? Form.adharBack : '',
+                "corr_aadhaar_front_doc": FormAddress2.adharFront ? FormAddress2.adharFront : '',
+                "corr_aadhaar_back_doc": FormAddress2.adharBack ? FormAddress2.adharBack : '',
+                "address1": Form.address1 || '',
+                "address2": Form.address2 || '',
+                "district": Form.District || '',
+                "pincode": Form.pincode || '',
+                "city": Form.city || '',
+                "state_id": Form.state.toString() || '',
+                "country_id": Form.country || '',
                 "same_as_permanent": sameAsPermanent,
-                "corr_doc_no": sameAsPermanent ? Form.poaNumber : FormAddress2.poaNumber || null,
-                "corr_address1": sameAsPermanent ? Form.address1 : FormAddress2.address1 || null,
-                "corr_address2": sameAsPermanent ? Form.address2 : FormAddress2.address2 || null,
-                "corr_address_type": sameAsPermanent ? Form.addressType : FormAddress2.addressType || null,
-                "corr_district": sameAsPermanent ? Form.District : FormAddress2.District || null,
-                "corr_pincode": sameAsPermanent ? Form.pincode : FormAddress2.pincode || null,
-                "corr_city":   sameAsPermanent ? Form.city : FormAddress2.city || null,
-                "corr_state_id": sameAsPermanent ? Form.state.toString() : FormAddress2.state || null,
-                "corr_country_id": sameAsPermanent ? Form.country : FormAddress2.country || null,
+                "corr_doc_no": sameAsPermanent ? Form.poaNumber : FormAddress2.poaNumber || '',
+                "corr_address1": sameAsPermanent ? Form.address1 : FormAddress2.address1 || '',
+                "corr_address2": sameAsPermanent ? Form.address2 : FormAddress2.address2 || '',
+                "corr_address_type": sameAsPermanent ? Form.addressType : FormAddress2.addressType || '',
+                "corr_district": sameAsPermanent ? Form.District : FormAddress2.District || '',
+                "corr_pincode": sameAsPermanent ? Form.pincode : FormAddress2.pincode || '',
+                "corr_city": sameAsPermanent ? Form.city : FormAddress2.city || '',
+                "corr_state_id": sameAsPermanent ? Form.state.toString() : FormAddress2.state || '',
+                "corr_country_id": sameAsPermanent ? Form.country : FormAddress2.country || '',
                 "userToken": signZyData?.id,
                 "synzyuserId": signZyData?.userId,
                 "dob": dob
@@ -800,15 +801,15 @@ const AddressDetails = ({ setSelectedTab }: any) => {
                 showToast(toastTypes.success, result?.msg || 'Address details saved successfully');
 
                 // Update KYC details if needed
-                // if (result?.data) {
-                //     const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data);
-                //     setKYC_Details(update_data);
-                // }
+                if (result?.data) {
+                    const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
+                    setKYC_Details(update_data);
+                }
 
                 // Navigate to next step
-                // setSelectedTab('NextTab');
+                setSelectedTab('Fatca');
             } else {
-                console.log('Address Details Error:', error);
+                // console.log('Address Details Error:', error);
                 showToast(toastTypes.error, error?.msg || 'Failed to save address details');
             }
         } catch (error: any) {

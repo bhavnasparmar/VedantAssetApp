@@ -27,7 +27,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     //getRiskProfile();
-    checkKyc()
+    // checkKyc()
   }, [isFocused]);
 
   const checkKyc = async () => {
@@ -70,6 +70,7 @@ const Dashboard = () => {
     }
     else {
       navigation.navigate('PancardVerify')
+      // navigation.navigate('KycDashboard')
     }
   }
 

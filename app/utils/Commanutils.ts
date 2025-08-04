@@ -7,8 +7,9 @@ import { KYCDetailsObj, KYCPanDetailsObj } from '../Redux/Actions/KycAction';
 
 //live server base url
 // export const API_URL = 'https://prosesenv.com:9065/';
-// export const API_URL = 'http://192.168.1.40:9065/';
-export const API_URL = 'https://vedant.prosesenv.com:9065/';
+export const API_URL = 'http://192.168.1.40:9065/';
+export const IMAGE_API_URL = 'http://192.168.1.40:9065';
+// export const API_URL = 'https://vedant.prosesenv.com:9065/';
 export const IMAGE_URL = `${API_URL}static/`;
 export const IMAGE_URL_GOAL = `${API_URL}static/`;
 export const PDF_URL = `${API_URL}static/`;
@@ -37,6 +38,10 @@ const endPoints = {
   getAllRiskQuestion: 'risk-profile/getAllRiskQuestion',
   addRiskProfileQuestionAnswer: 'risk-profile/add-question-answer',
   getFundPickerListData: 'fund-picker/getFundPickerData',
+  uploadImages: 'upload/uploadImages',
+  uploadLiveImages: 'kyc/investor-photo',
+  investorSignature: 'kyc/investor-signature',
+   changeKycStep: 'kyc/updateinvestor',
   getCategoryWithSubCategoryData: 'fund-picker/get-category-with-subCategory',
   getNatureData: 'fund-picker/get-nature-list',
   getAmcListData: 'fund-picker/get-AMC',
@@ -53,15 +58,23 @@ const endPoints = {
   createKycInv: 'kyc/create_kyc_investor',
   signZyApi: 'kyc/investorSignzyLogin',
   updatePersonalDetail: 'kyc/updatePersonalDetail',
+  updateCancelledChequeDetail: 'kyc/invester-bankdetails',
   onBoardingListings: 'kyc/on-boarding-listings',
   initiateDlConsent: 'kyc/initiate_dlConsent',
   getDLDetails: 'kyc/getDLDetails',
   getAddressType: 'addressType/getAllAddressType',
   getPersonalInfo: 'kyc/get-personal-info',
   getAllCountry: 'country/getAllCountry',
+  getFatcaDD: 'kyc/get-fatca-dropdown',
   getAllStateByCountry: 'state/getAllStateByCountry',
   getAddressInfo: 'kyc/get-address-info',
   updateAddress: 'kyc/updateAddressDetail',
+  investorDeclaration: 'kyc/get-investor-declaration',
+  fatcaDeclaration: 'kyc/declaration',
+  saveBankDetail: 'kyc/invester-bankdetails',
+  getBankInfo: 'kyc/get-bank-info',
+  saveNomineeDetails: 'kyc/investor-nominee',
+  getNomineeInfo: 'kyc/get-nominee-info',
 };
 
 export { endPoints };
@@ -243,4 +256,11 @@ export const showArraow = (returnNumber: number, categoryNumber: number) => {
   } else if (ratio < -5) {
     return '#ff0000';
   }
+};
+
+export const getImageUrl = (folderName: string, imageName: string) => {
+  if (!folderName || !imageName) {
+    return null;
+  }
+  return `${IMAGE_URL}${folderName}/${imageName}`;
 };

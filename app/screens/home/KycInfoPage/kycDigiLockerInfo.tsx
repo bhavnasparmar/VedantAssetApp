@@ -47,7 +47,7 @@ const KycDigiLockerInfo = () => {
                 "username": getKYC_Details()?.user_basic_details?.signzy_user_name,
                 "password": getKYC_Details()?.user_basic_details?.signzy_kyc_id
             }
-
+            console.log('kycSignZyStatus payload : ', payload)
 
             const [result, error]: any = await CreateKYCInvsSignZy(payload)
 
@@ -110,6 +110,7 @@ const KycDigiLockerInfo = () => {
     };
 
     const getDetails = async () => {
+        console.log('DigiLocker getDetails Payload:', getKYC_Details()?.user_basic_details);
         try {
             let payload = {
                 "userToken": signZyData?.id,
@@ -119,7 +120,8 @@ const KycDigiLockerInfo = () => {
             console.log('DigiLocker getDetails Payload:', payload);
             setIsFinalLaod(true)
             const [result, error]: any = await getDlDetailsApi(payload)
-
+            console.log('getDetails Result : ', result)
+            console.log('getDetails error : ', error)
             if (result) {
                 console.log('getDetails Result : ', result)
                 setIsVerify(true)

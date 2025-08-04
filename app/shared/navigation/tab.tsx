@@ -255,6 +255,17 @@ const Tabs = ({route, navigation: parentNavigation}: any) => {
                 onPress={onPress}
               />
             );
+          } else if (route.name === 'Profile') {
+            tabIcon = (
+              <TabView
+                page="Profile"
+                focused={isFocused}
+                source={require('../../assets/Images/profile.png')}
+                type="image"
+                isCenter={false}
+                onPress={onPress}
+              />
+            );
           } else if (route.name === 'More') {
             tabIcon = (
               <TabView
