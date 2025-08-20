@@ -67,6 +67,7 @@ const PanOTPverify = ({ visible, setVisible, seteditType, userdata, title }: any
 
             console.log('updatedUserInfo : ', updatedUserInfo)
             console.log('Wait is over : ', result)
+            console.log('Wait is over : ', error)
             if (result) {
                 showToast(toastTypes.success, 'OTP Verified!!');
                 // await AsyncStorage.setItem(USER_DATA, JSON.stringify(data?.user));

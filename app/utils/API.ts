@@ -14,6 +14,7 @@ import { getData } from '../services/localStorageService';
  * Get user-friendly error message based on HTTP status
  */
 const getMessageFromStatus = (status: number, msg: string | null): string => {
+  console.log('status : ', status , msg);
   switch (status) {
     case 400:
       return msg || 'Bad Request';
@@ -109,7 +110,7 @@ const fetchClient = (): AxiosInstance => {
     },
     async (error: AxiosError) => {
       const status = error?.response?.status;
-//console.log("error api -----",JSON.parse(error?.response))
+console.log("error api -----",status)
       console.log('API Error Response:', {
         statusCode: status,
         endpoint: error?.config?.url,

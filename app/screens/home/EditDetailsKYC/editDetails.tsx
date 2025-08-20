@@ -175,7 +175,7 @@ const EditDetails = () => {
                 user_id: 0,
                 id: parsedData?.id,
                 user_type: getKYC_PanDetails()?.userType,
-                annualFund: route?.params?.annualInvest === 2 ? ">=50K" : "<=50K"
+                annualFund: route?.params?.annualInvest === 2 ? ">=50K" : "<50K"
             }
 
             const [result, error]: any = await CreateKYCInvs(payload)

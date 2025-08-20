@@ -97,7 +97,7 @@ const SchemeEdit = () => {
                             <CusText size='M' color={colors.label} text={item?.SchemePerformances[0]?.AUM} />
                         </Wrapper>
                         <Wrapper align='end' position='center'>
-                            <CusText size='SS' color={colors.label} text={'Morningstar Rating'} />
+                            <CusText size='SS' color={colors.label} text={'Rating'} />
                             <Wrapper row align='center'>
                                 <CusText size='M' color={colors.label} text={item?.SchemePerformances[0]?.OverallRating || 0} />
                                 <IonIcon name='star' color={colors.orange} size={responsiveWidth(4)} />

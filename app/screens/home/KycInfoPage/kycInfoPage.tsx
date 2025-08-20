@@ -8,7 +8,7 @@ import CusText from '../../../ui/custom-text';
 import Spacer from '../../../ui/spacer';
 import Wrapper from '../../../ui/wrapper';
 import CusButton from '../../../ui/custom-button';
-import { ActivityIndicator, Image, Keyboard, TouchableOpacity, FlatList } from 'react-native';
+import { ActivityIndicator, Image, Keyboard, TouchableOpacity, FlatList, BackHandler } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
@@ -16,6 +16,20 @@ const KycInfoPage = () => {
     const isFocused: any = useIsFocused();
     const navigation: any = useNavigation();
     const route: any = useRoute();
+
+    useEffect(() => {
+            const backAction = () => {
+                navigation.navigate('Profile')
+                return true; // Return true to prevent default back behavior
+            };
+    
+            const backHandler = BackHandler.addEventListener(
+                "hardwareBackPress",
+                backAction
+            );
+    
+            return () => backHandler.remove(); // Clean up the listener on unmount
+        }, []);
 
     const documentList = [
         {

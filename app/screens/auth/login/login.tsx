@@ -42,13 +42,20 @@ const Login = () => {
   const [emailerror, setemailerror] = useState(false);
   const [passworderror, setpassworderror] = useState(false);
   const [passError, setpassError] = useState<boolean>(false);
-  const input1: any = useRef<null | TextInput>();
+  const input1: any = useRef<null | TextInput>(null);
   const emailRegex =
     /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
 
+
+
   const CRED = {
-    email: 'rajan.proses@yopmail.com',
+    email: 'raj34@yopmail.com',
     password: '123456',
+    
+    // email: 'gautam.proses@gmail.com',
+    // password: '123456',
+    // email: '',
+    // password: '',
   };
 
   const [Form, setForm] = useState(CRED);
@@ -91,8 +98,8 @@ const Login = () => {
     };
     try {
       const [result, error]: any = await regularLogin(loginData);
-      console.log('result ===>> ',result)
-      console.log('error ===>> ',error)
+      console.log('result ===>> ', result)
+      console.log('error ===>> ', error)
       if (result != null) {
         setloginloading(false);
         showToast(

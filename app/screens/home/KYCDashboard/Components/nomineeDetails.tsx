@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { ScrollView, TouchableOpacity, Alert, ActivityIndicator, BackHandler } from 'react-native';
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { AppearanceContext } from '../../../../context/AppearanceContext';
 
@@ -16,13 +16,14 @@ import { borderRadius, colors, fontSize, responsiveHeight, responsiveWidth } fro
 import CusText from '../../../../ui/custom-text';
 import RadioButton from '../../../../ui/radioButton';
 import DateTimePicker from '../../../../ui/datetimePicker';
-import { CreateKYCInvsSignZy, getAllCountryApi, getAllStateByCountryApi, getOnBoardingListingsApi, saveNomineeDetailsApi, getNomineeInfoApi } from '../../../../api/homeapi';
+import { CreateKYCInvsSignZy, getAllCountryApi, getAllStateByCountryApi, getOnBoardingListingsApi, saveNomineeDetailsApi, getNomineeInfoApi, UpdateInvestorApi } from '../../../../api/homeapi';
 import { showToast, toastTypes } from '../../../../services/toastService';
-import { getKYC_Details, setKYC_Details, updateObjectKey } from '../../../../utils/Commanutils';
+import { getKYC_Details, getKYC_ISMember, setKYC_Details, updateObjectKey } from '../../../../utils/Commanutils';
 
 const NomineeDetails = ({ setSelectedTab }: any) => {
     // const { colors }: any = React.useContext(AppearanceContext);
     const isFocused: any = useIsFocused();
+    const navigation: any = useNavigation();
     const [signZyData, setSignZydata] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<any>(null);
 
@@ -94,19 +95,45 @@ const NomineeDetails = ({ setSelectedTab }: any) => {
         { label: 'Minor', value: 'Minor' }
     ];
 
+    useEffect(() => {
+        const backAction = () => {
+            navigation.navigate('Profile')
+            return true; // Return true to prevent default back behavior
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+        );
+
+        return () => backHandler.remove(); // Clean up the listener on unmount
+    }, []);
+
 
     useEffect(() => {
-        kycSignZyStatus();
+        // kycSignZyStatus();
+
+        if (getKYC_ISMember()) {
+            if (getKYC_Details()?.member_basic_details?.signzy_user_name && getKYC_Details()?.member_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+        else {
+            if (getKYC_Details()?.user_basic_details?.signzy_user_name && getKYC_Details()?.user_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+
         getOnBoardingListings();
         getCountry();
         getNomineeInfo();
-    }, []);
+    }, [isFocused]);
 
     const kycSignZyStatus = async () => {
         try {
             let payload = {
-                "username": getKYC_Details()?.user_basic_details?.signzy_user_name,
-                "password": getKYC_Details()?.user_basic_details?.signzy_kyc_id
+                "username": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_user_name : getKYC_Details()?.user_basic_details?.signzy_user_name,
+                "password": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_kyc_id : getKYC_Details()?.user_basic_details?.signzy_kyc_id
             }
             const [result, error]: any = await CreateKYCInvsSignZy(payload)
             if (result) {
@@ -157,7 +184,7 @@ const NomineeDetails = ({ setSelectedTab }: any) => {
                 }
 
                 // Get KYC status from user details
-                const basicDetails = getKYC_Details()?.user_basic_details;
+                const basicDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
                 const kycStatus = basicDetails?.is_kyc_complete;
 
                 // Populate Bank Proof options based on KYC status
@@ -462,9 +489,9 @@ const NomineeDetails = ({ setSelectedTab }: any) => {
 
     const saveNomineeDetails = async () => {
         try {
-            setIsLoading(true);
 
-            const basicDetails = getKYC_Details()?.user_basic_details;
+
+            const basicDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
 
             // Transform nominees data to match API payload structure
             const nominee_details = nominees.map(nominee => ({
@@ -497,25 +524,73 @@ const NomineeDetails = ({ setSelectedTab }: any) => {
                 investor_id: basicDetails?.id,
                 userToken: signZyData?.id,
                 synzyuserId: signZyData?.userId,
-                kycStatus: basicDetails?.kycstatus || false,
+                kycStatus: getKYC_Details()?.user_basic_details?.isKYCDone || getKYC_Details()?.member_basic_details?.isKYCDone ? true : false,
                 nominee_details: nominee_details
             };
 
+            if (getKYC_Details()?.user_basic_details?.isKYCDone || getKYC_Details()?.member_basic_details?.isKYCDone) {
+                delete payload.userToken;
+                delete payload.synzyuserId;
+            }
+
             console.log('Save Nominee Details Payload:', payload);
+
+            setIsLoading(true);
+
             const [result, error]: any = await saveNomineeDetailsApi(payload);
 
             if (result) {
                 console.log('Save Nominee Details Result:', result);
                 showToast(toastTypes.success, result?.msg || 'Nominee details saved successfully');
-              
+
                 // Update KYC details if needed
                 if (result?.data) {
-                    const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
-                    setKYC_Details(update_data);
+
+                    if (getKYC_ISMember()) {
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+                    } else {
+
+
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+                    }
                 }
 
+                if (getKYC_Details()?.user_basic_details?.isKYCDone || getKYC_Details()?.member_basic_details?.isKYCDone) {
+                    const payload = {
+                        investor_id: getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id,
+                        last_kyc_step: 8,
+                    };
+
+                    console.log('Update Investor Payload 1:', payload);
+
+                    const [result, error]: any = await UpdateInvestorApi(payload);
+                    if (result?.data) {
+
+                        if (getKYC_ISMember()) {
+                            const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', result?.data?.investor_data);
+                            setKYC_Details(update_data);
+                        } else {
+
+
+                            const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
+                            setKYC_Details(update_data);
+                        }
+                    }
+                }
+
+                setTimeout(() => {
+                    if (getKYC_Details()?.user_basic_details?.isKYCDone || getKYC_Details()?.member_basic_details?.isKYCDone) {
+                        setSelectedTab('QuickSummary');
+                    } else {
+                        setSelectedTab('InPersonVerification');
+                    }
+                }, 1000);
+
                 // Navigate to next step
-                setSelectedTab('InPersonVerification');
+
+                // setSelectedTab('InPersonVerification');
             } else {
                 console.log('Save Nominee Details Error:', error);
                 showToast(toastTypes.error, error?.msg || 'Failed to save nominee details');
@@ -1009,7 +1084,7 @@ const NomineeDetails = ({ setSelectedTab }: any) => {
 
     const getNomineeInfo = async () => {
         try {
-            const basicDetails = getKYC_Details()?.user_basic_details;
+            const basicDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
             const userId = basicDetails?.id;
 
             if (userId) {

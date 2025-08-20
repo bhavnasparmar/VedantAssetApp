@@ -3,13 +3,13 @@ import { tokenExpiredToggle } from '../Redux/Actions/TokenAction';
 import { store } from '../Redux/Store';
 import { parseJSON } from 'date-fns';
 import { getGoalPlanningDetails, getRiskObject, getuserDetails } from '../Redux/Actions/userAction';
-import { KYCDetailsObj, KYCPanDetailsObj } from '../Redux/Actions/KycAction';
+import { ISKYCMember, KYCDetailsObj, KYCMemberDetailsObj, KYCPanDetailsObj } from '../Redux/Actions/KycAction';
 
 //live server base url
 // export const API_URL = 'https://prosesenv.com:9065/';
-export const API_URL = 'http://192.168.1.40:9065/';
+// export const API_URL = 'http://192.168.1.68:9065/';
 export const IMAGE_API_URL = 'http://192.168.1.40:9065';
-// export const API_URL = 'https://vedant.prosesenv.com:9065/';
+export const API_URL = 'https://vedant.prosesenv.com:9065/';
 export const IMAGE_URL = `${API_URL}static/`;
 export const IMAGE_URL_GOAL = `${API_URL}static/`;
 export const PDF_URL = `${API_URL}static/`;
@@ -41,24 +41,38 @@ const endPoints = {
   uploadImages: 'upload/uploadImages',
   uploadLiveImages: 'kyc/investor-photo',
   investorSignature: 'kyc/investor-signature',
-   changeKycStep: 'kyc/updateinvestor',
+  changeKycStep: 'kyc/updateinvestor',
   getCategoryWithSubCategoryData: 'fund-picker/get-category-with-subCategory',
   getNatureData: 'fund-picker/get-nature-list',
   getAmcListData: 'fund-picker/get-AMC',
   getGoalPlanWiseSchemeData: 'goal-plan/getGoalPlanWiseSchemeData',
+  // Mutual Fund APIs
+  getTopPerformingSchemes: 'mutual-fund/get-top-performing-schemes',
+  getAllSchemeCategory: 'scheme/get-allscheme-category',
+  getTopMutualFundCatData: 'mutual-fund/get-top-mutual-fund-catdata',
+  getNewFundOfferList: 'mutual-fund/get-new-fund-offer-list',
+  getTopAmcList: 'mutual-fund/get-top-amc-list',
+  getSchemeByAmcId: 'mutual-fund/get-scheme-by-amc-id',
+  getTopFundManagersList: 'mutual-fund/get-top-fund-managers-list',
+  getMutualFundClassesScheme: 'mutual-fund/get-mutual-fund-classes-scheme',
   addGoalPlanData: 'goal-plan/addGoalPlanData',
   adduseralloc: 'goal-plan/add-user-alloc',
   getSuggestedSchemes: 'goal-plan/suggested-subcategory-schemes',
   deleteGoal: 'goal-plan/deleteGoalPlanData',
   downloadPDF: 'fund-picker/get-FundPicker-schemes-pdf-export',
   downloadExcel: 'fund-picker/get-FundPicker-schemes-xlsx-export',
-  kycStatus: 'kyc/checkKYCStatus',
+  checkKYCStatus: 'kyc/checkKYCStatus',
+  kycStatus: 'kyc/checkPincode',
+  checkPANStatus: 'kyc/checkPANStatus',
+  initiateBankAccountVerification: 'cashfree/initiate-bank-account-verification',
+  updateInvestor: 'kyc/updateinvestor',
   kycotpStatus: 'kyc/kyc-otp-generate',
   kycotpVerify: 'kyc/kyc-otp-verify',
   createKycInv: 'kyc/create_kyc_investor',
   signZyApi: 'kyc/investorSignzyLogin',
   updatePersonalDetail: 'kyc/updatePersonalDetail',
   updateCancelledChequeDetail: 'kyc/invester-bankdetails',
+  updateCancelledChequeDetailforkycdone: 'kyc/invester-bankdetails-for-Kyc-done',
   onBoardingListings: 'kyc/on-boarding-listings',
   initiateDlConsent: 'kyc/initiate_dlConsent',
   getDLDetails: 'kyc/getDLDetails',
@@ -75,6 +89,14 @@ const endPoints = {
   getBankInfo: 'kyc/get-bank-info',
   saveNomineeDetails: 'kyc/investor-nominee',
   getNomineeInfo: 'kyc/get-nominee-info',
+  // Scheme Detail APIs
+  getSchemeById: 'scheme/get-scheme-by-id',
+  getSchemeNavGraphDetail: 'scheme/get-scheme-nav-graph-detail',
+  getMutualRelatedSchemeData: 'scheme/get-mutual-related-scheme-data',
+  getPerformanceSchemeData: 'scheme/get-performance-scheme-data',
+  getMutualHoldingData: 'scheme/get-mutual-holdingData',
+  getFundManagerData: 'scheme/get-fundmanager-data',
+  getRatioSchemeData: 'scheme/get-ratio-scheme-data',
 };
 
 export { endPoints };
@@ -122,10 +144,10 @@ export const toFixedDataForReturn = (number: number) => {
   return number ? `${number?.toFixed(2)}%` : "--";
 };
 
-export const convertToCrores = (amount: number) => {
-  const crores = amount / 10000000;
-  return `${crores.toFixed(2)}`;
-}
+// export const convertToCrores = (amount: number) => {
+//   const crores = amount / 10000000;
+//   return `${crores.toFixed(2)}`;
+// }
 
 
 
@@ -200,6 +222,20 @@ export const getKYC_Details = () => {
   return store?.getState()?.kycReducer?.KycDetailsObj;
 };
 
+export const setKYC_MemberDetails = (data: any) => {
+  store.dispatch(KYCMemberDetailsObj(data));
+};
+export const getKYC_MemberDetails = () => {
+  return store?.getState()?.kycReducer?.KycMemberDetailsObj;
+};
+
+export const setKYC_ISMember = (data: any) => {
+  store.dispatch(ISKYCMember(data));
+};
+export const getKYC_ISMember = () => {
+  return store?.getState()?.kycReducer?.ISKYCMember;
+};
+
 export const getGoalPlanning = () => {
   return store?.getState()?.userReducer?.GoalPlanningDetails;
 };
@@ -262,5 +298,20 @@ export const getImageUrl = (folderName: string, imageName: string) => {
   if (!folderName || !imageName) {
     return null;
   }
+  console.log('IMAGE_URL', `${IMAGE_URL}${folderName}/${imageName}`);
   return `${IMAGE_URL}${folderName}/${imageName}`;
+};
+
+export const formatNumber = (value: any) => {
+  if (Number.isInteger(value)) {
+    return value?.toString(); // Return as string without decimals
+  } else {
+    return value?.toFixed(2); // Return with 2 decimal places
+  }
+}
+
+export const convertToCrores = (number: number) => {
+    const crore = 10000000; // 1 crore is 10 million
+    const crores = number / crore;
+    return crores?.toFixed(2); // Returns the number in crores rounded to 2 decimal places
 };

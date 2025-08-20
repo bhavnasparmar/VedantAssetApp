@@ -29,6 +29,7 @@ const Header = ({
   // navigation,
   menubtn,
   backBtn,
+  onBackPress,
   notifBtn,
   cartBtn,
   searchBox,
@@ -81,7 +82,11 @@ const Header = ({
             <>
               <IonIcon
                 onPress={() => {
-                  navigation.goBack();
+                  if (onBackPress) {
+                    onBackPress();
+                  } else {
+                    navigation.goBack();
+                  }
                 }}
                 name="chevron-back-outline"
                 size={responsiveWidth(6)}
@@ -126,7 +131,11 @@ const Header = ({
             <>
               <IonIcon
                 onPress={() => {
-                  navigation.goBack();
+                  if (onBackPress) {
+                    onBackPress();
+                  } else {
+                    navigation.goBack();
+                  }
                 }}
                 name="chevron-back-outline"
                 size={responsiveWidth(7)}

@@ -10,6 +10,7 @@ import Wrapper from '../../../ui/wrapper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
     getKYC_Details,
+    getKYC_ISMember,
     getRiskObjectData,
     RISK_PROFILE_FINAL,
     setKYC_Details,
@@ -21,7 +22,7 @@ import {
 import { CheckKycStatus, CreateKYCInvsSignZy, getDlDetailsApi, getRiskProfileInvestorAPi, initiateDlConsent } from '../../../api/homeapi';
 import CommonModal from '../../../shared/components/CommonAlert/commonModal';
 import InputField from '../../../ui/InputField';
-import { ActivityIndicator, Keyboard, TouchableOpacity, Image, Linking } from 'react-native';
+import { ActivityIndicator, Keyboard, TouchableOpacity, Image, Linking, BackHandler } from 'react-native';
 import { showToast, toastTypes } from '../../../services/toastService';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -37,6 +38,21 @@ const KycDigiLockerInfo = () => {
     const [signZyData, setSignZydata] = useState<any>(null);
 
     useEffect(() => {
+            const backAction = () => {
+                navigation.navigate('Profile')
+                return true; // Return true to prevent default back behavior
+            };
+    
+            const backHandler = BackHandler.addEventListener(
+                "hardwareBackPress",
+                backAction
+            );
+    
+            return () => backHandler.remove(); // Clean up the listener on unmount
+        }, []);
+
+    useEffect(() => {
+        console.log('IS Menber : ', getKYC_ISMember())
         kycSignZyStatus()
 
     }, [isFocused]);
@@ -44,8 +60,8 @@ const KycDigiLockerInfo = () => {
     const kycSignZyStatus = async () => {
         try {
             let payload = {
-                "username": getKYC_Details()?.user_basic_details?.signzy_user_name,
-                "password": getKYC_Details()?.user_basic_details?.signzy_kyc_id
+                "username": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_user_name : getKYC_Details()?.user_basic_details?.signzy_user_name,
+                "password": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_kyc_id : getKYC_Details()?.user_basic_details?.signzy_kyc_id
             }
             console.log('kycSignZyStatus payload : ', payload)
 
@@ -75,7 +91,7 @@ const KycDigiLockerInfo = () => {
             let payload = {
                 userToken: signZyData?.id,
                 synzyuserId: signZyData?.userId,
-                user_id: getKYC_Details()?.user_basic_details?.id
+                // user_id: getKYC_Details()?.user_basic_details?.id
             };
 
             console.log('DigiLocker Consent Payload:', payload);
@@ -110,12 +126,12 @@ const KycDigiLockerInfo = () => {
     };
 
     const getDetails = async () => {
-        console.log('DigiLocker getDetails Payload:', getKYC_Details()?.user_basic_details);
+        console.log('getDetails',getKYC_ISMember())
         try {
             let payload = {
                 "userToken": signZyData?.id,
                 "synzyuserId": signZyData?.userId,
-                "investor_id": getKYC_Details()?.user_basic_details?.id
+                "investor_id": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id
             }
             console.log('DigiLocker getDetails Payload:', payload);
             setIsFinalLaod(true)
@@ -123,10 +139,16 @@ const KycDigiLockerInfo = () => {
             console.log('getDetails Result : ', result)
             console.log('getDetails error : ', error)
             if (result) {
-                console.log('getDetails Result : ', result)
+                // console.log('getDetails Result : ', result)
                 setIsVerify(true)
-                const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data)
-                setKYC_Details(update_data)
+                if (getKYC_ISMember()) {
+                    const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', result?.data?.investor_data)
+                    setKYC_Details(update_data)
+                } else {
+                    const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data)
+                    setKYC_Details(update_data)
+                }
+
                 setIsFinalLaod(false)
                 showToast('success', result?.msg)
                 navigation.navigate('KycDashboard')
@@ -297,7 +319,7 @@ const KycDigiLockerInfo = () => {
                     {/* <Spacer y='S' /> */}
 
                     {/* Continue Button */}
-                    <TouchableOpacity onPress={() => { isVerify ? getDetails() : handleContinue() }} disabled={isLoad}>
+                    <TouchableOpacity onPress={() => { !isVerify ? getDetails() : handleContinue() }} disabled={isLoad}>
                         <Wrapper
                             position='center'
                             row

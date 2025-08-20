@@ -115,6 +115,24 @@ export const CheckKycStatus = (payload: any) => {
     return promiseHandler(promise);
 };
 
+export const CheckPANStatus = (payload: any) => {
+
+    const promise = API.post(`${API_URL}${endPoints.checkPANStatus}`, payload);
+    return promiseHandler(promise);
+};
+
+export const InitiateBankAccountVerification = (payload: any) => {
+
+    const promise = API.post(`${API_URL}${endPoints.initiateBankAccountVerification}`, payload);
+    return promiseHandler(promise);
+};
+
+export const UpdateInvestorApi = (payload: any) => {
+
+    const promise = API.post(`${API_URL}${endPoints.updateInvestor}`, payload);
+    return promiseHandler(promise);
+};
+
 export const ValidateStatus = (payload: any) => {
     const promise = API.post(`${API_URL}${endPoints.kycotpStatus}`, payload);
     return promiseHandler(promise);
@@ -161,6 +179,15 @@ export const updatePersonalDetailApi = (payload: any) => {
 
 export const updateCancelledChequeApi = (payload: any) => {
     const promise = API.post(`${API_URL}${endPoints.updateCancelledChequeDetail}`, payload, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        }
+    });
+    return promiseHandler(promise);
+};
+
+export const updateCancelledChequeApiforKycDone = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.updateCancelledChequeDetailforkycdone}`, payload, {
         headers: {
             "Content-Type": "multipart/form-data",
         }
@@ -283,6 +310,11 @@ export const completeKycApi = (payload: any) => {
     return promiseHandler(promise);
 };
 
+export const completeKycisdoneApi = (payload: any) => {
+    const promise = API.post(`${API_URL}kyc/CAN-register`, payload);
+    return promiseHandler(promise);
+};
+
 export const completeKycFinalApi = (payload: any) => {
     const promise = API.post(`${API_URL}kyc/genarate-aadhar`, payload);
     return promiseHandler(promise);
@@ -300,5 +332,114 @@ export const registerFinalKYCApi = (payload: any) => {
 
 export const getKycUsersApi = (payload: any) => {
     const promise = API.post(`${API_URL}investor/kyc-users`, payload);
+    return promiseHandler(promise);
+};
+
+export const initiateAadhaarVerificationApi = (payload: any) => {
+    const promise = API.post(`${API_URL}cashfree/initiate-aadhaar-verification`, payload);
+    return promiseHandler(promise);
+};
+
+export const confirmAadhaarVerificationApi = (payload: any) => {
+    const promise = API.post(`${API_URL}cashfree/aadhaar-otp-verification`, payload);
+    return promiseHandler(promise);
+};
+
+// Mutual Fund APIs
+export const getTopPerformingSchemesApi = () => {
+    const promise = API.get(`${API_URL}${endPoints.getTopPerformingSchemes}`);
+    return promiseHandler(promise);
+};
+
+export const getAllSchemeCategoryApi = () => {
+    const promise = API.get(`${API_URL}${endPoints.getAllSchemeCategory}`);
+    return promiseHandler(promise);
+};
+
+export const getTopMutualFundCatDataApi = () => {
+    const promise = API.get(`${API_URL}${endPoints.getTopMutualFundCatData}`);
+    return promiseHandler(promise);
+};
+
+export const getNewFundOfferListApi = () => {
+    const promise = API.get(`${API_URL}${endPoints.getNewFundOfferList}`);
+    return promiseHandler(promise);
+};
+
+export const getTopAmcListApi = (search: string = '') => {
+    const searchParam = search ? `?search=${encodeURIComponent(search)}` : '';
+    const promise = API.get(`${API_URL}${endPoints.getTopAmcList}${searchParam}`);
+    return promiseHandler(promise);
+};
+
+export const getTopFundManagersListApi = () => {
+    const promise = API.get(`${API_URL}${endPoints.getTopFundManagersList}`);
+    return promiseHandler(promise);
+};
+
+export const getMutualFundClassesSchemesApi = (payload: any) => {
+    const promise = API.get(`${API_URL}${endPoints.getMutualFundClassesScheme}?filters=${JSON.stringify(payload?.filters)}&limit=${payload?.limit}&sort=${JSON.stringify(payload?.sort)}&page=${payload?.page}`);
+    return promiseHandler(promise);
+};
+
+export const getSchemeByAmcIdApi = (amcId: string, payload: any) => {
+    const promise = API.get(`${API_URL}${endPoints.getSchemeByAmcId}/${amcId}?filters=${JSON.stringify(payload?.filters)}&limit=${payload?.limit}&sort=${JSON.stringify(payload?.sort)}&page=${payload?.page}`);
+    return promiseHandler(promise);
+};
+
+export const getFundManagerDetailApi = (fundManagerId: string) => {
+    const promise = API.get(`${API_URL}mutual-fund/get-fund-manager-detail/${fundManagerId}`);
+    return promiseHandler(promise);
+};
+
+export const getmfuisinDetailApi = (isin: string) => {
+    const promise = API.get(`${API_URL}mfu/isin/${isin}`);
+    return promiseHandler(promise);
+};
+
+export const getmfucanDetailApi = (can: string) => {
+    const promise = API.get(`${API_URL}mfu/can/${can}`);
+    return promiseHandler(promise);
+};
+
+export const checkKYCStatusApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.checkKYCStatus}`, payload);
+    return promiseHandler(promise);
+};
+
+// Scheme Detail APIs
+export const getSchemeByIdApi = (schemeId: string) => {
+    const promise = API.get(`${API_URL}${endPoints.getSchemeById}/${schemeId}`);
+    return promiseHandler(promise);
+};
+
+export const getSchemeNavGraphDetailApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.getSchemeNavGraphDetail}`, payload);
+    return promiseHandler(promise);
+};
+
+export const getMutualRelatedSchemeDataApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.getMutualRelatedSchemeData}`, payload);
+    return promiseHandler(promise);
+};
+
+export const getPerformanceSchemeDataApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.getPerformanceSchemeData}`, payload);
+    return promiseHandler(promise);
+};
+
+export const getMutualHoldingDataApi = (params: any) => {
+    const queryString = new URLSearchParams(params).toString();
+    const promise = API.get(`${API_URL}${endPoints.getMutualHoldingData}?${queryString}`);
+    return promiseHandler(promise);
+};
+
+export const getFundManagerDataApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.getFundManagerData}`, payload);
+    return promiseHandler(promise);
+};
+
+export const getRatioSchemeDataApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.getRatioSchemeData}`, payload);
     return promiseHandler(promise);
 };

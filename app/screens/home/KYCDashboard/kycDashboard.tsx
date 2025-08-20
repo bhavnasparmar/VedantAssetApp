@@ -2,7 +2,7 @@ import { useIsFocused, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import PersonalInfo from "./Components/personalInfo";
 import AddressDetails from "./Components/addressDetails";
-import { getKYC_Details } from "../../../utils/Commanutils";
+import { formatNumber, getKYC_Details, getKYC_ISMember } from "../../../utils/Commanutils";
 import Fatca from "./Components/fatca";
 import BankDetails from "./Components/bankDetails";
 import NomineeDetails from "./Components/nomineeDetails";
@@ -20,7 +20,13 @@ const KycDashboard = () => {
         if (route?.params?.screen) {
             setSelectedTab(route?.params?.screen)
         } else {
-            const step: any = getKYC_Details()?.user_basic_details?.last_kyc_step;
+            const step: any = getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.last_kyc_step : getKYC_Details()?.user_basic_details?.last_kyc_step;
+            const userDetails: any = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
+            console.log('userDetails   1 : ', userDetails);
+            if (userDetails?.is_kyc_complete) {
+                setSelectedTab('QuickSummary')
+                return
+            }
             if (step === 3) {
                 setSelectedTab('AddressInfo')
                 return
@@ -38,8 +44,26 @@ const KycDashboard = () => {
                 return
             }
             if (step === 7) {
+
+                // const basicDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
+
+                // if (basicDetails?.isKYCDone && basicDetails?.annualFund === '<50K') {
+                //     setSelectedTab('QuickSummary')
+                //     return
+                // }
                 setSelectedTab('InPersonVerification')
                 return
+            }
+            if (step === 8) {
+                const basicDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
+
+                if (basicDetails?.isKYCDone && basicDetails?.annualFund === '<50K') {
+                    setSelectedTab('QuickSummary')
+                    return
+                } else {
+                    setSelectedTab('QuickSummary')
+                    return
+                }
             }
             setSelectedTab('PersonalInfo')
             // setSelectedTab('InPersonVerification')

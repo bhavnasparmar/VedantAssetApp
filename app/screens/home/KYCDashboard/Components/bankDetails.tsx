@@ -6,15 +6,16 @@ import { borderRadius, colors, fontSize, responsiveHeight, responsiveWidth } fro
 import CusText from "../../../../ui/custom-text";
 import Container from "../../../../ui/container";
 import Spacer from "../../../../ui/spacer";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, BackHandler, ScrollView, TouchableOpacity, View } from "react-native";
 import InputField from "../../../../ui/InputField";
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { getKYC_Details, setKYC_Details, updateObjectKey } from "../../../../utils/Commanutils";
+import { getImageUrl, getKYC_Details, getKYC_ISMember, setKYC_Details, updateObjectKey } from "../../../../utils/Commanutils";
 import DropDown from "../../../../ui/dropdown";
-import { CreateKYCInvsSignZy, getAddressInfoApi, getAddressTypeApi, getAllCountryApi, getAllStateByCountryApi, getFatcaDDApi, getOnBoardingListingsApi, getPersonalInfoApi, InvestorDeclarationApi, saveBankDetailsApi, saveFatcaDeclarationApi, updateAddressDetailApi, updateCancelledChequeApi, getBankInfoApi } from "../../../../api/homeapi";
+import { CreateKYCInvsSignZy, getAddressInfoApi, getAddressTypeApi, getAllCountryApi, getAllStateByCountryApi, getFatcaDDApi, getOnBoardingListingsApi, getPersonalInfoApi, InvestorDeclarationApi, saveBankDetailsApi, saveFatcaDeclarationApi, updateAddressDetailApi, updateCancelledChequeApi, getBankInfoApi, updateCancelledChequeApiforKycDone, InitiateBankAccountVerification } from "../../../../api/homeapi";
 import { showToast, toastTypes } from "../../../../services/toastService";
 import API from "../../../../utils/API";
 import ImagePickerModal from "../../../../shared/components/ImagePickerModal";
+import CommonModal from '../../../../shared/components/CommonAlert/commonModal';
 import { Image } from 'react-native';
 
 const BankDetails = ({ setSelectedTab }: any) => {
@@ -31,6 +32,8 @@ const BankDetails = ({ setSelectedTab }: any) => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isScanLoading, setIsScanLoading] = useState(false);
+    const [isVerifyingBank, setIsVerifyingBank] = useState(false);
+    const [currentImageAccountIndex, setCurrentImageAccountIndex] = useState(0);
 
     const citizenOptions = [
         { label: 'Yes', value: 'yes' },
@@ -52,7 +55,7 @@ const BankDetails = ({ setSelectedTab }: any) => {
 
     const handleNext = async () => {
         if (validateBankForm()) {
-            console.log('Bank Form Data:', bankForm);
+
             await saveBankDetails();
         } else {
             showToast(toastTypes.error, 'Please fill all required fields');
@@ -61,17 +64,27 @@ const BankDetails = ({ setSelectedTab }: any) => {
 
     const saveBankDetails = async () => {
         try {
-            setIsLoading(true);
 
-            const basicDetails = getKYC_Details()?.user_basic_details;
 
-            const payload = {
-                request_type: "updateBankDetails",
-                investor_id: basicDetails?.id,
-                userToken: signZyData?.id,
-                synzyuserId: signZyData?.userId,
-                kycStatus: basicDetails?.kycstatus || false,
-                bankAccounts: [
+            const basicDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
+
+            // Prepare bank accounts array based on KYC status
+            let bankAccountsData;
+            if (isKYCDone) {
+                // Use multiple bank accounts for KYC done users
+                bankAccountsData = bankAccounts.map(account => ({
+                    bank_proof: parseInt(account.bankProof),
+                    branch: account.bankBranch,
+                    micr: account.micr,
+                    bank_id: account.bankName.toString(),
+                    ifsc: account.ifsc,
+                    account_type: account.accountType === 'SB' ? 1 : 2,
+                    account_no: account.accountNumber,
+                    cancelled_cheque: account.cancelledCheque
+                }));
+            } else {
+                // Use single bank account for non-KYC users
+                bankAccountsData = [
                     {
                         bank_proof: parseInt(bankForm.bankProof),
                         branch: bankForm.bankBranch,
@@ -82,11 +95,22 @@ const BankDetails = ({ setSelectedTab }: any) => {
                         account_no: bankForm.accountNumber,
                         cancelled_cheque: bankForm.cancelledCheque
                     }
-                ]
+                ];
+            }
+
+            const payload = {
+                request_type: "updateBankDetails",
+                investor_id: basicDetails?.id,
+                userToken: signZyData?.id,
+                synzyuserId: signZyData?.userId,
+                // kycStatus: getKYC_Details()?.user_basic_details?.isKYCDone || getKYC_Details()?.member_basic_details?.isKYCDone ? true : false,
+                kycStatus: getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.isKYCDone ? true : false : getKYC_Details()?.user_basic_details?.isKYCDone ? true : false,
+                bankAccounts: bankAccountsData
             };
 
             console.log('Save Bank Details Payload:', payload);
 
+            setIsLoading(true);
             const [result, error]: any = await saveBankDetailsApi(payload);
             if (result) {
                 console.log('Save Bank Details Result:', result);
@@ -94,8 +118,17 @@ const BankDetails = ({ setSelectedTab }: any) => {
 
                 // Update KYC details if needed
                 if (result?.data) {
-                    const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
-                    setKYC_Details(update_data);
+
+                    if (getKYC_ISMember()) {
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+                    } else {
+
+
+
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+                    }
                 }
 
                 // Navigate to next step or complete KYC
@@ -113,11 +146,37 @@ const BankDetails = ({ setSelectedTab }: any) => {
     };
 
 
+    useEffect(() => {
+        const backAction = () => {
+            navigation.navigate('Profile')
+            return true; // Return true to prevent default back behavior
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+        );
+
+        return () => backHandler.remove(); // Clean up the listener on unmount
+    }, []);
 
 
     useEffect(() => {
-        kycSignZyStatus()
-        getCountry()
+
+        if (getKYC_ISMember()) {
+            if (getKYC_Details()?.member_basic_details?.signzy_user_name && getKYC_Details()?.member_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+        else {
+            if (getKYC_Details()?.user_basic_details?.signzy_user_name && getKYC_Details()?.user_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+
+
+        // kycSignZyStatus()
+
         getOnBoardingListings()
         getBankInfo()
     }, [isFocused])
@@ -127,8 +186,8 @@ const BankDetails = ({ setSelectedTab }: any) => {
     const kycSignZyStatus = async () => {
         try {
             let payload = {
-                "username": getKYC_Details()?.user_basic_details?.signzy_user_name,
-                "password": getKYC_Details()?.user_basic_details?.signzy_kyc_id
+                "username": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_user_name : getKYC_Details()?.user_basic_details?.signzy_user_name,
+                "password": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_kyc_id : getKYC_Details()?.user_basic_details?.signzy_kyc_id
             }
             const [result, error]: any = await CreateKYCInvsSignZy(payload)
             if (result) {
@@ -152,9 +211,8 @@ const BankDetails = ({ setSelectedTab }: any) => {
                 console.log('getOnBoardingListings Result:', getKYC_Details()?.user_basic_details);
 
                 // Get KYC status from user details
-                const basicDetails = getKYC_Details()?.user_basic_details;
-                const kycStatus = basicDetails?.is_kyc_complete
-                    ;
+                const basicDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
+                const kycStatus = basicDetails?.isKYCDone;
 
                 // Populate Bank Proof options based on KYC status
                 if (result.data?.bank_proof && Array.isArray(result.data.bank_proof)) {
@@ -193,107 +251,73 @@ const BankDetails = ({ setSelectedTab }: any) => {
     };
 
 
-    const getPersonalInfo = async () => {
-        try {
-            const basicDetails = getKYC_Details()?.user_basic_details;
-            const userId = basicDetails?.id;
-            console.log('getStateCorr basicDetails:', basicDetails);
-            if (userId) {
-                const [result, error]: any = await getPersonalInfoApi(userId);
 
-                if (result?.data) {
-                    console.log('getPersonalInfo Result:', result?.data);
-                    // Set form data from API response
-                    const apiData = result.data;
-
-                } else {
-                    console.log('getPersonalInfo Error:', error);
-                }
-            }
-        } catch (error: any) {
-            console.log('getPersonalInfo Catch Error:', error);
-        }
-    };
-
-
-    const getCountry = async () => {
-        try {
-            const [result, error]: any = await getAllCountryApi();
-
-            if (result?.data) {
-                console.log('getCountry Result:', result?.data);
-                const countryData = result.data.map((item: any) => ({
-                    value: item.id,
-                    label: item.name
-                }));
-                setCountry(countryData);
-            } else {
-                console.log('getCountry Error:', error);
-                showToast(toastTypes.error, error?.msg || 'Failed to fetch countries');
-            }
-        } catch (error: any) {
-            console.log('getCountry Catch Error:', error);
-            showToast(toastTypes.error, 'Something went wrong while fetching countries');
-        }
-    };
-
-    const getState = async (countryId: any) => {
-        try {
-            const [result, error]: any = await getAllStateByCountryApi(countryId);
-
-            if (result?.data) {
-                console.log('getState Result:', result?.data);
-                const stateData = result.data.map((item: any) => ({
-                    value: item.id,
-                    label: item.name
-                }));
-                setState(stateData);
-            } else {
-                console.log('getState Error:', error);
-                showToast(toastTypes.error, error?.msg || 'Failed to fetch states');
-            }
-        } catch (error: any) {
-            console.log('getState Catch Error:', error);
-            showToast(toastTypes.error, 'Something went wrong while fetching states');
-        }
-    };
 
     const getBankInfo = async () => {
         try {
-            const basicDetails = getKYC_Details()?.user_basic_details;
+            const basicDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
             const userId = basicDetails?.id;
 
             if (userId) {
                 const [result, error]: any = await getBankInfoApi(userId);
 
-                if (result?.data) {
+                if (result?.data && Array.isArray(result.data)) {
                     console.log('getBankInfo Result:', result?.data);
 
-                    // Set form data from API response
-                    const bankData = result.data[0];
+                    if (isKYCDone && result.data.length > 0) {
+                        // Handle multiple bank accounts for KYC done users
+                        const bankAccountsData = result.data.map((bankData: any) => ({
+                            bankProof: bankData.bank_proof || '',
+                            cancelledCheque: bankData.cancelled_cheque || '',
+                            accountNumber: bankData.account_no || '',
+                            ifsc: bankData.ifsc || '',
+                            accountType: bankData.account_type === '1' ? 'SB' : 'CB',
+                            bankName: bankData.bank_id || '',
+                            micr: bankData.micr || '',
+                            bankBranch: bankData.branch || ''
+                        }));
 
-                    setBankForm({
-                        bankProof: bankData.bank_proof || '',
-                        cancelledCheque: bankData.cancelled_cheque || '',
-                        accountNumber: bankData.account_no || '',
-                        ifsc: bankData.ifsc || '',
-                        accountType: bankData.account_type === '1' ? 'SB' : 'CB',
-                        bankName: bankData.bank_id || '',
-                        micr: bankData.micr || '',
-                        bankBranch: bankData.branch || ''
-                    });
+                        setBankAccounts(bankAccountsData);
 
-                    // Clear any errors since we have valid data
-                    setBankError({
-                        bankProof: '',
-                        cancelledCheque: '',
-                        accountNumber: '',
-                        ifsc: '',
-                        accountType: '',
-                        bankName: '',
-                        micr: '',
-                        bankBranch: ''
-                    });
+                        // Clear errors for all accounts
+                        const clearedErrors = bankAccountsData.map(() => ({
+                            bankProof: '',
+                            cancelledCheque: '',
+                            accountNumber: '',
+                            ifsc: '',
+                            accountType: '',
+                            bankName: '',
+                            micr: '',
+                            bankBranch: ''
+                        }));
+                        setBankErrors(clearedErrors);
+                    } else if (result.data.length > 0) {
+                        // Handle single bank account for non-KYC users
+                        const bankData = result.data[0];
+
+                        setBankForm({
+                            bankProof: bankData.bank_proof || '',
+                            cancelledCheque: bankData.cancelled_cheque || '',
+                            accountNumber: bankData.account_no || '',
+                            ifsc: bankData.ifsc || '',
+                            accountType: bankData.account_type === '1' ? 'SB' : 'CB',
+                            bankName: bankData.bank_id || '',
+                            micr: bankData.micr || '',
+                            bankBranch: bankData.branch || ''
+                        });
+
+                        // Clear any errors since we have valid data
+                        setBankError({
+                            bankProof: '',
+                            cancelledCheque: '',
+                            accountNumber: '',
+                            ifsc: '',
+                            accountType: '',
+                            bankName: '',
+                            micr: '',
+                            bankBranch: ''
+                        });
+                    }
                 } else {
                     console.log('getBankInfo Error:', error);
                 }
@@ -303,6 +327,120 @@ const BankDetails = ({ setSelectedTab }: any) => {
         }
     };
 
+    const initiateBankAccountVerification = async (accountNumber: string, ifscCode: string, accountIndex: number = 0) => {
+        try {
+            // Get basic details for mobile number and account holder name
+            const basicDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
+
+            if (!basicDetails?.reg_mobile || !basicDetails?.name) {
+                console.log('Missing mobile or name for bank verification');
+                showToast(toastTypes.error, 'Missing mobile or name for bank verification');
+                return;
+            }
+
+            console.log('basicDetails : ', basicDetails);
+
+            setIsVerifyingBank(true);
+
+            const payload = {
+                bankAcNo: accountNumber,
+                bankAcIfsc: ifscCode,
+                mobile: basicDetails.reg_mobile,
+                bankAcNameInBank: basicDetails.name
+            };
+
+            console.log('Bank Account Verification Payload:', payload);
+
+            const [result, error]: any = await InitiateBankAccountVerification(payload);
+
+            if (result) {
+                console.log('Bank Account Verification Result:', result);
+                showToast(toastTypes.success, result?.msg || 'Bank account verification initiated successfully');
+
+                // Update the form with verification data if available
+                if (result?.data) {
+                    console.log('Bank verification data:', result.data);
+
+                    // Extract data from response
+                    const verificationData = result.data;
+                    const ifscDetails = verificationData.ifsc_details;
+
+                    // Find bank ID from bankList by matching bank name
+                    const matchedBank = bankList.find((bank: any) => {
+                        const bankLabel = bank?.label?.toLowerCase() || '';
+                        const responseBankName = verificationData?.bank_name?.toLowerCase() || '';
+                        const ifscBankName = ifscDetails?.bank?.toLowerCase() || '';
+
+                        return (responseBankName && bankLabel.includes(responseBankName)) ||
+                            (ifscBankName && bankLabel.includes(ifscBankName));
+                    });
+
+                    if (isKYCDone && accountIndex < bankAccounts.length) {
+                        // Update specific bank account for KYC done users
+                        setBankAccounts(prev => {
+                            const updated = [...prev];
+                            updated[accountIndex] = {
+                                ...updated[accountIndex],
+                                bankName: matchedBank?.value || updated[accountIndex].bankName,
+                                micr: verificationData.micr?.toString() || ifscDetails?.micr?.toString() || updated[accountIndex].micr,
+                                bankBranch: verificationData.branch || ifscDetails?.branch || updated[accountIndex].bankBranch
+                            };
+                            return updated;
+                        });
+                    } else {
+                        // Update single bank account for non-KYC users
+                        setBankForm(prev => ({
+                            ...prev,
+                            bankName: matchedBank?.value || prev.bankName,
+                            micr: verificationData.micr?.toString() || ifscDetails?.micr?.toString() || prev.micr,
+                            bankBranch: verificationData.branch || ifscDetails?.branch || prev.bankBranch
+                        }));
+                    }
+
+                    // Show additional verification info
+                    if (verificationData.account_status === 'VALID') {
+                        showToast(toastTypes.success, `Account verified: ${verificationData.name_at_bank} - ${verificationData.bank_name}`);
+                    }
+                }
+            } else {
+                console.log('Bank Account Verification Error:', error);
+                showToast(toastTypes.error, error?.msg || 'Bank account verification failed');
+            }
+        } catch (error: any) {
+            console.log('Bank Account Verification Catch Error:', error);
+            showToast(toastTypes.error, 'Something went wrong during bank account verification');
+        } finally {
+            setIsVerifyingBank(false);
+        }
+    };
+
+    // Check if KYC is done to determine max bank accounts
+    const isKYCDone = getKYC_Details()?.user_basic_details?.isKYCDone || getKYC_Details()?.member_basic_details?.isKYCDone;
+    const maxBankAccounts = isKYCDone ? 3 : 1;
+
+    const [bankAccounts, setBankAccounts] = useState([{
+        bankProof: '',
+        cancelledCheque: '',
+        accountNumber: '',
+        ifsc: '',
+        accountType: '',
+        bankName: '',
+        micr: '',
+        bankBranch: ''
+    }]);
+
+    const [bankErrors, setBankErrors] = useState([{
+        bankProof: '',
+        cancelledCheque: '',
+        accountNumber: '',
+        ifsc: '',
+        accountType: '',
+        bankName: '',
+        micr: '',
+        bankBranch: ''
+    }]);
+
+    // Keep backward compatibility with existing bankForm
     const [bankForm, setBankForm] = useState({
         bankProof: '',
         cancelledCheque: '',
@@ -326,7 +464,7 @@ const BankDetails = ({ setSelectedTab }: any) => {
     });
 
     const [bankProofList, setBankProofList] = useState([]);
-    const [bankList, setBankList] = useState([]);
+    const [bankList, setBankList] = useState<any[]>([]);
     const [isModalVisible, setModalVisible] = useState(false);
     const [fileExt, setFileExt] = useState('');
 
@@ -335,33 +473,100 @@ const BankDetails = ({ setSelectedTab }: any) => {
         { value: 'CB', label: 'Current' }
     ];
 
-    const handleBankFormChange = (key: string, value: string) => {
-        setBankForm(prev => ({ ...prev, [key]: value }));
-        // Clear error when user starts typing
-        if (bankError[key]) {
-            setBankError((prev: any) => ({ ...prev, [key]: '' }));
+    const handleBankFormChange = (key: string, value: string, accountIndex: number = 0) => {
+        if (isKYCDone && accountIndex < bankAccounts.length) {
+            // Update specific bank account
+            setBankAccounts(prev => {
+                const updated = [...prev];
+                updated[accountIndex] = { ...updated[accountIndex], [key]: value };
+
+                // Check if both account number and IFSC are provided for bank verification
+                const updatedAccount = updated[accountIndex];
+                if ((key === 'accountNumber' || key === 'ifsc') &&
+                    updatedAccount.accountNumber &&
+                    updatedAccount.ifsc &&
+                    updatedAccount.accountNumber.length >= 9 &&
+                    /^[A-Z]{4}0[A-Z0-9]{6}$/.test(updatedAccount.ifsc)) {
+                    // Call bank verification API
+                    setTimeout(() => {
+                        initiateBankAccountVerification(updatedAccount.accountNumber, updatedAccount.ifsc, accountIndex);
+                    }, 500); // Small delay to ensure state is updated
+                }
+
+                return updated;
+            });
+            // Clear error for specific account
+            setBankErrors(prev => {
+                const updated: any[] = [...prev];
+                if (updated[accountIndex] && updated[accountIndex][key]) {
+                    updated[accountIndex] = { ...updated[accountIndex], [key]: '' };
+                }
+                return updated;
+            });
+        } else {
+            // Backward compatibility for single account
+            setBankForm(prev => {
+                const updatedForm = { ...prev, [key]: value };
+
+                // Check if both account number and IFSC are provided for bank verification
+                if ((key === 'accountNumber' || key === 'ifsc') &&
+                    updatedForm.accountNumber &&
+                    updatedForm.ifsc &&
+                    updatedForm.accountNumber.length >= 9 &&
+                    /^[A-Z]{4}0[A-Z0-9]{6}$/.test(updatedForm.ifsc)) {
+                    // Call bank verification API
+                    setTimeout(() => {
+                        initiateBankAccountVerification(updatedForm.accountNumber, updatedForm.ifsc, 0);
+                    }, 500); // Small delay to ensure state is updated
+                }
+
+                return updatedForm;
+            });
+            // Clear error when user starts typing
+            if (bankError[key]) {
+                setBankError((prev: any) => ({ ...prev, [key]: '' }));
+            }
         }
     };
 
-    const toggleModal = () => {
+    const addBankAccount = () => {
+        if (bankAccounts.length < maxBankAccounts) {
+            setBankAccounts(prev => [...prev, {
+                bankProof: '',
+                cancelledCheque: '',
+                accountNumber: '',
+                ifsc: '',
+                accountType: '',
+                bankName: '',
+                micr: '',
+                bankBranch: ''
+            }]);
+            setBankErrors(prev => [...prev, {
+                bankProof: '',
+                cancelledCheque: '',
+                accountNumber: '',
+                ifsc: '',
+                accountType: '',
+                bankName: '',
+                micr: '',
+                bankBranch: ''
+            }]);
+        }
+    };
+
+    const removeBankAccount = (index: number) => {
+        if (bankAccounts.length > 1) {
+            setBankAccounts(prev => prev.filter((_, i) => i !== index));
+            setBankErrors(prev => prev.filter((_, i) => i !== index));
+        }
+    };
+
+    const toggleModal = (accountIndex: number = 0) => {
+        setCurrentImageAccountIndex(accountIndex);
         setModalVisible(!isModalVisible);
     };
 
-    const handleImagePick1 = (response: any) => {
-        console.log('Response : ', response);
-        if (response && response.uri) {
-            const fileExtension = response.fileName ?
-                response.fileName.split('.').pop()?.toLowerCase() :
-                response.uri.split('.').pop()?.toLowerCase();
 
-            setFileExt(fileExtension || '');
-            handleBankFormChange('cancelledCheque', response.uri);
-
-            // Call scan API after image is selected
-            scanCancelledChequeDetails(response);
-        }
-        setModalVisible(false);
-    };
 
     const handleImagePick = (response: any) => {
         const allowedExtensions = ["jpg", "jpeg"];
@@ -373,8 +578,11 @@ const BankDetails = ({ setSelectedTab }: any) => {
 
             if (allowedExtensions.includes(fileExtension)) {
                 const fileData = response[0]?.uri ? response[0] : response?.assets[0];
-                handleBankFormChange('cancelledCheque', response[0]?.uri ? response[0]?.fileCopyUri : response?.assets[0]?.uri);
-                scanCancelledChequeDetails(fileData);
+                const fileName = fileData.fileName || fileData.name || name;
+
+                // Set the file name/path in the form for the correct account
+                handleBankFormChange('cancelledCheque', fileName, currentImageAccountIndex);
+                scanCancelledChequeDetails(fileData, currentImageAccountIndex);
                 // showToast(toastTypes.success, 'File selected successfully');
             } else {
                 showToast(toastTypes.error, 'Unsupported file type. Please upload a jpg, jpeg, png or pdf file.');
@@ -382,7 +590,7 @@ const BankDetails = ({ setSelectedTab }: any) => {
         }
     };
 
-    const scanCancelledChequeDetails = async (fileData: any) => {
+    const scanCancelledChequeDetails = async (fileData: any, accountIndex: number = 0) => {
         console.log('scanCancelledChequeDetails : Entered')
         try {
             setIsScanLoading(true);
@@ -393,8 +601,14 @@ const BankDetails = ({ setSelectedTab }: any) => {
                 request_type: "updateSignZy",
                 userToken: signZyData?.id,
                 synzyuserId: signZyData?.userId,
-                investor_id: getKYC_Details()?.user_basic_details?.id,
+                investor_id: getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id,
             };
+
+            if (isKYCDone) {
+                delete passObj.userToken;
+                delete passObj.synzyuserId;
+            }
+
             formData.append("formData", JSON.stringify(passObj));
 
             // Add cancelled cheque image if available
@@ -414,7 +628,7 @@ const BankDetails = ({ setSelectedTab }: any) => {
 
             console.log('Scan Cancelled Cheque FormData:', formData);
 
-            const [result, error]: any = await updateCancelledChequeApi(formData)
+            const [result, error]: any = isKYCDone ? await updateCancelledChequeApiforKycDone(formData) : await updateCancelledChequeApi(formData)
             console.log('Scan Cancelled Cheque Result:', result);
             console.log('Scan Cancelled Cheque error:', error);
             if (result?.data) {
@@ -423,42 +637,75 @@ const BankDetails = ({ setSelectedTab }: any) => {
 
                 // Update form with scanned bank details
                 const bankData = result.data;
+                const fileName = fileData.fileName || fileData.name;
 
-                // setBankForm({
-                //     ...bankForm,
-                //     accountNumber: bankData.account_no || bankForm.accountNumber,
-                //     ifsc: bankData.ifsc || bankForm.ifsc,
-                //     accountType: bankData.account_type === 'Savings' ? 'SB' : (bankData.account_type === 'Current' ? 'CB' : bankForm.accountType),
-                //     micr: bankData.micr || bankForm.micr,
-                //     bankBranch: bankData.branch || bankForm.bankBranch,
-                //     // Find bank name from bankList by matching bank_name
-                //     bankName: bankList.find((bank: any) => bank.label === bankData.bank_name)?.value || bankForm.bankName,
-                // });
-
-                setBankForm(prev => ({
-                    ...prev,
-                    accountNumber: bankData.account_no || prev.accountNumber,
-                    ifsc: bankData.ifsc || prev.ifsc,
-                    accountType: bankData.account_type === 'Savings' ? 'SB' : (bankData.account_type === 'Current' ? 'CB' : prev.accountType),
-                    micr: bankData.micr || prev.micr,
-                    bankBranch: bankData.branch || prev.bankBranch,
-                    bankName: bankList.find((bank: any) => bank.label === bankData.bank_name)?.value || prev.bankName,
-                    // Keep the existing cancelled cheque image fileData.fileName || fileData.name
-                    // cancelledCheque: prev.cancelledCheque
-                    cancelledCheque: fileData.fileName || fileData.name
-
-                }));
-
-                // Clear any related errors
-                setBankError({
-                    ...bankError,
-                    accountNumber: '',
-                    ifsc: '',
-                    accountType: '',
-                    micr: '',
-                    bankBranch: '',
-                    bankName: ''
+                // Find bank name from bankList by matching bank_name with null checks
+                const matchedBank = bankList.find((bank: any) => {
+                    const bankLabel = bank?.label?.toLowerCase() || '';
+                    const responseBankName = bankData?.bank_name?.toLowerCase() || '';
+                    return responseBankName && bankLabel.includes(responseBankName);
                 });
+
+                if (isKYCDone) {
+                    // Update multiple bank accounts for KYC done users
+                    setBankAccounts(prev => {
+                        const updated = [...prev];
+                        // Update the specific account that was being edited
+                        if (updated[accountIndex]) {
+                            updated[accountIndex] = {
+                                ...updated[accountIndex],
+                                accountNumber: bankData.account_no || updated[accountIndex].accountNumber,
+                                ifsc: bankData.ifsc || updated[accountIndex].ifsc,
+                                accountType: bankData.account_type === 'Savings' ? 'SB' : (bankData.account_type === 'Current' ? 'CB' : updated[accountIndex].accountType),
+                                micr: bankData.micr || updated[accountIndex].micr,
+                                bankBranch: bankData.branch || updated[accountIndex].bankBranch,
+                                bankName: matchedBank?.value || updated[accountIndex].bankName,
+                                cancelledCheque: bankData.cancelled_cheque || fileName
+                            };
+                        }
+                        return updated;
+                    });
+
+                    // Clear errors for the updated account
+                    setBankErrors(prev => {
+                        const updated = [...prev];
+                        if (updated[accountIndex]) {
+                            updated[accountIndex] = {
+                                ...updated[accountIndex],
+                                accountNumber: '',
+                                ifsc: '',
+                                accountType: '',
+                                micr: '',
+                                bankBranch: '',
+                                bankName: ''
+                            };
+                        }
+                        return updated;
+                    });
+                } else {
+                    // Update single bank account for non-KYC users
+                    setBankForm(prev => ({
+                        ...prev,
+                        accountNumber: bankData.account_no || prev.accountNumber,
+                        ifsc: bankData.ifsc || prev.ifsc,
+                        accountType: bankData.account_type === 'Savings' ? 'SB' : (bankData.account_type === 'Current' ? 'CB' : prev.accountType),
+                        micr: bankData.micr || prev.micr,
+                        bankBranch: bankData.branch || prev.bankBranch,
+                        bankName: matchedBank?.value || prev.bankName,
+                        cancelledCheque: bankData.cancelled_cheque || fileName
+                    }));
+
+                    // Clear any related errors
+                    setBankError({
+                        ...bankError,
+                        accountNumber: '',
+                        ifsc: '',
+                        accountType: '',
+                        micr: '',
+                        bankBranch: '',
+                        bankName: ''
+                    });
+                }
             } else {
                 console.log('Scan Cancelled Cheque Error:', error);
                 showToast(toastTypes.error, error?.msg || 'Failed to scan cancelled cheque details');
@@ -473,63 +720,372 @@ const BankDetails = ({ setSelectedTab }: any) => {
 
     const validateBankForm = () => {
         let isValid = true;
-        let errors = {
-            bankProof: '',
-            cancelledCheque: '',
-            accountNumber: '',
-            ifsc: '',
-            accountType: '',
-            bankName: '',
-            micr: '',
-            bankBranch: ''
-        };
 
-        if (!bankForm.bankProof) {
-            errors.bankProof = 'Please select bank proof';
-            isValid = false;
+        if (isKYCDone) {
+            // Validate multiple bank accounts
+            const newErrors = bankAccounts.map((account, index) => {
+                const errors = {
+                    bankProof: '',
+                    cancelledCheque: '',
+                    accountNumber: '',
+                    ifsc: '',
+                    accountType: '',
+                    bankName: '',
+                    micr: '',
+                    bankBranch: ''
+                };
+
+                if (!account.bankProof) {
+                    errors.bankProof = 'Please select bank proof';
+                    isValid = false;
+                }
+
+                // No validation for cancelled cheque upload
+
+                if (!account.accountNumber) {
+                    errors.accountNumber = 'Account number is required';
+                    isValid = false;
+                } else if (account.accountNumber.length < 9) {
+                    errors.accountNumber = 'Account number must be at least 9 digits';
+                    isValid = false;
+                }
+
+                if (!account.ifsc) {
+                    errors.ifsc = 'IFSC code is required';
+                    isValid = false;
+                } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(account.ifsc)) {
+                    errors.ifsc = 'Invalid IFSC code format';
+                    isValid = false;
+                }
+
+                if (!account.accountType) {
+                    errors.accountType = 'Please select account type';
+                    isValid = false;
+                }
+
+                if (!account.bankName) {
+                    errors.bankName = 'Please select bank';
+                    isValid = false;
+                }
+
+                if (!account.bankBranch) {
+                    errors.bankBranch = 'Bank branch is required';
+                    isValid = false;
+                }
+
+                return errors;
+            });
+
+            setBankErrors(newErrors);
+        } else {
+            // Validate single bank account (backward compatibility)
+            let errors = {
+                bankProof: '',
+                cancelledCheque: '',
+                accountNumber: '',
+                ifsc: '',
+                accountType: '',
+                bankName: '',
+                micr: '',
+                bankBranch: ''
+            };
+
+            if (!bankForm.bankProof) {
+                errors.bankProof = 'Please select bank proof';
+                isValid = false;
+            }
+
+            // No validation for cancelled cheque upload
+
+            if (!bankForm.accountNumber) {
+                errors.accountNumber = 'Account number is required';
+                isValid = false;
+            } else if (bankForm.accountNumber.length < 9) {
+                errors.accountNumber = 'Account number must be at least 9 digits';
+                isValid = false;
+            }
+
+            if (!bankForm.ifsc) {
+                errors.ifsc = 'IFSC code is required';
+                isValid = false;
+            } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(bankForm.ifsc)) {
+                errors.ifsc = 'Invalid IFSC code format';
+                isValid = false;
+            }
+
+            if (!bankForm.accountType) {
+                errors.accountType = 'Please select account type';
+                isValid = false;
+            }
+
+            if (!bankForm.bankName) {
+                errors.bankName = 'Please select bank';
+                isValid = false;
+            }
+
+            if (!bankForm.bankBranch) {
+                errors.bankBranch = 'Bank branch is required';
+                isValid = false;
+            }
+
+            setBankError(errors);
         }
 
-        if (!bankForm.cancelledCheque) {
-            errors.cancelledCheque = 'Please upload cancelled cheque';
-            isValid = false;
-        }
-
-        if (!bankForm.accountNumber) {
-            errors.accountNumber = 'Account number is required';
-            isValid = false;
-        } else if (bankForm.accountNumber.length < 9) {
-            errors.accountNumber = 'Account number must be at least 9 digits';
-            isValid = false;
-        }
-
-        if (!bankForm.ifsc) {
-            errors.ifsc = 'IFSC code is required';
-            isValid = false;
-        } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(bankForm.ifsc)) {
-            errors.ifsc = 'Invalid IFSC code format';
-            isValid = false;
-        }
-
-        if (!bankForm.accountType) {
-            errors.accountType = 'Please select account type';
-            isValid = false;
-        }
-
-        if (!bankForm.bankName) {
-            errors.bankName = 'Please select bank';
-            isValid = false;
-        }
-
-        if (!bankForm.bankBranch) {
-            errors.bankBranch = 'Bank branch is required';
-            isValid = false;
-        }
-
-        setBankError(errors);
         return isValid;
     };
 
+    const renderBankAccountForm = (accountData: any, accountErrors: any, accountIndex: number) => {
+        const isMultipleAccounts = isKYCDone && bankAccounts.length > 1;
 
+        return (
+            <Wrapper key={accountIndex}>
+                {isMultipleAccounts && (
+                    <Wrapper row justify="apart" align="center" customStyles={{ paddingHorizontal: responsiveWidth(3), paddingVertical: responsiveWidth(2) }}>
+                        <CusText size="SS" semibold text={`Bank Account ${accountIndex + 1}`} />
+                        {accountIndex > 0 && (
+                            <TouchableOpacity onPress={() => removeBankAccount(accountIndex)}>
+                                <IonIcon name="trash-outline" size={responsiveWidth(5)} color={colors.red} />
+                            </TouchableOpacity>
+                        )}
+                    </Wrapper>
+                )}
+
+                {/* Bank Proof Dropdown */}
+                <Wrapper position="center">
+                    <DropDown
+                        width={responsiveWidth(89)}
+                        data={bankProofList}
+                        placeholder={'Select Bank Proof'}
+                        placeholdercolor={colors.gray}
+                        label="Bank Proof *"
+                        labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
+                        required
+                        value={accountData.bankProof}
+                        valueField="value"
+                        labelField={'label'}
+                        onChange={(data: any) => {
+                            handleBankFormChange('bankProof', data.value, accountIndex);
+                        }}
+                        onClear={() => {
+                            handleBankFormChange('bankProof', '', accountIndex);
+                        }}
+                        error={accountErrors.bankProof}
+                    />
+                </Wrapper>
+                <Spacer y="XXS" />
+
+                {/* Upload Cancelled Cheque */}
+                <Wrapper position="center" width={responsiveWidth(89)} customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(0), gap: responsiveWidth(1) }}>
+                    <Wrapper row align="center" justify="apart">
+                        <CusText size="SS" medium text={'Upload Cancelled Cheque *'} color={colors.Hard_Black} />
+                        <CusText size="SS" medium text={'Bank Document'} color={colors.Hard_Black} />
+                    </Wrapper>
+                    <TouchableOpacity activeOpacity={0.7} onPress={() => toggleModal(accountIndex)}>
+                        <Wrapper row customStyles={{
+                            borderRadius: borderRadius.middleSmall,
+                            borderColor: colors.fieldborder,
+                            borderWidth: 1
+                        }}>
+                            <Wrapper color={colors.fieldborder} customStyles={{ paddingVertical: responsiveWidth(3), paddingHorizontal: responsiveWidth(2) }}>
+                                <CusText text={'Choose File'} color={colors.Hard_Black} />
+                            </Wrapper>
+                            <Wrapper justify="center" customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2), flex: 1 }}>
+                                <CusText
+                                    text={accountData.cancelledCheque ? (
+                                        isKYCDone ?
+                                            (accountData.cancelledCheque.split('/').pop() || 'File selected') :
+                                            'File selected'
+                                    ) : 'No file chosen'}
+                                    color={accountData.cancelledCheque ? colors.Hard_Black : colors.gray}
+                                    size="S"
+                                />
+                            </Wrapper>
+                        </Wrapper>
+                    </TouchableOpacity>
+
+                    {/* Show selected image preview only if KYC is NOT done */}
+                    {accountData.cancelledCheque && !isKYCDone && (
+                        <Wrapper
+                            width={responsiveWidth(89)}
+                            customStyles={{
+                                marginTop: responsiveWidth(2),
+                                borderRadius: borderRadius.middleSmall,
+                                borderWidth: 1,
+                                borderColor: colors.fieldborder,
+                                padding: responsiveWidth(2)
+                            }}
+                        >
+                            <Image
+                                resizeMode="contain"
+                                source={{ uri: getImageUrl('chequeDoc', accountData.cancelledCheque) || '' }}
+                                style={{
+                                    height: responsiveWidth(25),
+                                    width: '100%',
+                                    borderRadius: borderRadius.small
+                                }}
+                            />
+                        </Wrapper>
+                    )}
+                </Wrapper>
+                <Spacer y="XXS" />
+
+                {/* Account Number */}
+                <Wrapper position="center">
+                    <InputField
+                        label="Account Number *"
+                        width={responsiveWidth(89)}
+                        placeholder="Enter Account Number"
+                        labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
+                        fieldViewStyle={{
+                            borderColor: 'rgba(152, 162, 179, 1)',
+                            borderRadius: borderRadius.middleSmall
+                        }}
+                        value={accountData.accountNumber}
+                        keyboardType="numeric"
+                        onChangeText={(value: string) => {
+                            handleBankFormChange('accountNumber', value, accountIndex);
+                        }}
+                        error={accountErrors.accountNumber}
+                    />
+                </Wrapper>
+                <Spacer y="XXS" />
+
+                {/* IFSC */}
+                <Wrapper position="center">
+                    <InputField
+                        label="IFSC *"
+                        width={responsiveWidth(89)}
+                        placeholder="Enter IFSC Code"
+                        labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
+                        fieldViewStyle={{
+                            borderColor: 'rgba(152, 162, 179, 1)',
+                            borderRadius: borderRadius.middleSmall
+                        }}
+                        value={accountData.ifsc}
+                        autoCapitalize="characters"
+                        onChangeText={(value: string) => {
+                            handleBankFormChange('ifsc', value.toUpperCase(), accountIndex);
+                        }}
+                        error={accountErrors.ifsc}
+                    />
+
+                    {/* Bank Verification Status */}
+                    {isVerifyingBank && (
+                        <Wrapper row align="center" customStyles={{ marginTop: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
+                            <ActivityIndicator size="small" color={colors.primary1} />
+                            <CusText
+                                text="Verifying bank account..."
+                                size="S"
+                                color={colors.primary1}
+                                customStyles={{ marginLeft: responsiveWidth(2) }}
+                            />
+                        </Wrapper>
+                    )}
+                </Wrapper>
+                <Spacer y="XXS" />
+
+                {/* Account Type */}
+                <Wrapper position="center">
+                    <DropDown
+                        width={responsiveWidth(89)}
+                        data={accountTypeOptions}
+                        placeholder={'Select Account Type'}
+                        placeholdercolor={colors.gray}
+                        label="Account Type *"
+                        labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
+                        required
+                        value={accountData.accountType}
+                        valueField="value"
+                        labelField={'label'}
+                        onChange={(data: any) => {
+                            handleBankFormChange('accountType', data.value, accountIndex);
+                        }}
+                        onClear={() => {
+                            handleBankFormChange('accountType', '', accountIndex);
+                        }}
+                        error={accountErrors.accountType}
+                    />
+                </Wrapper>
+                <Spacer y="XXS" />
+
+                {/* Select Bank */}
+                <Wrapper position="center">
+                    <DropDown
+                        width={responsiveWidth(89)}
+                        data={bankList}
+                        placeholder={'Select Bank'}
+                        placeholdercolor={colors.gray}
+                        label="Select Bank *"
+                        labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
+                        required
+                        value={accountData.bankName}
+                        valueField="value"
+                        labelField={'label'}
+                        onChange={(data: any) => {
+                            handleBankFormChange('bankName', data.value, accountIndex);
+                        }}
+                        onClear={() => {
+                            handleBankFormChange('bankName', '', accountIndex);
+                        }}
+                        error={accountErrors.bankName}
+                    />
+                </Wrapper>
+                <Spacer y="XXS" />
+
+                {/* MICR */}
+                <Wrapper position="center">
+                    <InputField
+                        label="MICR"
+                        width={responsiveWidth(89)}
+                        placeholder="Enter MICR Code"
+                        labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
+                        fieldViewStyle={{
+                            borderColor: 'rgba(152, 162, 179, 1)',
+                            borderRadius: borderRadius.middleSmall
+                        }}
+                        value={accountData.micr}
+                        keyboardType="numeric"
+                        onChangeText={(value: string) => {
+                            handleBankFormChange('micr', value, accountIndex);
+                        }}
+                        error={accountErrors.micr}
+                    />
+                </Wrapper>
+                <Spacer y="XXS" />
+
+                {/* Bank Branch */}
+                <Wrapper position="center">
+                    <InputField
+                        label="Bank Branch *"
+                        width={responsiveWidth(89)}
+                        placeholder="Enter Bank Branch"
+                        labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
+                        fieldViewStyle={{
+                            borderColor: 'rgba(152, 162, 179, 1)',
+                            borderRadius: borderRadius.middleSmall
+                        }}
+                        value={accountData.bankBranch}
+                        onChangeText={(value: string) => {
+                            handleBankFormChange('bankBranch', value, accountIndex);
+                        }}
+                        error={accountErrors.bankBranch}
+                    />
+                </Wrapper>
+
+                {isMultipleAccounts && accountIndex < bankAccounts.length - 1 && (
+                    <Wrapper
+                        position='center'
+                        customStyles={{
+                            height: 2,
+                            width: responsiveWidth(90),
+                            backgroundColor: colors.fieldborder,
+                            marginVertical: responsiveWidth(3)
+                        }}
+                    />
+                )}
+            </Wrapper>
+        );
+    };
 
     return (
         <>
@@ -610,210 +1166,47 @@ const BankDetails = ({ setSelectedTab }: any) => {
 
                     <Spacer y="S" />
 
-                    {/* Bank Proof Dropdown */}
-                    <Wrapper position="center">
-                        <DropDown
-                            width={responsiveWidth(89)}
-                            data={bankProofList}
-                            placeholder={'Select Bank Proof'}
-                            placeholdercolor={colors.gray}
-                            label="Bank Proof *"
-                            labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
-                            required
-                            value={bankForm.bankProof}
-                            valueField="value"
-                            labelField={'label'}
-                            onChange={(data: any) => {
-                                handleBankFormChange('bankProof', data.value);
-                            }}
-                            onClear={() => {
-                                handleBankFormChange('bankProof', '');
-                            }}
-                            error={bankError.bankProof}
-                        />
-                    </Wrapper>
-                    <Spacer y="XXS" />
+                    {/* Render Bank Account Forms */}
+                    {isKYCDone ? (
+                        <>
+                            {bankAccounts.map((account, index) =>
+                                renderBankAccountForm(account, bankErrors[index] || {}, index)
+                            )}
 
-                    {/* Upload Cancelled Cheque */}
-                    <Wrapper position="center">
-                        <CusText text="Upload Cancelled Cheque *" size="SS" color={colors.Hard_Black} customStyles={{ marginBottom: responsiveWidth(2), marginLeft: responsiveWidth(2) }} />
-                        <TouchableOpacity activeOpacity={0.7} onPress={toggleModal}>
-                            <Wrapper
-                                width={responsiveWidth(89)}
-                                height={responsiveWidth(35)}
-                                borderColor={bankError.cancelledCheque ? colors.red : colors.inputBorder}
-                                // borderWidth={1}
-                                // borderRadius={borderRadius.middleSmall}
-                                align="center"
-                                justify="center"
-                                customStyles={{ borderStyle: 'dashed', borderRadius: borderRadius.middleSmall, borderWidth: 1 }}>
-                                {
-                                    bankForm.cancelledCheque ? (
-                                        <Image
-                                            resizeMode="contain"
-                                            source={{ uri: bankForm.cancelledCheque }}
-                                            style={{
-                                                height: responsiveWidth(30),
-                                                width: responsiveWidth(85),
-                                                borderRadius: borderRadius.small
+                            {/* Add Bank Account Button */}
+                            {bankAccounts.length < maxBankAccounts && (
+                                <Wrapper position="center" customStyles={{ marginVertical: responsiveWidth(3) }}>
+                                    <TouchableOpacity activeOpacity={0.6} onPress={addBankAccount}>
+                                        <Wrapper
+                                            row
+                                            align="center"
+                                            justify="center"
+                                            width={responsiveWidth(60)}
+                                            color={colors.primary1}
+                                            customStyles={{
+                                                borderRadius: borderRadius.middleSmall,
+                                                paddingVertical: responsiveWidth(2.5),
+                                                borderWidth: 1,
+                                                borderColor: colors.primary1
                                             }}
-                                        />
-                                    ) : (
-                                        <>
-                                            <View style={{
-                                                backgroundColor: colors.darkGrayShades,
-                                                borderRadius: borderRadius.ring,
-                                                padding: responsiveWidth(3),
-                                                marginBottom: responsiveWidth(2)
-                                            }}>
-                                                <IonIcon name='camera-outline' color={colors.gray} size={30} />
-                                            </View>
+                                        >
+                                            <IonIcon name="add-circle-outline" size={responsiveWidth(5)} color={colors.Hard_White} />
                                             <CusText
-                                                text="Take a Photo - Cancelled Cheque"
-                                                position="center"
-                                                color={colors.gray}
-                                                size="S"
+                                                position='center'
+                                                bold
+                                                color={colors.Hard_White}
+                                                text={`Add Bank Account (${bankAccounts.length}/${maxBankAccounts})`}
+                                                customStyles={{ marginLeft: responsiveWidth(2) }}
                                             />
-                                        </>
-                                    )
-                                }
-                            </Wrapper>
-                        </TouchableOpacity>
-                        {bankError.cancelledCheque && (
-                            <CusText text={bankError.cancelledCheque} size='S' color={colors.red} customStyles={{ marginTop: responsiveWidth(1), marginLeft: responsiveWidth(2) }} />
-                        )}
-                    </Wrapper>
-                    <Spacer y="XXS" />
-
-                    {/* Account Number */}
-                    <Wrapper position="center">
-                        <InputField
-                            label="Account Number *"
-                            width={responsiveWidth(89)}
-                            placeholder="Enter Account Number"
-                            labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
-                            fieldViewStyle={{
-                                borderColor: 'rgba(152, 162, 179, 1)',
-                                borderRadius: borderRadius.middleSmall
-                            }}
-                            value={bankForm.accountNumber}
-                            keyboardType="numeric"
-                            onChangeText={(value: string) => {
-                                handleBankFormChange('accountNumber', value);
-                            }}
-                            error={bankError.accountNumber}
-                        />
-                    </Wrapper>
-                    <Spacer y="XXS" />
-
-                    {/* IFSC */}
-                    <Wrapper position="center">
-                        <InputField
-                            label="IFSC *"
-                            width={responsiveWidth(89)}
-                            placeholder="Enter IFSC Code"
-                            labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
-                            fieldViewStyle={{
-                                borderColor: 'rgba(152, 162, 179, 1)',
-                                borderRadius: borderRadius.middleSmall
-                            }}
-                            value={bankForm.ifsc}
-                            autoCapitalize="characters"
-                            onChangeText={(value: string) => {
-                                handleBankFormChange('ifsc', value.toUpperCase());
-                            }}
-                            error={bankError.ifsc}
-                        />
-                    </Wrapper>
-                    <Spacer y="XXS" />
-
-                    {/* Account Type */}
-                    <Wrapper position="center">
-                        <DropDown
-                            width={responsiveWidth(89)}
-                            data={accountTypeOptions}
-                            placeholder={'Select Account Type'}
-                            placeholdercolor={colors.gray}
-                            label="Account Type *"
-                            labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
-                            required
-                            value={bankForm.accountType}
-                            valueField="value"
-                            labelField={'label'}
-                            onChange={(data: any) => {
-                                handleBankFormChange('accountType', data.value);
-                            }}
-                            onClear={() => {
-                                handleBankFormChange('accountType', '');
-                            }}
-                            error={bankError.accountType}
-                        />
-                    </Wrapper>
-                    <Spacer y="XXS" />
-
-                    {/* Select Bank */}
-                    <Wrapper position="center">
-                        <DropDown
-                            width={responsiveWidth(89)}
-                            data={bankList}
-                            placeholder={'Select Bank'}
-                            placeholdercolor={colors.gray}
-                            label="Select Bank *"
-                            labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
-                            required
-                            value={bankForm.bankName}
-                            valueField="value"
-                            labelField={'label'}
-                            onChange={(data: any) => {
-                                handleBankFormChange('bankName', data.value);
-                            }}
-                            onClear={() => {
-                                handleBankFormChange('bankName', '');
-                            }}
-                            error={bankError.bankName}
-                        />
-                    </Wrapper>
-                    <Spacer y="XXS" />
-
-                    {/* MICR */}
-                    <Wrapper position="center">
-                        <InputField
-                            label="MICR"
-                            width={responsiveWidth(89)}
-                            placeholder="Enter MICR Code"
-                            labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
-                            fieldViewStyle={{
-                                borderColor: 'rgba(152, 162, 179, 1)',
-                                borderRadius: borderRadius.middleSmall
-                            }}
-                            value={bankForm.micr}
-                            keyboardType="numeric"
-                            onChangeText={(value: string) => {
-                                handleBankFormChange('micr', value);
-                            }}
-                            error={bankError.micr}
-                        />
-                    </Wrapper>
-                    <Spacer y="XXS" />
-
-                    {/* Bank Branch */}
-                    <Wrapper position="center">
-                        <InputField
-                            label="Bank Branch *"
-                            width={responsiveWidth(89)}
-                            placeholder="Enter Bank Branch"
-                            labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
-                            fieldViewStyle={{
-                                borderColor: 'rgba(152, 162, 179, 1)',
-                                borderRadius: borderRadius.middleSmall
-                            }}
-                            value={bankForm.bankBranch}
-                            onChangeText={(value: string) => {
-                                handleBankFormChange('bankBranch', value);
-                            }}
-                            error={bankError.bankBranch}
-                        />
-                    </Wrapper>
+                                        </Wrapper>
+                                    </TouchableOpacity>
+                                </Wrapper>
+                            )}
+                        </>
+                    ) : (
+                        // Single bank account form for non-KYC users
+                        renderBankAccountForm(bankForm, bankError, 0)
+                    )}
 
                     <Spacer y="S" />
 
@@ -821,7 +1214,15 @@ const BankDetails = ({ setSelectedTab }: any) => {
                     <Wrapper position='center' row align='center' justify='center' customStyles={{ paddingHorizontal: responsiveWidth(3) }}>
                         <TouchableOpacity activeOpacity={0.6} onPress={handleNext}>
                             <Wrapper width={responsiveWidth(80)} color={colors.orange} customStyles={{ borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(2.5) }}>
-                                <CusText position='center' bold color={colors.Hard_White} text={'Next'} />
+
+                                {isLoading ? (
+                                    <ActivityIndicator color={colors.Hard_White} size="small" />
+                                ) : (
+                                    <CusText position='center' bold color={colors.Hard_White} text={'Next'} />
+                                )}
+
+
+
                             </Wrapper>
                         </TouchableOpacity>
                     </Wrapper>
@@ -829,13 +1230,26 @@ const BankDetails = ({ setSelectedTab }: any) => {
 
                     <ImagePickerModal
                         visible={isModalVisible}
-                        onClose={toggleModal}
+                        onClose={() => setModalVisible(false)}
                         onPickImage={handleImagePick}
                         isVideo={false}
                     />
                 </ScrollView>
 
             </Wrapper>
+            <CommonModal
+                visible={isScanLoading}
+                onClose={() => { setIsScanLoading(false) }}
+                description={`Scanning Cancelled Cheque...`}
+            // button1Text="Continue!"
+            // onButton1Press={() => {
+
+            //     checkKycSteps()
+            // }}
+            // button2Text="Yes"
+            // onButton2Press={async () => { deleteGoal(id) }}
+
+            />
         </>
     )
 }

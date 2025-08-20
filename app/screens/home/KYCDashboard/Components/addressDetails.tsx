@@ -6,15 +6,17 @@ import { borderRadius, colors, fontSize, responsiveHeight, responsiveWidth } fro
 import CusText from "../../../../ui/custom-text";
 import Container from "../../../../ui/container";
 import Spacer from "../../../../ui/spacer";
-import { ScrollView, TouchableOpacity } from "react-native";
+import { ActivityIndicator, BackHandler, ScrollView, TouchableOpacity } from "react-native";
 import InputField from "../../../../ui/InputField";
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { getKYC_Details, setKYC_Details, updateObjectKey } from "../../../../utils/Commanutils";
+import { getKYC_Details, getKYC_ISMember, setKYC_Details, updateObjectKey } from "../../../../utils/Commanutils";
 import DropDown from "../../../../ui/dropdown";
-import { CreateKYCInvsSignZy, getAddressInfoApi, getAddressTypeApi, getAllCountryApi, getAllStateByCountryApi, getOnBoardingListingsApi, getPersonalInfoApi, updateAddressDetailApi } from "../../../../api/homeapi";
+import { CreateKYCInvsSignZy, getAddressInfoApi, getAddressTypeApi, getAllCountryApi, getAllStateByCountryApi, getOnBoardingListingsApi, getPersonalInfoApi, updateAddressDetailApi, initiateAadhaarVerificationApi } from "../../../../api/homeapi";
 import { showToast, toastTypes } from "../../../../services/toastService";
 import API from "../../../../utils/API";
 import ImagePickerModal from "../../../../shared/components/ImagePickerModal";
+import LoadingModal from '../../../../shared/components/CommonModal/LoadingModal';
+import AadhaarOtpModal from '../../../../shared/components/AadhaarOtpModal/AadhaarOtpModal';
 
 const AddressDetails = ({ setSelectedTab }: any) => {
     const isFocused: any = useIsFocused();
@@ -27,6 +29,8 @@ const AddressDetails = ({ setSelectedTab }: any) => {
     const [corrAdharFront, setCorrAdharFront] = useState<any>(null);
     const [corrAdharBack, setCorrAdharBack] = useState<any>(null);
     const [doc_HolderName, setDoc_HolderName] = useState<any>(null);
+    const [addressUploadLoader, setAddressUploadLoader] = useState<any>(false);
+    const [aadhaarOtpResponse, setAadhaarOtpResponse] = useState<any>(null);
     const [Form, setForm] = useState<any>({
         adharFront: '',
         adharBack: '',
@@ -73,6 +77,8 @@ const AddressDetails = ({ setSelectedTab }: any) => {
     const [city, setCity] = useState([]);
     const [signZyData, setSignZydata] = useState<any>(null);
     const [showAadharUpload, setShowAadharUpload] = useState(true);
+    const [isDDLoad, setIsDDLoad] = useState(true);
+    const [isLoad, setIsLoad] = useState(false);
     const [sameAsPermanent, setSameAsPermanent] = useState(false);
     const [FormError, setFormError] = useState<any>({
         adharFront: '',
@@ -86,6 +92,8 @@ const AddressDetails = ({ setSelectedTab }: any) => {
         pincode: '',
         District: '',
     });
+    const [showAadhaarOtpModal, setShowAadhaarOtpModal] = useState(false);
+    const [aadhaarVerificationData, setAadhaarVerificationData] = useState<any>(null);
 
     const handleFormAddress2Change = (values: any) => {
         const { key, value } = values;
@@ -116,11 +124,34 @@ const AddressDetails = ({ setSelectedTab }: any) => {
     };
 
     useEffect(() => {
-        setPrefieldData()
-        kycSignZyStatus();
-        getOnBoardingListings();
+        const backAction = () => {
+            navigation.navigate('Profile')
+            return true; // Return true to prevent default back behavior
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+        );
+
+        return () => backHandler.remove(); // Clean up the listener on unmount
+    }, []);
+
+    useEffect(() => {
+        console.log('IS Menber : ', getKYC_ISMember())
+        if (getKYC_ISMember()) {
+            if (getKYC_Details()?.member_basic_details?.signzy_user_name && getKYC_Details()?.member_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+        else {
+            if (getKYC_Details()?.user_basic_details?.signzy_user_name && getKYC_Details()?.user_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+
+
         getAddressType();
-        getPersonalInfo();
         getCountry();
         getAddressInfo();
     }, [isFocused])
@@ -146,51 +177,15 @@ const AddressDetails = ({ setSelectedTab }: any) => {
         }
     };
 
-    const getPersonalInfo = async () => {
-        try {
-            const basicDetails = getKYC_Details()?.user_basic_details;
-            const userId = basicDetails?.id;
-            console.log('getStateCorr basicDetails:', basicDetails);
-            if (userId) {
-                const [result, error]: any = await getPersonalInfoApi(userId);
 
-                if (result?.data) {
-                    console.log('getPersonalInfo Result:', result?.data);
-                    // Set form data from API response
-                    const apiData = result.data;
-                    setForm({
-                        ...Form,
-                        address1: apiData?.address1 || '',
-                        address2: apiData?.address2 || '',
-                        addressType: apiData?.addressType || '',
-                        country: apiData?.country || '',
-                        state: apiData?.state || '',
-                        city: apiData?.city || '',
-                        pincode: apiData?.pincode || '',
-                        District: apiData?.District || '',
-                        paoNumber: apiData?.paoNumber || ''
-                    });
-                } else {
-                    console.log('getPersonalInfo Error:', error);
-                }
-            }
-        } catch (error: any) {
-            console.log('getPersonalInfo Catch Error:', error);
-        }
-    };
-
-    const setPrefieldData = () => {
-        const basicDetails = getKYC_Details()?.user_basic_details;
-        console.log('getKYC_Details() == ...', basicDetails)
-    }
     const kycSignZyStatus = async () => {
         try {
             let payload = {
-                "username": getKYC_Details()?.user_basic_details?.signzy_user_name,
-                "password": getKYC_Details()?.user_basic_details?.signzy_kyc_id
+                "username": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_user_name : getKYC_Details()?.user_basic_details?.signzy_user_name,
+                "password": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_kyc_id : getKYC_Details()?.user_basic_details?.signzy_kyc_id
             }
 
-
+            console.log('kycSignZyStatus payload : ', payload)
             const [result, error]: any = await CreateKYCInvsSignZy(payload)
 
             if (result) {
@@ -207,32 +202,13 @@ const AddressDetails = ({ setSelectedTab }: any) => {
         }
     }
 
-    const getOnBoardingListings = async () => {
-        try {
 
-            const [result, error]: any = await getOnBoardingListingsApi();
-
-            if (result?.data) {
-                console.log('getOnBoardingListings Result:', result?.data);
-                // populateDropdownData(result?.data);
-            } else {
-                console.log('getOnBoardingListings Error:', error);
-                showToast(toastTypes.error, error?.msg || 'Failed to fetch onboarding data');
-            }
-        } catch (error: any) {
-            console.log('getOnBoardingListings Catch Error:', error);
-            showToast(toastTypes.error, 'Something went wrong while fetching onboarding data');
-        } finally {
-
-        }
-    };
 
     const getCountry = async () => {
         try {
             const [result, error]: any = await getAllCountryApi();
 
             if (result?.data) {
-                console.log('getCountry Result:', result?.data);
                 const countryData = result.data.map((item: any) => ({
                     value: item.id,
                     label: item.name
@@ -271,12 +247,14 @@ const AddressDetails = ({ setSelectedTab }: any) => {
 
     const getAddressInfo = async () => {
         try {
-            const basicDetails = getKYC_Details()?.user_basic_details;
+            const basicDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
             const userId = basicDetails?.id;
 
             if (userId) {
-                const [result, error]: any = await getAddressInfoApi(userId);
 
+                setIsDDLoad(true)
+                const [result, error]: any = await getAddressInfoApi(userId);
+                console.log('getAddressInfo Result:', result?.data);
                 if (result?.data) {
                     console.log('getAddressInfo Result:', result?.data);
                     // Set form data from API response
@@ -286,8 +264,14 @@ const AddressDetails = ({ setSelectedTab }: any) => {
                     setShowAadharUpload(!apiData?.poaConsent);
                     console.log('getAddressInfo API Data:', apiData?.doc_no);
                     console.log('getAddressInfo API Data:', apiData);
+                    console.log('getAddressInfo API Data:', apiData?.same_as_permanent);
                     // Set same as permanent address toggle
-                    setSameAsPermanent(apiData?.same_as_permanent || false);
+                    if (apiData?.same_as_permanent) {
+                        setSameAsPermanent(apiData?.same_as_permanent);
+                    } else {
+                        setSameAsPermanent(true);
+                    }
+
                     setDoc_HolderName(apiData?.doc_holder_name || '');
                     setForm({
                         ...Form,
@@ -306,105 +290,19 @@ const AddressDetails = ({ setSelectedTab }: any) => {
                     if (apiData?.country_id) {
                         getState(apiData.country_id);
                     }
+                    setIsDDLoad(false)
                 } else {
+                    setIsDDLoad(false)
+                    setSameAsPermanent(true);
                     console.log('getAddressInfo Error:', error);
                 }
             }
         } catch (error: any) {
+            setIsDDLoad(false)
             console.log('getAddressInfo Catch Error:', error);
         }
     };
 
-    // const populateDropdownData = (data: any) => {
-    //     try {
-    //         // console.log('API Response Structure:', data);
-
-    //         // Populate Tax Status options
-    //         if (data?.tax_status && Array.isArray(data.tax_status)) {
-    //             const taxStatusData = data.tax_status.map((item: any) => ({
-    //                 value: item.id,
-    //                 label: item.status
-    //             }));
-    //             setTaxStatusOptions(taxStatusData);
-    //         }
-
-    //         // Populate Gender options
-    //         if (data?.gender && Array.isArray(data.gender)) {
-    //             const genderData = data.gender.map((item: any) => ({
-    //                 value: item.id,
-    //                 label: item.gender
-    //             }));
-    //             setGenderOptions(genderData);
-    //         }
-
-    //         // Populate Mobile Relation options and use same for Email Relation
-    //         if (data?.mobile_relation && Array.isArray(data.mobile_relation)) {
-    //             const relationData = data.mobile_relation.map((item: any) => ({
-    //                 value: item.id,
-    //                 label: item.relation
-    //             }));
-    //             setMobileRelationOptions(relationData);
-    //             setEmailRelationOptions(relationData); // Use same data for email relation
-    //         }
-
-    //         // Populate Marital Status options
-    //         if (data?.marital_status && Array.isArray(data.marital_status)) {
-    //             const maritalStatusData = data.marital_status.map((item: any) => ({
-    //                 value: item.id,
-    //                 label: item.status
-    //             }));
-    //             setMaritalStatusOptions(maritalStatusData);
-    //         }
-
-    //         // Populate Relationship Proof options
-    //         if (data?.relationship_proof && Array.isArray(data.relationship_proof)) {
-    //             const relationshipProofData = data.relationship_proof.map((item: any) => ({
-    //                 value: item.id,
-    //                 label: item.type
-    //             }));
-    //             setRelationshipProofOptions(relationshipProofData);
-    //         }
-
-    //         // Populate Guardian Relation options for Relationship with Primary Holder
-    //         if (data?.relationship_primaryHolder && Array.isArray(data.relationship_primaryHolder)) {
-    //             const guardianRelationData = data.relationship_primaryHolder.map((item: any) => ({
-    //                 value: item.id,
-    //                 label: item.relationship
-    //             }));
-    //             setGuardianRelationOptions(guardianRelationData);
-    //         }
-
-    //         // Populate Bank Proof options
-    //         if (data?.bank_proof && Array.isArray(data.bank_proof)) {
-    //             const bankProofData = data.bank_proof.map((item: any) => ({
-    //                 value: item.mfu_code.toString(),
-    //                 label: item.bank_proof
-    //             }));
-    //             setBankProofOptions(bankProofData);
-    //         }
-
-    //         // Populate Identity Type options
-    //         if (data?.identity_type_list && Array.isArray(data.identity_type_list)) {
-    //             const identityTypeData = data.identity_type_list.map((item: any) => ({
-    //                 value: item.mfu_code,
-    //                 label: item.type
-    //             }));
-    //             setIdentityTypeOptions(identityTypeData);
-    //         }
-
-    //         // Populate Nominee Guardian Relationship options
-    //         if (data?.nominee_guardian_relationship_types && Array.isArray(data.nominee_guardian_relationship_types)) {
-    //             const nomineeGuardianData = data.nominee_guardian_relationship_types.map((item: any) => ({
-    //                 value: item.mfu_code,
-    //                 label: item.relationship
-    //             }));
-    //             setNomineeGuardianRelationOptions(nomineeGuardianData);
-    //         }
-    //     } catch (error) {
-    //         console.log('Error populating dropdown data:', error);
-    //         // Keep default values if API fails
-    //     }
-    // };
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -425,7 +323,7 @@ const AddressDetails = ({ setSelectedTab }: any) => {
                     // Clear back image when front is selected
                     if (adharBack) {
                         setAdharBack(null);
-                        setForm(prev => ({ ...prev, adharBack: '' }));
+                        setForm((prev: any) => ({ ...prev, adharBack: '' }));
                     }
                 } else if (photo === 1) { // Permanent address back
                     setAdharBack(fileData);
@@ -433,7 +331,7 @@ const AddressDetails = ({ setSelectedTab }: any) => {
                     // Clear front image when back is selected
                     if (adharFront) {
                         setAdharFront(null);
-                        setForm(prev => ({ ...prev, adharFront: '' }));
+                        setForm((prev: any) => ({ ...prev, adharFront: '' }));
                     }
                 } else if (photo === 2) { // Correspondence address front
                     setCorrAdharFront(fileData);
@@ -477,16 +375,16 @@ const AddressDetails = ({ setSelectedTab }: any) => {
         };
 
         // Aadhar validation - only if showAadharUpload is true
-        if (showAadharUpload) {
-            if (!Form.adharFront && !adharFront) {
-                errors.adharFront = 'Aadhar front image is required';
-                isValid = false;
-            }
-            if (!Form.adharBack && !adharBack) {
-                errors.adharBack = 'Aadhar back image is required';
-                isValid = false;
-            }
-        }
+        // if (showAadharUpload) {
+        //     if (!Form.adharFront && !adharFront) {
+        //         errors.adharFront = 'Aadhar front image is required';
+        //         isValid = false;
+        //     }
+        //     if (!Form.adharBack && !adharBack) {
+        //         errors.adharBack = 'Aadhar back image is required';
+        //         isValid = false;
+        //     }
+        // }
 
         // POA Number validation
         if (!Form.poaNumber) {
@@ -578,14 +476,18 @@ const AddressDetails = ({ setSelectedTab }: any) => {
             District: '',
         };
 
-        // Aadhar validation - always required for correspondence
-        if (!FormAddress2.adharFront && !corrAdharFront) {
-            errors.adharFront = 'Aadhar front image is required';
-            isValid = false;
-        }
-        if (!FormAddress2.adharBack && !corrAdharBack) {
-            errors.adharBack = 'Aadhar back image is required';
-            isValid = false;
+        // Aadhar validation - only required for correspondence if KYC is not done
+        const isKYCDone = getKYC_Details()?.user_basic_details?.isKYCDone || getKYC_Details()?.member_basic_details?.isKYCDone;
+
+        if (!isKYCDone) {
+            if (!FormAddress2.adharFront && !corrAdharFront) {
+                errors.adharFront = 'Aadhar front image is required';
+                isValid = false;
+            }
+            if (!FormAddress2.adharBack && !corrAdharBack) {
+                errors.adharBack = 'Aadhar back image is required';
+                isValid = false;
+            }
         }
 
         // POA Number validation
@@ -673,7 +575,8 @@ const AddressDetails = ({ setSelectedTab }: any) => {
     const handleNext = async () => {
         const isPermanentValid = validatePermanentAddress();
         const isCorrespondenceValid = !sameAsPermanent ? validateCorrespondenceAddress() : true;
-
+        console.log('isPermanentValid', isPermanentValid);
+        console.log('isCorrespondenceValid', isCorrespondenceValid);
         if (isPermanentValid && isCorrespondenceValid) {
             await saveAddressDetails();
         } else {
@@ -681,9 +584,142 @@ const AddressDetails = ({ setSelectedTab }: any) => {
         }
     };
 
+    const onChangeAadhaar = async (doc_no: any) => {
+        try {
+            setAddressUploadLoader(true);
+            let payload: any = {
+                aadhaar: doc_no,
+                investor_id: getKYC_Details()?.user_basic_details?.id,
+            }
+            console.log('Aadhaar verification payload:', payload);
+            const [result, error]: any = await initiateAadhaarVerificationApi(payload);
+            console.log('Aadhaar verification result:', result);
+            if (result?.data) {
+                setAadhaarOtpResponse(result.data);
+
+                // Store verification data for OTP modal
+                setAadhaarVerificationData({
+                    aadhaar: doc_no,
+                    investor_id: getKYC_Details()?.user_basic_details?.id,
+                    ref_id: result?.data?.ref_id
+                });
+
+                setAddressUploadLoader(false);
+                showToast(toastTypes.success, result.data.msg);
+
+                // Show OTP modal
+                setShowAadhaarOtpModal(true);
+            } else {
+                setAddressUploadLoader(false);
+                showToast(toastTypes.error, error || 'Failed to verify Aadhaar');
+            }
+        }
+        catch (error) {
+            setAddressUploadLoader(false);
+            console.log('Aadhaar verification error:', error);
+            showToast(toastTypes.error, 'Failed to verify Aadhaar');
+        }
+    };
+
+    const handleAadhaarOtpSuccess = async (responseData: any) => {
+        console.log('Aadhaar OTP verification success:', responseData);
+
+        // Set data from response to form fields
+        if (responseData) {
+            // Use split_address data if available, otherwise fallback to main address
+            const splitAddress = responseData.split_address;
+
+            setSameAsPermanent(true);
+
+            // Create a new form object with all updates at once
+            const updatedForm = { ...Form };
+
+            if (splitAddress) {
+                // Set address from split_address
+                if (splitAddress.house || splitAddress.street) {
+                    const fullAddress = `${splitAddress.house || ''} ${splitAddress.street || ''}`.trim();
+                    updatedForm.address1 = fullAddress;
+                }
+
+                if (splitAddress.vtc) {
+                    updatedForm.city = splitAddress.vtc;
+                }
+
+                if (splitAddress.dist) {
+                    updatedForm.District = splitAddress.dist;
+                }
+
+                if (splitAddress.pincode) {
+                    updatedForm.pincode = splitAddress.pincode;
+                }
+
+                // Find and set country by name
+                if (splitAddress.country) {
+                    const foundCountry: any = country.find((item: any) =>
+                        item.label.toLowerCase() === splitAddress.country.toLowerCase()
+                    );
+                    if (foundCountry) {
+                        updatedForm.country = foundCountry.value;
+
+                        // Load states for the selected country and handle state selection
+                        if (splitAddress.state) {
+                            try {
+                                // Call the API to get states
+                                const [result, error]: any = await getAllStateByCountryApi(foundCountry.value);
+
+                                if (result?.data) {
+                                    console.log('States loaded for country:', result?.data);
+
+                                    // Create state data array
+                                    const stateData = result.data.map((item: any) => ({
+                                        value: item.id,
+                                        label: item.name
+                                    }));
+
+                                    // Update the state dropdown data
+                                    setState(stateData);
+
+                                    // Find the matching state from the fresh data
+                                    const foundState: any = stateData.find((item: any) =>
+                                        item.label.toLowerCase() === splitAddress.state.toLowerCase()
+                                    );
+
+                                    console.log('Found State:', splitAddress.state, foundState);
+
+                                    if (foundState) {
+                                        updatedForm.state = foundState.value;
+                                    }
+                                } else {
+                                    console.log('Error loading states:', error);
+                                }
+                            } catch (error) {
+                                console.log('Error loading states:', error);
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Fallback to main address if split_address not available
+                if (responseData.address) {
+                    updatedForm.address1 = responseData.address;
+                }
+            }
+
+            // Set POA number from Aadhaar number if available
+            if (aadhaarVerificationData?.aadhaar) {
+                updatedForm.poaNumber = aadhaarVerificationData.aadhaar;
+            }
+
+            // Update form state with all changes at once
+            setForm(updatedForm);
+
+            console.log('Updated form data:', updatedForm);
+        }
+    };
+
     const saveAddressDetails = async () => {
         try {
-            const basicDetails = getKYC_Details()?.user_basic_details;
+            const basicDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
             const userId = basicDetails?.id;
             const userToken = basicDetails?.userToken || '';
             const synzyuserId = basicDetails?.signzy_user_name || '';
@@ -754,13 +790,14 @@ const AddressDetails = ({ setSelectedTab }: any) => {
             //     synzyuserId: synzyuserId,
             //     dob: dob
             // };
-
+            console.log('basicDetails?.User_kycName : ', basicDetails)
             const payload = {
                 "request_type": "updatePOA",
-                "investor_id": getKYC_Details()?.user_basic_details?.id,
+                "investor_id": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id,
                 "address_type": Form.addressType,
-                "doc_holder_name": doc_HolderName,
-                "kycStatus": false,
+                "doc_holder_name": doc_HolderName || basicDetails?.name,
+                // "kycStatus": getKYC_Details()?.user_basic_details?.isKYCDone || getKYC_Details()?.member_basic_details?.isKYCDone ? true : false,
+                "kycStatus": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.isKYCDone ? true : false : getKYC_Details()?.user_basic_details?.isKYCDone ? true : false,
                 "POAConsent": !showAadharUpload,
                 "doc_no": Form.poaNumber,
                 "address_front_doc": Form.adharFront ? Form.adharFront : '',
@@ -793,26 +830,37 @@ const AddressDetails = ({ setSelectedTab }: any) => {
             console.log('Address Details Payload:', payload);
 
 
+
+            setIsLoad(true);
             const [result, error]: any = await updateAddressDetailApi(payload);
             console.log('Address Details Result:', result);
             console.log('Address Details error:', error);
             if (result) {
                 console.log('Address Details Result:', result);
                 showToast(toastTypes.success, result?.msg || 'Address details saved successfully');
-
+                setIsLoad(false);
                 // Update KYC details if needed
                 if (result?.data) {
-                    const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
-                    setKYC_Details(update_data);
+
+                    if (getKYC_ISMember()) {
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+                    } else {
+
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+                    }
                 }
 
                 // Navigate to next step
                 setSelectedTab('Fatca');
             } else {
                 // console.log('Address Details Error:', error);
+                setIsLoad(false);
                 showToast(toastTypes.error, error?.msg || 'Failed to save address details');
             }
         } catch (error: any) {
+            setIsLoad(false);
             console.log('Address Details Catch Error:', error);
             showToast(toastTypes.error, 'Something went wrong while saving address details');
         }
@@ -836,7 +884,7 @@ const AddressDetails = ({ setSelectedTab }: any) => {
                 />
                 <ScrollView >
                     <Wrapper justify="apart" align="center" row customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(3) }}>
-                        <CusText size="SS" medium text={'PAN Card '} />
+                        <CusText size="SS" medium text={'Personal Info '} />
                         <Wrapper color={colors.fieldborder} width={responsiveWidth(50)} customStyles={{ paddingVertical: responsiveWidth(2), borderRadius: borderRadius.medium }} />
                         <IonIcon name={'checkmark-circle'} color={colors.green} size={responsiveWidth(5)} />
                         <TouchableOpacity onPress={() => { setSelectedTab('PersonalInfo') }}>
@@ -853,44 +901,47 @@ const AddressDetails = ({ setSelectedTab }: any) => {
 
                         }}
                     />
-                    {/* Upload Aadhar Fields - Only show if poaConsent is false */}
-                    {showAadharUpload && (
-                        <>
-                            <Wrapper customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(0) }}>
-                                <Wrapper row align="center" justify="apart">
-                                    <CusText size="SS" text={'Upload Front Side'} />
-                                    <CusText size="SS" text={'Aadhaar Card'} />
-                                </Wrapper>
-                                <TouchableOpacity onPress={() => { setModalVisible(true); setPhoto(0); }}>
-                                    <Wrapper row customStyles={{ borderRadius: borderRadius.middleSmall, borderColor: colors.fieldborder, borderWidth: 1, }}>
-                                        <Wrapper color={colors.fieldborder} customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
-                                            <CusText text={'Choose File'} />
-                                        </Wrapper>
-                                        <Wrapper customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
-                                            <CusText text={adharFront ? (adharFront.name || adharFront.fileName || 'File selected') : 'No file chosen'} />
-                                        </Wrapper>
+                    <Spacer y="XXS" />
+                    {/* Upload Aadhar Fields - Only show if poaConsent is false and KYC is not done */}
+                    {showAadharUpload &&
+                        !getKYC_Details()?.user_basic_details?.isKYCDone &&
+                        !getKYC_Details()?.member_basic_details?.isKYCDone && (
+                            <>
+                                <Wrapper position="center" width={responsiveWidth(90)} customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(0), gap: responsiveWidth(1) }}>
+                                    <Wrapper row align="center" justify="apart">
+                                        <CusText size="SS" medium text={'Upload Front Side'} />
+                                        <CusText size="SS" medium text={'Aadhaar Card'} />
                                     </Wrapper>
-                                </TouchableOpacity>
-                            </Wrapper>
+                                    <TouchableOpacity onPress={() => { setModalVisible(true); setPhoto(0); }}>
+                                        <Wrapper row customStyles={{ borderRadius: borderRadius.middleSmall, borderColor: colors.fieldborder, borderWidth: 1, }}>
+                                            <Wrapper color={colors.fieldborder} customStyles={{ paddingVertical: responsiveWidth(3), paddingHorizontal: responsiveWidth(2) }}>
+                                                <CusText text={'Choose File'} />
+                                            </Wrapper>
+                                            <Wrapper justify="center" customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
+                                                <CusText text={adharFront ? (adharFront.name || adharFront.fileName || 'File selected') : 'No file chosen'} />
+                                            </Wrapper>
+                                        </Wrapper>
+                                    </TouchableOpacity>
+                                </Wrapper>
 
-                            <Wrapper customStyles={{ paddingVertical: responsiveWidth(1), paddingHorizontal: responsiveWidth(0) }}>
-                                <Wrapper row align="center" justify="apart">
-                                    <CusText size="SS" text={'Upload Back Side'} />
-                                    <CusText size="SS" text={'Aadhaar Card'} />
-                                </Wrapper>
-                                <TouchableOpacity onPress={() => { setModalVisible(true); setPhoto(1); }}>
-                                    <Wrapper row customStyles={{ borderRadius: borderRadius.middleSmall, borderColor: colors.fieldborder, borderWidth: 1, }}>
-                                        <Wrapper color={colors.fieldborder} customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
-                                            <CusText text={'Choose File'} />
-                                        </Wrapper>
-                                        <Wrapper customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
-                                            <CusText text={adharBack ? (adharBack.name || adharBack.fileName || 'File selected') : 'No file chosen'} />
-                                        </Wrapper>
+                                <Wrapper position="center" width={responsiveWidth(90)} customStyles={{ paddingVertical: responsiveWidth(1), paddingHorizontal: responsiveWidth(0), gap: responsiveWidth(1) }}>
+                                    <Wrapper row align="center" justify="apart">
+                                        <CusText size="SS" medium text={'Upload Back Side'} />
+                                        <CusText size="SS" medium text={'Aadhaar Card'} />
                                     </Wrapper>
-                                </TouchableOpacity>
-                            </Wrapper>
-                        </>
-                    )}
+                                    <TouchableOpacity onPress={() => { setModalVisible(true); setPhoto(1); }}>
+                                        <Wrapper row customStyles={{ borderRadius: borderRadius.middleSmall, borderColor: colors.fieldborder, borderWidth: 1, }}>
+                                            <Wrapper color={colors.fieldborder} customStyles={{ paddingVertical: responsiveWidth(3), paddingHorizontal: responsiveWidth(2) }}>
+                                                <CusText text={'Choose File'} />
+                                            </Wrapper>
+                                            <Wrapper justify="center" customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
+                                                <CusText text={adharBack ? (adharBack.name || adharBack.fileName || 'File selected') : 'No file chosen'} />
+                                            </Wrapper>
+                                        </Wrapper>
+                                    </TouchableOpacity>
+                                </Wrapper>
+                            </>
+                        )}
                     <Spacer y="XXS" />
                     <Wrapper position="center">
                         <InputField
@@ -904,7 +955,19 @@ const AddressDetails = ({ setSelectedTab }: any) => {
                             }}
                             value={Form.poaNumber}
                             onChangeText={(value: string) => {
-                                handleFormChange({ key: 'poaNumber', value });
+
+                                if (value === undefined || value === undefined || value === null || value === '') {
+
+                                    handleFormChange({ key: 'poaNumber', value: '' });
+                                    return
+                                }
+                                if ((getKYC_Details()?.user_basic_details?.isKYCDone || getKYC_Details()?.member_basic_details?.isKYCDone) && value.length === 12) {
+                                    console.log('Value : ', value)
+                                    handleFormChange({ key: 'poaNumber', value });
+                                    onChangeAadhaar(value);
+                                } else {
+                                    handleFormChange({ key: 'poaNumber', value });
+                                }
                             }}
                             error={FormError.poaNumber}
                         />
@@ -986,7 +1049,7 @@ const AddressDetails = ({ setSelectedTab }: any) => {
                                 // Call getState when country is selected
                                 getState(data.value);
                                 // Clear state when country changes
-                                setForm(prev => ({ ...prev, state: '' }));
+                                setForm((prev: any) => ({ ...prev, state: '' }));
                             }}
                             onClear={() => {
                                 setForm({ ...Form, country: '', state: '' });
@@ -1123,42 +1186,47 @@ const AddressDetails = ({ setSelectedTab }: any) => {
                             <CusText size="SS" medium text={'Correspondence Address Details'} />
                             <Spacer y='XS' />
 
-                            {/* Upload Aadhar Fields for Correspondence */}
-                            <Wrapper customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(0) }}>
-                                <Wrapper row align="center" justify="apart">
-                                    <CusText size="SS" text={'Upload Front Side'} />
-                                    <CusText size="SS" text={'Aadhaar Card'} />
-                                </Wrapper>
-                                <TouchableOpacity onPress={() => { setModalVisible(true); setPhoto(2); }}>
-                                    <Wrapper row customStyles={{ borderRadius: borderRadius.middleSmall, borderColor: colors.fieldborder, borderWidth: 1, }}>
-                                        <Wrapper color={colors.fieldborder} customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
-                                            <CusText text={'Choose File'} />
+                            {/* Upload Aadhar Fields for Correspondence - Only show if KYC is not done */}
+                            {!getKYC_Details()?.user_basic_details?.isKYCDone &&
+                                !getKYC_Details()?.member_basic_details?.isKYCDone && (
+                                    <>
+                                        <Wrapper customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(0) }}>
+                                            <Wrapper row align="center" justify="apart">
+                                                <CusText size="SS" text={'Upload Front Side'} />
+                                                <CusText size="SS" text={'Aadhaar Card'} />
+                                            </Wrapper>
+                                            <TouchableOpacity onPress={() => { setModalVisible(true); setPhoto(2); }}>
+                                                <Wrapper row customStyles={{ borderRadius: borderRadius.middleSmall, borderColor: colors.fieldborder, borderWidth: 1, }}>
+                                                    <Wrapper color={colors.fieldborder} customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
+                                                        <CusText text={'Choose File'} />
+                                                    </Wrapper>
+                                                    <Wrapper customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
+                                                        <CusText text={corrAdharFront ? (corrAdharFront.name || corrAdharFront.fileName || 'File selected') : 'No file chosen'} />
+                                                    </Wrapper>
+                                                </Wrapper>
+                                            </TouchableOpacity>
+                                            {FormAddress2Error.adharFront ? <CusText text={FormAddress2Error.adharFront} size='S' color={colors.error} /> : null}
                                         </Wrapper>
-                                        <Wrapper customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
-                                            <CusText text={corrAdharFront ? (corrAdharFront.name || corrAdharFront.fileName || 'File selected') : 'No file chosen'} />
-                                        </Wrapper>
-                                    </Wrapper>
-                                </TouchableOpacity>
-                                {FormAddress2Error.adharFront ? <CusText text={FormAddress2Error.adharFront} size='S' color={colors.error} /> : null}
-                            </Wrapper>
 
-                            <Wrapper customStyles={{ paddingVertical: responsiveWidth(1), paddingHorizontal: responsiveWidth(0) }}>
-                                <Wrapper row align="center" justify="apart">
-                                    <CusText size="SS" text={'Upload Back Side'} />
-                                    <CusText size="SS" text={'Aadhaar Card'} />
-                                </Wrapper>
-                                <TouchableOpacity onPress={() => { setModalVisible(true); setPhoto(3); }}>
-                                    <Wrapper row customStyles={{ borderRadius: borderRadius.middleSmall, borderColor: colors.fieldborder, borderWidth: 1, }}>
-                                        <Wrapper color={colors.fieldborder} customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
-                                            <CusText text={'Choose File'} />
+                                        <Wrapper customStyles={{ paddingVertical: responsiveWidth(1), paddingHorizontal: responsiveWidth(0) }}>
+                                            <Wrapper row align="center" justify="apart">
+                                                <CusText size="SS" text={'Upload Back Side'} />
+                                                <CusText size="SS" text={'Aadhaar Card'} />
+                                            </Wrapper>
+                                            <TouchableOpacity onPress={() => { setModalVisible(true); setPhoto(3); }}>
+                                                <Wrapper row customStyles={{ borderRadius: borderRadius.middleSmall, borderColor: colors.fieldborder, borderWidth: 1, }}>
+                                                    <Wrapper color={colors.fieldborder} customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
+                                                        <CusText text={'Choose File'} />
+                                                    </Wrapper>
+                                                    <Wrapper customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
+                                                        <CusText text={FormAddress2.adharBack ? 'File Selected' : 'No file chosen'} />
+                                                    </Wrapper>
+                                                </Wrapper>
+                                            </TouchableOpacity>
+                                            {FormAddress2Error.adharBack ? <CusText text={FormAddress2Error.adharBack} size='S' color={colors.error} /> : null}
                                         </Wrapper>
-                                        <Wrapper customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(2) }}>
-                                            <CusText text={FormAddress2.adharBack ? 'File Selected' : 'No file chosen'} />
-                                        </Wrapper>
-                                    </Wrapper>
-                                </TouchableOpacity>
-                                {FormAddress2Error.adharBack ? <CusText text={FormAddress2Error.adharBack} size='S' color={colors.error} /> : null}
-                            </Wrapper>
+                                    </>
+                                )}
                             <Spacer y='XS' />
 
                             {/* Address Fields */}
@@ -1284,7 +1352,12 @@ const AddressDetails = ({ setSelectedTab }: any) => {
                     <Wrapper position='center' row align='center' justify='apart' customStyles={{ gap: responsiveWidth(2) }}>
                         <TouchableOpacity activeOpacity={0.6} onPress={handleNext}>
                             <Wrapper width={responsiveWidth(80)} color={colors.orange} customStyles={{ borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(2.5) }}>
-                                <CusText position='center' bold color={colors.Hard_White} text={'Next'} />
+
+                                {isLoad ? (
+                                    <ActivityIndicator color={colors.Hard_White} size="small" />
+                                ) : (
+                                    <CusText position='center' bold color={colors.Hard_White} text={'Next'} />
+                                )}
                             </Wrapper>
                         </TouchableOpacity>
 
@@ -1293,11 +1366,21 @@ const AddressDetails = ({ setSelectedTab }: any) => {
                 </ScrollView>
 
             </Wrapper>
+            <LoadingModal
+                visible={isDDLoad}
+                message="Please wait..."
+            />
             <ImagePickerModal
                 visible={isModalVisible}
                 onClose={toggleModal}
                 onPickImage={handleImagePick}
                 isVideo={false}
+            />
+            <AadhaarOtpModal
+                visible={showAadhaarOtpModal}
+                onClose={() => setShowAadhaarOtpModal(false)}
+                verificationData={aadhaarVerificationData}
+                onSuccess={handleAadhaarOtpSuccess}
             />
         </>
     )

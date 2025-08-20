@@ -1,15 +1,15 @@
 import { useIsFocused, useNavigation, useRoute } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Wrapper from "../../../../ui/wrapper";
 import Header from "../../../../shared/components/Header/Header";
 import { borderRadius, colors, fontSize, responsiveHeight, responsiveWidth } from "../../../../styles/variables";
 import CusText from "../../../../ui/custom-text";
 import Container from "../../../../ui/container";
 import Spacer from "../../../../ui/spacer";
-import { ScrollView, TouchableOpacity } from "react-native";
+import { ActivityIndicator, BackHandler, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from "react-native";
 import InputField from "../../../../ui/InputField";
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { getKYC_Details, setKYC_Details, updateObjectKey } from "../../../../utils/Commanutils";
+import { getKYC_Details, getKYC_ISMember, setKYC_Details, updateObjectKey } from "../../../../utils/Commanutils";
 import DropDown from "../../../../ui/dropdown";
 import { CreateKYCInvsSignZy, getAddressInfoApi, getAddressTypeApi, getAllCountryApi, getAllStateByCountryApi, getFatcaDDApi, getOnBoardingListingsApi, getPersonalInfoApi, InvestorDeclarationApi, saveFatcaDeclarationApi, updateAddressDetailApi } from "../../../../api/homeapi";
 import { showToast, toastTypes } from "../../../../services/toastService";
@@ -61,6 +61,7 @@ const Fatca = ({ setSelectedTab }: any) => {
     });
 
     const [isLoading, setIsLoading] = useState(false);
+    const scrollViewRef = useRef<any>(null);
 
     const citizenOptions = [
         { label: 'Yes', value: 'yes' },
@@ -201,7 +202,7 @@ const Fatca = ({ setSelectedTab }: any) => {
 
     const handleNext = async () => {
         if (validateFatca()) {
-            console.log('FATCA Form Data:', fatcaForm);
+
             await saveFatcaDetails();
         } else {
             showToast(toastTypes.error, 'Please fill all required fields');
@@ -210,14 +211,15 @@ const Fatca = ({ setSelectedTab }: any) => {
 
     const saveFatcaDetails = async () => {
         try {
-            setIsLoading(true);
+
 
             let payload = {
-                investor_id: getKYC_Details()?.user_basic_details?.id,
+                investor_id: getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id,
                 is_indian_citizen: fatcaForm.citizenOfIndia,
                 is_politically_exposed: fatcaForm.politicallyExposed,
                 is_indian_taxpayer: fatcaForm.taxPayerOnlyIndia,
-                kycStatus: false,
+                // kycStatus: getKYC_Details()?.user_basic_details?.isKYCDone || getKYC_Details()?.member_basic_details?.isKYCDone ? true : false,
+                kycStatus: getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.isKYCDone ? true : false : getKYC_Details()?.user_basic_details?.isKYCDone ? true : false,
                 is_related_to_pep: fatcaForm.politicallyExposed === 'related' ? 'yes' : 'no',
                 occupation: fatcaForm.occupation.toString(),
                 income_source_id: fatcaForm.wealthSource,
@@ -237,6 +239,7 @@ const Fatca = ({ setSelectedTab }: any) => {
 
             console.log('FATCA Declaration Payload:', payload);
 
+            setIsLoading(true);
             const [result, error]: any = await saveFatcaDeclarationApi(payload);
 
             if (result) {
@@ -245,11 +248,16 @@ const Fatca = ({ setSelectedTab }: any) => {
 
                 // Update KYC details if needed
                 if (result?.data) {
-                    const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
-                    setKYC_Details(update_data);
-                }
 
-                // Navigate to next step
+                    if (getKYC_ISMember()) {
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+                    } else {
+
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+                    }
+                }
                 setSelectedTab('BankDetails');
             } else {
                 console.log('Save FATCA Details Error:', error);
@@ -264,16 +272,39 @@ const Fatca = ({ setSelectedTab }: any) => {
     };
 
 
+    useEffect(() => {
+        const backAction = () => {
+            navigation.navigate('Profile')
+            return true; // Return true to prevent default back behavior
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+        );
+
+        return () => backHandler.remove(); // Clean up the listener on unmount
+    }, []);
+
+
 
     useEffect(() => {
-        kycSignZyStatus()
-        getPersonalInfo()
+        console.log('IS Menber : ', getKYC_ISMember())
+        if (getKYC_ISMember()) {
+            if (getKYC_Details()?.member_basic_details?.signzy_user_name && getKYC_Details()?.member_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+        else {
+            if (getKYC_Details()?.user_basic_details?.signzy_user_name && getKYC_Details()?.user_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+
         getInvestorDeclartionInfo()
         getCountry()
         getFatcaDD()
-        getAddressInfo()
-        getAddressType()
-        getOnBoardingListings()
+
 
     }, [isFocused])
 
@@ -282,8 +313,8 @@ const Fatca = ({ setSelectedTab }: any) => {
     const kycSignZyStatus = async () => {
         try {
             let payload = {
-                "username": getKYC_Details()?.user_basic_details?.signzy_user_name,
-                "password": getKYC_Details()?.user_basic_details?.signzy_kyc_id
+                "username": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_user_name : getKYC_Details()?.user_basic_details?.signzy_user_name,
+                "password": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_kyc_id : getKYC_Details()?.user_basic_details?.signzy_kyc_id
             }
             const [result, error]: any = await CreateKYCInvsSignZy(payload)
             if (result) {
@@ -299,95 +330,21 @@ const Fatca = ({ setSelectedTab }: any) => {
         }
     }
 
-    const getOnBoardingListings = async () => {
-        try {
-            const [result, error]: any = await getOnBoardingListingsApi();
 
-            if (result?.data) {
-                console.log('getOnBoardingListings Result:', result?.data);
-                // Remove populateDropdownData call since we're using getFatcaDD now
-            } else {
-                console.log('getOnBoardingListings Error:', error);
-                showToast(toastTypes.error, error?.msg || 'Failed to fetch onboarding data');
-            }
-        } catch (error: any) {
-            console.log('getOnBoardingListings Catch Error:', error);
-            showToast(toastTypes.error, 'Something went wrong while fetching onboarding data');
-        } finally {
 
-        }
-    };
-
-    const populateDropdownData = (data: any) => {
-        try {
-            console.log('API Response Structure:', data?.occupation);
-
-            // Populate Occupation options
-            if (data?.occupation && Array.isArray(data.occupation)) {
-                const occupationData = data.occupation.map((item: any) => ({
-                    value: item.id,
-                    label: item.occupation || item.name
-                }));
-                setOccupation(occupationData);
-            }
-
-            // Populate Annual Income options
-            if (data?.annual_income && Array.isArray(data.annual_income)) {
-                const incomeData = data.annual_income.map((item: any) => ({
-                    value: item.id,
-                    label: item.income_range || item.name
-                }));
-                setAnnualIncome(incomeData);
-            }
-
-            // Populate Wealth Source options
-            if (data?.wealth_source && Array.isArray(data.wealth_source)) {
-                const wealthData = data.wealth_source.map((item: any) => ({
-                    value: item.id,
-                    label: item.source_name || item.name
-                }));
-                setWealthSource(wealthData);
-            }
-
-        } catch (error: any) {
-            console.log('populateDropdownData Error:', error);
-        }
-    };
-
-    const getPersonalInfo = async () => {
-        try {
-            const basicDetails = getKYC_Details()?.user_basic_details;
-            const userId = basicDetails?.id;
-            console.log('getStateCorr basicDetails:', basicDetails);
-            if (userId) {
-                const [result, error]: any = await getPersonalInfoApi(userId);
-
-                if (result?.data) {
-                    console.log('getPersonalInfo Result:', result?.data);
-                    // Set form data from API response
-                    const apiData = result.data;
-
-                } else {
-                    console.log('getPersonalInfo Error:', error);
-                }
-            }
-        } catch (error: any) {
-            console.log('getPersonalInfo Catch Error:', error);
-        }
-    };
 
     const getInvestorDeclartionInfo = async () => {
         try {
-            const basicDetails = getKYC_Details()?.user_basic_details;
+            const basicDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
             const userId = basicDetails?.id;
 
             if (userId) {
                 const [result, error]: any = await InvestorDeclarationApi(userId);
 
-                if (result?.data) {
-                    console.log('getInvestorDeclartionInfo Result:', result?.data);
-                    const apiData = result.data;
 
+                if (result?.data) {
+                    const apiData = result.data;
+                    console.log('getInvestorDeclartionInfo Result: 11', result);
                     // Set form data from API response if data exists
                     setFatcaForm({
                         ...fatcaForm,
@@ -426,7 +383,7 @@ const Fatca = ({ setSelectedTab }: any) => {
             const [result, error]: any = await getAllCountryApi();
 
             if (result?.data) {
-                console.log('getCountry Result:', result?.data);
+
                 const countryData = result.data.map((item: any) => ({
                     value: item.id,
                     label: item.name
@@ -469,7 +426,7 @@ const Fatca = ({ setSelectedTab }: any) => {
             const [result, error]: any = await getFatcaDDApi();
 
             if (result?.data) {
-                console.log('getFatcaDD Result:', result?.data);
+
                 populateFatcaDropdownData(result?.data);
             } else {
                 console.log('getFatcaDD Error:', error);
@@ -483,7 +440,7 @@ const Fatca = ({ setSelectedTab }: any) => {
 
     const populateFatcaDropdownData = (data: any) => {
         try {
-            console.log('FATCA API Response Structure:', data);
+
 
             // Populate Occupation options from occupationList
             if (data?.occupationList && Array.isArray(data.occupationList)) {
@@ -517,50 +474,8 @@ const Fatca = ({ setSelectedTab }: any) => {
         }
     };
 
-    const getAddressInfo = async () => {
-        try {
-            const basicDetails = getKYC_Details()?.user_basic_details;
-            const userId = basicDetails?.id;
 
-            if (userId) {
-                const [result, error]: any = await getAddressInfoApi(userId);
 
-                if (result?.data) {
-                    console.log('getAddressInfo Result:', result?.data);
-                    // Set form data from API response
-                    const apiData = result.data;
-
-                    // Check poaConsent to show/hide Aadhar upload fields
-
-                } else {
-                    console.log('getAddressInfo Error:', error);
-                }
-            }
-        } catch (error: any) {
-            console.log('getAddressInfo Catch Error:', error);
-        }
-    };
-
-    const getAddressType = async () => {
-        try {
-            const [result, error]: any = await getAddressTypeApi();
-
-            if (result?.data) {
-
-                const addressTypeData = result.data.map((item: any) => ({
-                    value: item.id,
-                    label: item.address_type
-                }));
-
-            } else {
-                console.log('getAddressType Error:', error);
-                showToast(toastTypes.error, error?.msg || 'Failed to fetch address types');
-            }
-        } catch (error: any) {
-            console.log('getAddressType Catch Error:', error);
-            showToast(toastTypes.error, 'Something went wrong while fetching address types');
-        }
-    };
 
 
 
@@ -579,383 +494,410 @@ const Fatca = ({ setSelectedTab }: any) => {
                         height: 2,
                         width: responsiveWidth(90),
                         backgroundColor: colors.fieldborder,
-                        // marginVertical: responsiveHeight(1)
                     }}
                 />
-                <ScrollView >
-                    <Wrapper justify="apart" align="center" row customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(3) }}>
-                        <CusText size="SS" medium text={'PAN Card '} />
-                        <Wrapper color={colors.fieldborder} width={responsiveWidth(40)} customStyles={{ paddingVertical: responsiveWidth(2), borderRadius: borderRadius.medium }} />
-                        <IonIcon name={'checkmark-circle'} color={colors.green} size={responsiveWidth(5)} />
-                        <TouchableOpacity onPress={() => { setSelectedTab('PersonalInfo') }}>
-                            <CusText size="SS" medium text={'Edit'} color={colors.primary1} />
-                        </TouchableOpacity>
-                    </Wrapper>
-                    <Wrapper
-                        position='center'
 
-                        customStyles={{
-                            height: 2,
-                            width: responsiveWidth(90),
-                            backgroundColor: colors.fieldborder,
-
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={{ flex: 1 }}
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? 120 : 20}
+                >
+                    <ScrollView
+                        ref={scrollViewRef}
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{
+                            paddingBottom: responsiveHeight(15),
+                            flexGrow: 1
                         }}
-                    />
-                    <Wrapper justify="apart" align="center" row customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(3) }}>
-                        <CusText size="SS" medium text={'Proof of Address '} />
-                        <Wrapper color={colors.fieldborder} width={responsiveWidth(28)} customStyles={{ paddingVertical: responsiveWidth(2), borderRadius: borderRadius.medium }} />
-                        <IonIcon name={'checkmark-circle'} color={colors.green} size={responsiveWidth(5)} />
-                        <TouchableOpacity onPress={() => { setSelectedTab('AddressInfo') }}>
-                            <CusText size="SS" medium text={'Edit'} color={colors.primary1} />
-                        </TouchableOpacity>
-                    </Wrapper>
-                    <Wrapper
-                        position='center'
+                        keyboardShouldPersistTaps="handled"
+                        enableOnAndroid={true}
+                        extraScrollHeight={responsiveHeight(10)}
+                        scrollEventThrottle={16}
+                    >
+                        <Wrapper justify="apart" align="center" row customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(3) }}>
+                            <CusText size="SS" medium text={'PAN Card '} />
+                            <Wrapper color={colors.fieldborder} width={responsiveWidth(40)} customStyles={{ paddingVertical: responsiveWidth(2), borderRadius: borderRadius.medium }} />
+                            <IonIcon name={'checkmark-circle'} color={colors.green} size={responsiveWidth(5)} />
+                            <TouchableOpacity onPress={() => { setSelectedTab('PersonalInfo') }}>
+                                <CusText size="SS" medium text={'Edit'} color={colors.primary1} />
+                            </TouchableOpacity>
+                        </Wrapper>
+                        <Wrapper
+                            position='center'
 
-                        customStyles={{
-                            height: 2,
-                            width: responsiveWidth(90),
-                            backgroundColor: colors.fieldborder,
+                            customStyles={{
+                                height: 2,
+                                width: responsiveWidth(90),
+                                backgroundColor: colors.fieldborder,
 
-                        }}
-                    />
-                    <Spacer y="XXS" />
-                    <Wrapper align="center" row customStyles={{ paddingVertical: responsiveWidth(1), paddingHorizontal: responsiveWidth(3) }}>
-                        <CusText size="SS" semibold text={'FATCA'} />
-                    </Wrapper>
+                            }}
+                        />
+                        <Wrapper justify="apart" align="center" row customStyles={{ paddingVertical: responsiveWidth(2), paddingHorizontal: responsiveWidth(3) }}>
+                            <CusText size="SS" medium text={'Proof of Address '} />
+                            <Wrapper color={colors.fieldborder} width={responsiveWidth(28)} customStyles={{ paddingVertical: responsiveWidth(2), borderRadius: borderRadius.medium }} />
+                            <IonIcon name={'checkmark-circle'} color={colors.green} size={responsiveWidth(5)} />
+                            <TouchableOpacity onPress={() => { setSelectedTab('AddressInfo') }}>
+                                <CusText size="SS" medium text={'Edit'} color={colors.primary1} />
+                            </TouchableOpacity>
+                        </Wrapper>
+                        <Wrapper
+                            position='center'
 
-                    <Wrapper customStyles={{ paddingHorizontal: responsiveWidth(3), paddingVertical: responsiveWidth(2) }}>
-                        {/* I am a citizen of India */}
-                        <Wrapper row justify="apart" align="center" customStyles={{ paddingVertical: responsiveWidth(2) }}>
-                            <Wrapper width={responsiveWidth(50)}>
-                                <CusText size="SS" text={'I am a citizen of India'} color={colors.Hard_Black} />
-                            </Wrapper>
-                            <Wrapper width={responsiveWidth(35)}>
-                                <DropDown
-                                    data={citizenOptions}
-                                    placeholder="Select"
-                                    value={fatcaForm.citizenOfIndia}
-                                    valueField="value"
-                                    labelField={'label'}
-                                    onChange={(data: any) => handleFatcaChange('citizenOfIndia', data.value)}
-                                    width={responsiveWidth(35)}
-                                    height={responsiveWidth(10)}
-                                    error={fatcaError.citizenOfIndia}
-                                />
-                            </Wrapper>
+                            customStyles={{
+                                height: 2,
+                                width: responsiveWidth(90),
+                                backgroundColor: colors.fieldborder,
+
+                            }}
+                        />
+                        <Spacer y="XXS" />
+                        <Wrapper align="center" row customStyles={{ paddingVertical: responsiveWidth(1), paddingHorizontal: responsiveWidth(3) }}>
+                            <CusText size="SS" semibold text={'FATCA'} />
                         </Wrapper>
 
-                        {/* Show country dropdown if citizen of India is No */}
-                        {fatcaForm.citizenOfIndia === 'no' && (
-                            <Wrapper row position="center" align="center" customStyles={{ paddingVertical: responsiveWidth(2) }}>
-
-                                <Wrapper position="center" justify="center" >
+                        <Wrapper customStyles={{ paddingHorizontal: responsiveWidth(3), paddingVertical: responsiveWidth(2) }}>
+                            {/* I am a citizen of India */}
+                            <Wrapper row justify="apart" align="center" customStyles={{ paddingVertical: responsiveWidth(2) }}>
+                                <Wrapper width={responsiveWidth(50)}>
+                                    <CusText size="SS" text={'I am a citizen of India'} color={colors.Hard_Black} />
+                                </Wrapper>
+                                <Wrapper width={responsiveWidth(35)}>
                                     <DropDown
-                                        data={country}
-                                        placeholder="Select Country"
-                                        value={fatcaForm.country}
+                                        data={citizenOptions}
+                                        placeholder="Select"
+                                        value={fatcaForm.citizenOfIndia}
                                         valueField="value"
                                         labelField={'label'}
-                                        onChange={(data: any) => handleFatcaChange('country', data.value)}
-                                        width={responsiveWidth(90)}
+                                        onChange={(data: any) => handleFatcaChange('citizenOfIndia', data.value)}
+                                        width={responsiveWidth(35)}
                                         height={responsiveWidth(10)}
-                                        error={fatcaError.country}
+                                        error={fatcaError.citizenOfIndia}
                                     />
                                 </Wrapper>
                             </Wrapper>
-                        )}
 
-                        {/* I am Tax payer only in India */}
-                        <Wrapper row justify="apart" align="center" customStyles={{ paddingVertical: responsiveWidth(2) }}>
-                            <Wrapper width={responsiveWidth(50)}>
-                                <CusText size="SS" text={'I am Tax payer only in India'} color={colors.Hard_Black} />
-                            </Wrapper>
-                            <Wrapper width={responsiveWidth(35)}>
-                                <DropDown
-                                    data={taxPayerOptions}
-                                    placeholder="Select"
-                                    value={fatcaForm.taxPayerOnlyIndia}
-                                    valueField="value"
-                                    labelField={'label'}
-                                    onChange={(data: any) => handleFatcaChange('taxPayerOnlyIndia', data.value)}
-                                    width={responsiveWidth(35)}
-                                    height={responsiveWidth(10)}
-                                    error={fatcaError.taxPayerOnlyIndia}
-                                />
-                            </Wrapper>
-                        </Wrapper>
+                            {/* Show country dropdown if citizen of India is No */}
+                            {fatcaForm.citizenOfIndia === 'no' && (
+                                <Wrapper row position="center" align="center" customStyles={{ paddingVertical: responsiveWidth(2) }}>
 
-                        {/* I am politically exposed person */}
-                        <Wrapper row justify="apart" align="center" customStyles={{ paddingVertical: responsiveWidth(2) }}>
-                            <Wrapper width={responsiveWidth(50)}>
-                                <CusText size="SS" text={'I am politically exposed person'} color={colors.Hard_Black} />
-                            </Wrapper>
-                            <Wrapper width={responsiveWidth(35)}>
-                                <DropDown
-                                    data={politicalOptions}
-                                    placeholder="Select"
-                                    value={fatcaForm.politicallyExposed}
-                                    valueField="value"
-                                    labelField={'label'}
-                                    onChange={(data: any) => handleFatcaChange('politicallyExposed', data.value)}
-                                    width={responsiveWidth(35)}
-                                    height={responsiveWidth(10)}
-                                    error={fatcaError.politicallyExposed}
-                                />
-                            </Wrapper>
-                        </Wrapper>
-
-                        {/* Show additional fields if Tax payer only in India is No */}
-                        {fatcaForm.taxPayerOnlyIndia === 'no' && (
-                            <>
-                                <Spacer y="S" />
-
-                                {/* Address */}
-                                <Wrapper position="center">
-                                    <InputField
-                                        label="Address *"
-                                        width={responsiveWidth(89)}
-                                        placeholder="Enter Address"
-                                        labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
-                                        fieldViewStyle={{
-                                            borderColor: 'rgba(152, 162, 179, 1)',
-                                            borderRadius: borderRadius.middleSmall
-                                        }}
-                                        value={fatcaForm.address}
-                                        onChangeText={(value: string) => {
-                                            handleFatcaChange('address', value);
-                                        }}
-                                        error={fatcaError.address}
-                                        multiline
-                                        numberOfLines={3}
-                                        textAlignVertical={'top'}
-                                    />
+                                    <Wrapper position="center" justify="center" >
+                                        <DropDown
+                                            data={country}
+                                            placeholder="Select Country"
+                                            value={fatcaForm.country}
+                                            valueField="value"
+                                            labelField={'label'}
+                                            onChange={(data: any) => handleFatcaChange('country', data.value)}
+                                            width={responsiveWidth(90)}
+                                            height={responsiveWidth(10)}
+                                            error={fatcaError.country}
+                                        />
+                                    </Wrapper>
                                 </Wrapper>
-                                <Spacer y="XXS" />
-                            </>
-                        )}
+                            )}
 
-                        {/* Country of Birth - Always visible */}
-                        <Wrapper position="center">
-                            <DropDown
-                                width={responsiveWidth(89)}
-                                data={country}
-                                placeholder={'Select Country of Birth'}
-                                placeholdercolor={colors.gray}
-                                label="Country of Birth *"
-                                labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
-                                required
-                                value={fatcaForm.countryOfBirth}
-                                valueField="value"
-                                labelField={'label'}
-                                onChange={(data: any) => {
-                                    handleFatcaChange('countryOfBirth', data.value);
-                                    getState(data.value);
-                                    handleFatcaChange('state', '');
-                                }}
-                                onClear={() => {
-                                    handleFatcaChange('countryOfBirth', '');
-                                    handleFatcaChange('state', '');
-                                    setState([]);
-                                }}
-                                error={fatcaError.countryOfBirth}
-                            />
-                        </Wrapper>
-                        <Spacer y="XXS" />
-
-                        {/* Show State, City, District, Pincode if Tax payer only in India is No */}
-                        {fatcaForm.taxPayerOnlyIndia === 'no' && (
-                            <>
-                                {/* State */}
-                                <Wrapper position="center">
+                            {/* I am Tax payer only in India */}
+                            <Wrapper row justify="apart" align="center" customStyles={{ paddingVertical: responsiveWidth(2) }}>
+                                <Wrapper width={responsiveWidth(50)}>
+                                    <CusText size="SS" text={'I am Tax payer only in India'} color={colors.Hard_Black} />
+                                </Wrapper>
+                                <Wrapper width={responsiveWidth(35)}>
                                     <DropDown
-                                        width={responsiveWidth(89)}
-                                        data={state}
-                                        placeholder={'Select State'}
-                                        placeholdercolor={colors.gray}
-                                        label="State *"
-                                        labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
-                                        required
-                                        value={fatcaForm.state}
+                                        data={taxPayerOptions}
+                                        placeholder="Select"
+                                        value={fatcaForm.taxPayerOnlyIndia}
                                         valueField="value"
                                         labelField={'label'}
-                                        onChange={(data: any) => {
-                                            handleFatcaChange('state', data.value);
-                                        }}
-                                        onClear={() => {
-                                            handleFatcaChange('state', '');
-                                        }}
-                                        error={fatcaError.state}
+                                        onChange={(data: any) => handleFatcaChange('taxPayerOnlyIndia', data.value)}
+                                        width={responsiveWidth(35)}
+                                        height={responsiveWidth(10)}
+                                        error={fatcaError.taxPayerOnlyIndia}
                                     />
                                 </Wrapper>
-                                <Spacer y="XXS" />
-
-                                {/* City */}
-                                <Wrapper position="center">
-                                    <InputField
-                                        label="City *"
-                                        width={responsiveWidth(89)}
-                                        placeholder="Enter City"
-                                        labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
-                                        fieldViewStyle={{
-                                            borderColor: 'rgba(152, 162, 179, 1)',
-                                            borderRadius: borderRadius.middleSmall
-                                        }}
-                                        value={fatcaForm.city}
-                                        onChangeText={(value: string) => {
-                                            handleFatcaChange('city', value);
-                                        }}
-                                        error={fatcaError.city}
-                                    />
-                                </Wrapper>
-                                <Spacer y="XXS" />
-
-                                {/* District */}
-                                <Wrapper position="center">
-                                    <InputField
-                                        label="District *"
-                                        width={responsiveWidth(89)}
-                                        placeholder="Enter District"
-                                        labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
-                                        fieldViewStyle={{
-                                            borderColor: 'rgba(152, 162, 179, 1)',
-                                            borderRadius: borderRadius.middleSmall
-                                        }}
-                                        value={fatcaForm.district}
-                                        onChangeText={(value: string) => {
-                                            handleFatcaChange('district', value);
-                                        }}
-                                        error={fatcaError.district}
-                                    />
-                                </Wrapper>
-                                <Spacer y="XXS" />
-
-                                {/* Pincode */}
-                                <Wrapper position="center">
-                                    <InputField
-                                        label="Pincode *"
-                                        width={responsiveWidth(89)}
-                                        placeholder="Enter Pincode"
-                                        labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
-                                        fieldViewStyle={{
-                                            borderColor: 'rgba(152, 162, 179, 1)',
-                                            borderRadius: borderRadius.middleSmall
-                                        }}
-                                        value={fatcaForm.pincode}
-                                        keyboardType="numeric"
-                                        maxLength={6}
-                                        onChangeText={(value: string) => {
-                                            handleFatcaChange('pincode', value);
-                                        }}
-                                        error={fatcaError.pincode}
-                                    />
-                                </Wrapper>
-                                <Spacer y="XXS" />
-                            </>
-                        )}
-
-                        {/* Rest of the fields - Occupation, Annual Income, Wealth Source, Place of Birth */}
-                        <Wrapper position="center">
-                            <DropDown
-                                width={responsiveWidth(89)}
-                                data={occupation}
-                                placeholder={'Select Occupation'}
-                                placeholdercolor={colors.gray}
-                                label="Occupation *"
-                                labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
-                                required
-                                value={fatcaForm.occupation}
-                                valueField="value"
-                                labelField={'label'}
-                                onChange={(data: any) => {
-                                    handleFatcaChange('occupation', data.value);
-                                }}
-                                onClear={() => {
-                                    handleFatcaChange('occupation', '');
-                                }}
-                                error={fatcaError.occupation}
-                            />
-                        </Wrapper>
-                        <Spacer y="XXS" />
-
-                        <Wrapper position="center">
-                            <DropDown
-                                width={responsiveWidth(89)}
-                                data={annualIncome}
-                                placeholder={'Select Annual Income'}
-                                placeholdercolor={colors.gray}
-                                label="Annual Income *"
-                                labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
-                                required
-                                value={fatcaForm.annualIncome}
-                                valueField="value"
-                                labelField={'label'}
-                                onChange={(data: any) => {
-                                    handleFatcaChange('annualIncome', data.value);
-                                }}
-                                onClear={() => {
-                                    handleFatcaChange('annualIncome', '');
-                                }}
-                                error={fatcaError.annualIncome}
-                            />
-                        </Wrapper>
-                        <Spacer y="XXS" />
-
-                        <Wrapper position="center">
-                            <DropDown
-                                width={responsiveWidth(89)}
-                                data={wealthSource}
-                                placeholder={'Select Wealth Source'}
-                                placeholdercolor={colors.gray}
-                                label="Wealth Source *"
-                                labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
-                                required
-                                value={fatcaForm.wealthSource}
-                                valueField="value"
-                                labelField={'label'}
-                                onChange={(data: any) => {
-                                    handleFatcaChange('wealthSource', data.value);
-                                }}
-                                onClear={() => {
-                                    handleFatcaChange('wealthSource', '');
-                                }}
-                                error={fatcaError.wealthSource}
-                            />
-                        </Wrapper>
-                        <Spacer y="XXS" />
-
-                        <Wrapper position="center">
-                            <InputField
-                                label="Place of Birth"
-                                width={responsiveWidth(89)}
-                                placeholder="Enter Place of Birth"
-                                labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
-                                fieldViewStyle={{
-                                    borderColor: 'rgba(152, 162, 179, 1)',
-                                    borderRadius: borderRadius.middleSmall
-                                }}
-                                value={fatcaForm.placeOfBirth}
-                                onChangeText={(value: string) => {
-                                    handleFatcaChange('placeOfBirth', value);
-                                }}
-                                error={fatcaError.placeOfBirth}
-                            />
-                        </Wrapper>
-                    </Wrapper>
-
-                    <Spacer y="S" />
-
-                    {/* Next Button */}
-                    <Wrapper position='center' row align='center' justify='center' customStyles={{ paddingHorizontal: responsiveWidth(3) }}>
-                        <TouchableOpacity activeOpacity={0.6} onPress={handleNext}>
-                            <Wrapper width={responsiveWidth(80)} color={colors.orange} customStyles={{ borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(2.5) }}>
-                                <CusText position='center' bold color={colors.Hard_White} text={'Next'} />
                             </Wrapper>
-                        </TouchableOpacity>
-                    </Wrapper>
-                    <Spacer y="XXS" />
-                </ScrollView>
 
+                            {/* I am politically exposed person */}
+                            <Wrapper row justify="apart" align="center" customStyles={{ paddingVertical: responsiveWidth(2) }}>
+                                <Wrapper width={responsiveWidth(50)}>
+                                    <CusText size="SS" text={'I am politically exposed person'} color={colors.Hard_Black} />
+                                </Wrapper>
+                                <Wrapper width={responsiveWidth(35)}>
+                                    <DropDown
+                                        data={politicalOptions}
+                                        placeholder="Select"
+                                        value={fatcaForm.politicallyExposed}
+                                        valueField="value"
+                                        labelField={'label'}
+                                        onChange={(data: any) => handleFatcaChange('politicallyExposed', data.value)}
+                                        width={responsiveWidth(35)}
+                                        height={responsiveWidth(10)}
+                                        error={fatcaError.politicallyExposed}
+                                    />
+                                </Wrapper>
+                            </Wrapper>
+
+                            {/* Show additional fields if Tax payer only in India is No */}
+                            {fatcaForm.taxPayerOnlyIndia === 'no' && (
+                                <>
+                                    <Spacer y="S" />
+
+                                    {/* Address */}
+                                    <Wrapper position="center">
+                                        <InputField
+                                            label="Address *"
+                                            width={responsiveWidth(89)}
+                                            placeholder="Enter Address"
+                                            labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
+                                            fieldViewStyle={{
+                                                borderColor: 'rgba(152, 162, 179, 1)',
+                                                borderRadius: borderRadius.middleSmall
+                                            }}
+                                            value={fatcaForm.address}
+                                            onChangeText={(value: string) => {
+                                                handleFatcaChange('address', value);
+                                            }}
+                                            error={fatcaError.address}
+                                            multiline
+                                            numberOfLines={3}
+                                            textAlignVertical={'top'}
+                                        />
+                                    </Wrapper>
+                                    <Spacer y="XXS" />
+                                </>
+                            )}
+
+                            {/* Country of Birth - Always visible */}
+                            <Wrapper position="center">
+                                <DropDown
+                                    width={responsiveWidth(89)}
+                                    data={country}
+                                    placeholder={'Select Country of Birth'}
+                                    placeholdercolor={colors.gray}
+                                    label="Country of Birth *"
+                                    labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
+                                    required
+                                    value={fatcaForm.countryOfBirth}
+                                    valueField="value"
+                                    labelField={'label'}
+                                    onChange={(data: any) => {
+                                        handleFatcaChange('countryOfBirth', data.value);
+                                        getState(data.value);
+                                        handleFatcaChange('state', '');
+                                    }}
+                                    onClear={() => {
+                                        handleFatcaChange('countryOfBirth', '');
+                                        handleFatcaChange('state', '');
+                                        setState([]);
+                                    }}
+                                    error={fatcaError.countryOfBirth}
+                                />
+                            </Wrapper>
+                            <Spacer y="XXS" />
+
+                            {/* Show State, City, District, Pincode if Tax payer only in India is No */}
+                            {fatcaForm.taxPayerOnlyIndia === 'no' && (
+                                <>
+                                    {/* State */}
+                                    <Wrapper position="center">
+                                        <DropDown
+                                            width={responsiveWidth(89)}
+                                            data={state}
+                                            placeholder={'Select State'}
+                                            placeholdercolor={colors.gray}
+                                            label="State *"
+                                            labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
+                                            required
+                                            value={fatcaForm.state}
+                                            valueField="value"
+                                            labelField={'label'}
+                                            onChange={(data: any) => {
+                                                handleFatcaChange('state', data.value);
+                                            }}
+                                            onClear={() => {
+                                                handleFatcaChange('state', '');
+                                            }}
+                                            error={fatcaError.state}
+                                        />
+                                    </Wrapper>
+                                    <Spacer y="XXS" />
+
+                                    {/* City */}
+                                    <Wrapper position="center">
+                                        <InputField
+                                            label="City *"
+                                            width={responsiveWidth(89)}
+                                            placeholder="Enter City"
+                                            labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
+                                            fieldViewStyle={{
+                                                borderColor: 'rgba(152, 162, 179, 1)',
+                                                borderRadius: borderRadius.middleSmall
+                                            }}
+                                            value={fatcaForm.city}
+                                            onChangeText={(value: string) => {
+                                                handleFatcaChange('city', value);
+                                            }}
+                                            error={fatcaError.city}
+                                        />
+                                    </Wrapper>
+                                    <Spacer y="XXS" />
+
+                                    {/* District */}
+                                    <Wrapper position="center">
+                                        <InputField
+                                            label="District *"
+                                            width={responsiveWidth(89)}
+                                            placeholder="Enter District"
+                                            labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
+                                            fieldViewStyle={{
+                                                borderColor: 'rgba(152, 162, 179, 1)',
+                                                borderRadius: borderRadius.middleSmall
+                                            }}
+                                            value={fatcaForm.district}
+                                            onChangeText={(value: string) => {
+                                                handleFatcaChange('district', value);
+                                            }}
+                                            error={fatcaError.district}
+                                        />
+                                    </Wrapper>
+                                    <Spacer y="XXS" />
+
+                                    {/* Pincode */}
+                                    <Wrapper position="center">
+                                        <InputField
+                                            label="Pincode *"
+                                            width={responsiveWidth(89)}
+                                            placeholder="Enter Pincode"
+                                            labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
+                                            fieldViewStyle={{
+                                                borderColor: 'rgba(152, 162, 179, 1)',
+                                                borderRadius: borderRadius.middleSmall
+                                            }}
+                                            value={fatcaForm.pincode}
+                                            keyboardType="numeric"
+                                            maxLength={6}
+                                            onChangeText={(value: string) => {
+                                                handleFatcaChange('pincode', value);
+                                            }}
+                                            error={fatcaError.pincode}
+                                        />
+                                    </Wrapper>
+                                    <Spacer y="XXS" />
+                                </>
+                            )}
+
+                            {/* Rest of the fields - Occupation, Annual Income, Wealth Source, Place of Birth */}
+                            <Wrapper position="center">
+                                <DropDown
+                                    width={responsiveWidth(89)}
+                                    data={occupation}
+                                    placeholder={'Select Occupation'}
+                                    placeholdercolor={colors.gray}
+                                    label="Occupation *"
+                                    labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
+                                    required
+                                    value={fatcaForm.occupation}
+                                    valueField="value"
+                                    labelField={'label'}
+                                    onChange={(data: any) => {
+                                        handleFatcaChange('occupation', data.value);
+                                    }}
+                                    onClear={() => {
+                                        handleFatcaChange('occupation', '');
+                                    }}
+                                    error={fatcaError.occupation}
+                                />
+                            </Wrapper>
+                            <Spacer y="XXS" />
+
+                            <Wrapper position="center">
+                                <DropDown
+                                    width={responsiveWidth(89)}
+                                    data={annualIncome}
+                                    placeholder={'Select Annual Income'}
+                                    placeholdercolor={colors.gray}
+                                    label="Annual Income *"
+                                    labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
+                                    required
+                                    value={fatcaForm.annualIncome}
+                                    valueField="value"
+                                    labelField={'label'}
+                                    onChange={(data: any) => {
+                                        handleFatcaChange('annualIncome', data.value);
+                                    }}
+                                    onClear={() => {
+                                        handleFatcaChange('annualIncome', '');
+                                    }}
+                                    error={fatcaError.annualIncome}
+                                />
+                            </Wrapper>
+                            <Spacer y="XXS" />
+
+                            <Wrapper position="center">
+                                <DropDown
+                                    width={responsiveWidth(89)}
+                                    data={wealthSource}
+                                    placeholder={'Select Wealth Source'}
+                                    placeholdercolor={colors.gray}
+                                    label="Wealth Source *"
+                                    labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall }}
+                                    required
+                                    value={fatcaForm.wealthSource}
+                                    valueField="value"
+                                    labelField={'label'}
+                                    onChange={(data: any) => {
+                                        handleFatcaChange('wealthSource', data.value);
+                                    }}
+                                    onClear={() => {
+                                        handleFatcaChange('wealthSource', '');
+                                    }}
+                                    error={fatcaError.wealthSource}
+                                />
+                            </Wrapper>
+                            <Spacer y="XXS" />
+
+                            <Wrapper position="center">
+                                <InputField
+                                    label="Place of Birth"
+                                    width={responsiveWidth(89)}
+                                    placeholder="Enter Place of Birth"
+                                    labelStyle={{ color: colors.Hard_Black, fontSize: fontSize.semiSmall, marginLeft: responsiveWidth(-1) }}
+                                    fieldViewStyle={{
+                                        borderColor: 'rgba(152, 162, 179, 1)',
+                                        borderRadius: borderRadius.middleSmall
+                                    }}
+                                    value={fatcaForm.placeOfBirth}
+                                    onChangeText={(value: string) => {
+                                        handleFatcaChange('placeOfBirth', value);
+                                    }}
+                                    error={fatcaError.placeOfBirth}
+                                    onFocus={() => {
+                                        setTimeout(() => {
+                                            scrollViewRef?.current?.scrollToEnd({ animated: true });
+                                        }, 100);
+                                    }}
+                                />
+                            </Wrapper>
+                        </Wrapper>
+
+                        <Spacer y="S" />
+
+                        {/* Next Button */}
+                        <Wrapper position='center' row align='center' justify='center' customStyles={{ paddingHorizontal: responsiveWidth(3) }}>
+                            <TouchableOpacity activeOpacity={0.6} onPress={handleNext}>
+                                <Wrapper width={responsiveWidth(80)} color={colors.orange} customStyles={{ borderRadius: borderRadius.middleSmall, paddingVertical: responsiveWidth(2.5) }}>
+
+                                    {isLoading ? (
+                                        <ActivityIndicator color={colors.Hard_White} size="small" />
+                                    ) : (
+                                        <CusText position='center' bold color={colors.Hard_White} text={'Next'} />
+                                    )}
+
+                                </Wrapper>
+                            </TouchableOpacity>
+                        </Wrapper>
+                        <Spacer y="XXS" />
+                    </ScrollView>
+                </KeyboardAvoidingView>
             </Wrapper>
         </>
     )

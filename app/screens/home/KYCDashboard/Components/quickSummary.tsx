@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, TouchableOpacity, ActivityIndicator, Image, Linking } from 'react-native';
-import { useIsFocused } from '@react-navigation/native';
+import { ScrollView, TouchableOpacity, ActivityIndicator, Image, Linking, BackHandler } from 'react-native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import Container from '../../../../ui/container';
 import Wrapper from '../../../../ui/wrapper';
 import Spacer from '../../../../ui/spacer';
@@ -9,18 +9,26 @@ import Header from '../../../../shared/components/Header/Header';
 import { borderRadius, colors, responsiveHeight, responsiveWidth } from '../../../../styles/variables';
 import CusText from '../../../../ui/custom-text';
 
-import { getInvestorSummaryApi, completeKycApi, CreateKYCInvsSignZy, completeKycFinalApi } from '../../../../api/homeapi';
+import { getInvestorSummaryApi, completeKycApi, CreateKYCInvsSignZy, completeKycFinalApi, UpdateInvestorApi, completeKycisdoneApi } from '../../../../api/homeapi';
 import { showToast, toastTypes } from '../../../../services/toastService';
-import { getKYC_Details, setKYC_Details, updateObjectKey, getImageUrl } from '../../../../utils/Commanutils';
+import { getKYC_Details, setKYC_Details, updateObjectKey, getImageUrl, getKYC_ISMember, setKYC_ISMember } from '../../../../utils/Commanutils';
 import CheckBox from '../../../../ui/checkBox';
 
 const QuickSummary = ({ setSelectedTab }: any) => {
     const isFocused = useIsFocused();
+    const navigation: any = useNavigation();
     const [summaryData, setSummaryData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isCompleting, setIsCompleting] = useState(false);
     const [isAgreed, setIsAgreed] = useState(false);
     const [signZyData, setSignZydata] = useState<any>(null);
+
+    // Check if KYC is done
+    const isKYCDone = !getKYC_ISMember() ? getKYC_Details()?.user_basic_details?.isKYCDone : getKYC_Details()?.member_basic_details?.isKYCDone;
+    const isKYCComplete: any = !getKYC_ISMember() ? getKYC_Details()?.user_basic_details?.is_kyc_complete : getKYC_Details()?.member_basic_details?.is_kyc_complete;
+    const isCanRegister: any = !getKYC_ISMember() ? getKYC_Details()?.user_basic_details?.is_CAN_registered : getKYC_Details()?.member_basic_details?.is_CAN_registered;
+    console.log('isCanRegister : ', isCanRegister)
+    const userDetails = getKYC_ISMember() ? getKYC_Details()?.member_basic_details : getKYC_Details()?.user_basic_details;
     const [expandedSections, setExpandedSections] = useState<any>({
         personal: false,
         address: false,
@@ -31,14 +39,40 @@ const QuickSummary = ({ setSelectedTab }: any) => {
     });
 
     useEffect(() => {
+        const backAction = () => {
+            navigation.navigate('Profile')
+            return true; // Return true to prevent default back behavior
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+        );
+
+        return () => backHandler.remove(); // Clean up the listener on unmount
+    }, []);
+
+    useEffect(() => {
         getInvestorSummary();
-        kycSignZyStatus()
+
+        if (getKYC_ISMember()) {
+            if (getKYC_Details()?.member_basic_details?.signzy_user_name && getKYC_Details()?.member_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+        else {
+            if (getKYC_Details()?.user_basic_details?.signzy_user_name && getKYC_Details()?.user_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+
+        // kycSignZyStatus()
     }, [isFocused]);
 
     const getInvestorSummary = async () => {
         try {
             setIsLoading(true);
-            const investorId = getKYC_Details()?.user_basic_details?.id;
+            const investorId = getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id;
 
             if (investorId) {
                 const [result, error]: any = await getInvestorSummaryApi(investorId);
@@ -56,6 +90,68 @@ const QuickSummary = ({ setSelectedTab }: any) => {
             showToast(toastTypes.error, 'Something went wrong while fetching summary');
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleEditDetails = async () => {
+        try {
+            const investorId = getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id;
+
+            if (!investorId) {
+                showToast(toastTypes.error, 'Investor ID not found');
+                return;
+            }
+
+            const payload = {
+                investor_id: investorId,
+                is_CAN_registered: false
+            };
+
+            console.log('Update Investor Payload 1:', payload);
+
+            const [result, error]: any = await UpdateInvestorApi(payload);
+
+            if (result) {
+                console.log('Update Investor Result 1:', result?.data?.investor_data);
+                showToast(toastTypes.success, result?.msg || 'Investor updated successfully');
+
+                // Update last_kyc_step to 2 and set in user basic details
+                if (result?.data?.investor_data) {
+                    const updatedInvestorData = {
+                        ...result.data.investor_data,
+                        last_kyc_step: 2,
+                        is_CAN_registered: false
+                    };
+
+                    console.log('Updated Investor Data with last_kyc_step 2:', updatedInvestorData);
+
+                    // Get current KYC details
+                    const currentKycDetails = getKYC_Details();
+
+                    // Update the appropriate user basic details based on member status
+                    let updatedKycDetails;
+                    if (getKYC_ISMember()) {
+                        updatedKycDetails = updateObjectKey(currentKycDetails || {}, 'member_basic_details', updatedInvestorData);
+                    } else {
+                        updatedKycDetails = updateObjectKey(currentKycDetails || {}, 'user_basic_details', updatedInvestorData);
+                    }
+
+                    // Set the updated KYC details
+                    setKYC_Details(updatedKycDetails);
+
+                    console.log('Updated KYC Details:', updatedKycDetails);
+                }
+                console.log('KYC Details:', getKYC_Details());
+
+                // Redirect to PersonalInfo
+                setSelectedTab('PersonalInfo');
+            } else {
+                console.log('Update Investor Error:', error);
+                showToast(toastTypes.error, error?.msg || 'Failed to update investor');
+            }
+        } catch (error: any) {
+            console.log('Update Investor Catch Error:', error);
+            showToast(toastTypes.error, 'Something went wrong while updating investor');
         }
     };
 
@@ -83,8 +179,8 @@ const QuickSummary = ({ setSelectedTab }: any) => {
     const kycSignZyStatus = async () => {
         try {
             let payload = {
-                "username": getKYC_Details()?.user_basic_details?.signzy_user_name,
-                "password": getKYC_Details()?.user_basic_details?.signzy_kyc_id
+                "username": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_user_name : getKYC_Details()?.user_basic_details?.signzy_user_name,
+                "password": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_kyc_id : getKYC_Details()?.user_basic_details?.signzy_kyc_id
             }
             const [result, error]: any = await CreateKYCInvsSignZy(payload)
             if (result) {
@@ -109,7 +205,6 @@ const QuickSummary = ({ setSelectedTab }: any) => {
 
         try {
             setIsCompleting(true);
-            const investorId = getKYC_Details()?.user_basic_details?.id;
 
             const payload = {
                 "userToken": signZyData?.id,
@@ -144,6 +239,50 @@ const QuickSummary = ({ setSelectedTab }: any) => {
         }
     };
 
+    const handleCompleteKycisKycDone = async () => {
+        if (!isAgreed) {
+            showToast(toastTypes.error, 'Please agree to the terms before completing KYC');
+            return;
+        }
+
+        try {
+            setIsCompleting(true);
+
+            const payload = {
+                "investor_id": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id
+            }
+            console.log('payload is done: ', payload);
+            const [result, error]: any = await completeKycisdoneApi(payload);
+
+            if (result) {
+                console.log('Complete KYC Result is done:', result);
+                if (result?.data) {
+                    if (getKYC_ISMember()) {
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+                    } else {
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+                    }
+
+                }
+                showToast(toastTypes.success, result?.msg || 'KYC completed successfully');
+
+                // Redirect to Profile page
+                navigation.navigate('Profile');
+
+            } else {
+                console.log('Complete KYC Error:', error);
+                showToast(toastTypes.error, error?.msg || 'Failed to complete KYC');
+            }
+        } catch (error: any) {
+            console.log('Complete KYC Catch Error:', error);
+            showToast(toastTypes.error, 'Something went wrong while completing KYC');
+        } finally {
+            setIsCompleting(false);
+        }
+    };
+
     const handleCompleteKycFinal = async (data: any) => {
 
 
@@ -161,18 +300,19 @@ const QuickSummary = ({ setSelectedTab }: any) => {
 
             if (result) {
                 console.log('Complete KYC Result:', result);
+                console.log('Complete KYC Result Data :', result?.data);
                 let redirect_data = result?.data?.object?.result?.url
                 console.log('Completeredirect_data:', redirect_data);
                 // Linking.openURL(redirect_data).catch((err: any) => console.error('An error occurred', err));
-                              
+
                 // Navigate to KYC WebView instead of opening external browser
-               const currentKycDetails = getKYC_Details();
+                const currentKycDetails = getKYC_Details();
                 const updatedDetails = {
                     ...currentKycDetails,
                     webview_url: redirect_data
                 };
                 setKYC_Details(updatedDetails);
-                
+
                 // Navigate to KYC WebView
                 setSelectedTab('KycWebView');
                 // return
@@ -905,236 +1045,201 @@ const QuickSummary = ({ setSelectedTab }: any) => {
 
     // Bank Details Content
     const renderBankContent = () => {
-        const bankData = summaryData?.BankAccountDetails[0];
+        const bankAccounts = summaryData?.BankAccountDetails || [];
+
+
+
+        if (!bankAccounts || bankAccounts.length === 0) {
+            return (
+                <Wrapper customStyles={{ padding: responsiveWidth(4) }} align="center">
+                    <IonIcon name="card-outline" size={responsiveWidth(12)} color={colors.gray} />
+                    <Spacer y="S" />
+                    <CusText text="No bank accounts found" size="M" color={colors.gray} position="center" />
+                </Wrapper>
+            );
+        }
+
         return (
             <Wrapper customStyles={{ padding: responsiveWidth(1) }}>
-                {/* Header Section */}
-                {/* <Wrapper
-                customStyles={{
-                    backgroundColor: colors.primary1 + '10',
-                    padding: responsiveWidth(3),
-                    borderRadius: borderRadius.small,
-                    marginBottom: responsiveWidth(4)
-                }}
-            >
-                <CusText text="Bank Account Information" size="M" bold color={colors.primary1} />
-            </Wrapper> */}
-
-                {/* Bank Cards Grid */}
-                <Wrapper row customStyles={{ flexWrap: 'wrap', gap: responsiveWidth(2) }}>
-                    {/* Account Number Card */}
-                    <Wrapper
-                        customStyles={{
-                            backgroundColor: colors.Hard_White,
-                            borderRadius: borderRadius.medium,
-                            padding: responsiveWidth(3),
-                            borderLeftWidth: 4,
-                            borderLeftColor: colors.primary1,
-                            shadowColor: colors.black,
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 4,
-                            elevation: 3,
-                            width: '48%'
-                        }}
-                    >
-                        <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(1) }}>
-                            <IonIcon name="card" size={responsiveWidth(4)} color={colors.primary1} />
-                            <Spacer x="XS" />
-                            <CusText text="Account Number" size="XS" color={colors.gray} medium />
-                        </Wrapper>
-                        <CusText text={bankData?.account_no || 'N/A'} size="S" color={colors.Hard_Black} bold />
-                    </Wrapper>
-
-                    {/* Account Type Card */}
-                    <Wrapper
-                        customStyles={{
-                            backgroundColor: colors.Hard_White,
-                            borderRadius: borderRadius.medium,
-                            padding: responsiveWidth(3),
-                            borderLeftWidth: 4,
-                            borderLeftColor: colors.blue,
-                            shadowColor: colors.black,
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 4,
-                            elevation: 3,
-                            width: '48%'
-                        }}
-                    >
-                        <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(1) }}>
-                            <IonIcon name="library" size={responsiveWidth(4)} color={colors.blue} />
-                            <Spacer x="XS" />
-                            <CusText text="Account Type" size="XS" color={colors.gray} medium />
-                        </Wrapper>
-                        <CusText text={bankData?.account_type || 'Savings'} size="S" color={colors.Hard_Black} bold />
-                    </Wrapper>
-
-                    {/* Bank Name Card */}
-                    <Wrapper
-                        customStyles={{
-                            backgroundColor: colors.Hard_White,
-                            borderRadius: borderRadius.medium,
-                            padding: responsiveWidth(3),
-                            borderLeftWidth: 4,
-                            borderLeftColor: colors.orange,
-                            shadowColor: colors.black,
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 4,
-                            elevation: 3,
-                            width: '48%'
-                        }}
-                    >
-                        <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(1) }}>
-                            <IonIcon name="business" size={responsiveWidth(4)} color={colors.orange} />
-                            <Spacer x="XS" />
-                            <CusText text="Bank Name" size="XS" color={colors.gray} medium />
-                        </Wrapper>
-                        <CusText text={bankData?.BankMaster?.bank_name || 'N/A'} size="S" color={colors.Hard_Black} bold />
-                    </Wrapper>
-
-                    {/* IFSC Code Card */}
-                    <Wrapper
-                        customStyles={{
-                            backgroundColor: colors.Hard_White,
-                            borderRadius: borderRadius.medium,
-                            padding: responsiveWidth(3),
-                            borderLeftWidth: 4,
-                            borderLeftColor: colors.green,
-                            shadowColor: colors.black,
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 4,
-                            elevation: 3,
-                            width: '48%'
-                        }}
-                    >
-                        <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(1) }}>
-                            <IonIcon name="code" size={responsiveWidth(4)} color={colors.green} />
-                            <Spacer x="XS" />
-                            <CusText text="IFSC Code" size="XS" color={colors.gray} medium />
-                        </Wrapper>
-                        <CusText text={bankData?.ifsc || 'N/A'} size="S" color={colors.Hard_Black} bold />
-                    </Wrapper>
-
-                    {/* MICR Code Card */}
-                    <Wrapper
-                        customStyles={{
-                            backgroundColor: colors.Hard_White,
-                            borderRadius: borderRadius.medium,
-                            padding: responsiveWidth(3),
-                            borderLeftWidth: 4,
-                            borderLeftColor: colors.purple,
-                            shadowColor: colors.black,
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 4,
-                            elevation: 3,
-                            width: '48%'
-                        }}
-                    >
-                        <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(1) }}>
-                            <IonIcon name="barcode" size={responsiveWidth(4)} color={colors.purple} />
-                            <Spacer x="XS" />
-                            <CusText text="MICR Code" size="XS" color={colors.gray} medium />
-                        </Wrapper>
-                        <CusText text={bankData?.micr || 'N/A'} size="S" color={colors.Hard_Black} bold />
-                    </Wrapper>
-
-                    {/* Branch Card */}
-                    <Wrapper
-                        customStyles={{
-                            backgroundColor: colors.Hard_White,
-                            borderRadius: borderRadius.medium,
-                            padding: responsiveWidth(3),
-                            borderLeftWidth: 4,
-                            borderLeftColor: colors.red,
-                            shadowColor: colors.black,
-                            shadowOffset: { width: 0, height: 2 },
-                            shadowOpacity: 0.1,
-                            shadowRadius: 4,
-                            elevation: 3,
-                            width: '48%'
-                        }}
-                    >
-                        <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(1) }}>
-                            <IonIcon name="location" size={responsiveWidth(4)} color={colors.red} />
-                            <Spacer x="XS" />
-                            <CusText text="Branch" size="XS" color={colors.gray} medium />
-                        </Wrapper>
-                        <CusText text={bankData?.branch || 'N/A'} size="S" color={colors.Hard_Black} bold />
-                    </Wrapper>
-                </Wrapper>
-
-                {/* Cancelled Cheque Section */}
-                <Wrapper
-                    customStyles={{
-                        backgroundColor: colors.green + '05',
-                        borderRadius: borderRadius.medium,
-                        padding: responsiveWidth(3),
-                        marginTop: responsiveWidth(4),
-                        borderWidth: 1,
-                        borderColor: colors.green + '20'
-                    }}
-                >
-                    <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(2) }}>
-                        <IonIcon name="document-outline" size={responsiveWidth(5)} color={colors.green} />
-                        <Spacer x="S" />
-                        <CusText text="Cancelled Cheque" size="M" bold color={colors.green} />
-                    </Wrapper>
-
-                    {/* Cancelled Cheque Image */}
-                    {summaryData?.bank?.cancelled_cheque ? (
-                        <Wrapper
-                            customStyles={{
-                                backgroundColor: colors.Hard_White,
-                                borderRadius: borderRadius.small,
-                                padding: responsiveWidth(2),
-                                marginBottom: responsiveWidth(2),
-                                borderWidth: 1,
-                                borderColor: colors.green + '30'
-                            }}
-                        >
-                            <Image
-                                source={{ uri: getImageUrl('chequeDoc', summaryData.bank.cancelled_cheque) }}
-                                style={{
-                                    width: '100%',
-                                    height: responsiveWidth(40),
-                                    borderRadius: borderRadius.small
+                {bankAccounts.map((bankData: any, index: number) => (
+                    <Wrapper key={index} customStyles={{ marginBottom: index < bankAccounts.length - 1 ? responsiveWidth(4) : 0 }}>
+                        {/* Bank Account Header */}
+                        {bankAccounts.length > 1 && (
+                            <Wrapper
+                                customStyles={{
+                                    backgroundColor: colors.primary1 + '10',
+                                    padding: responsiveWidth(2),
+                                    borderRadius: borderRadius.small,
+                                    marginBottom: responsiveWidth(3)
                                 }}
-                                resizeMode="contain"
-                            />
-                        </Wrapper>
-                    ) : (
-                        <Wrapper
-                            customStyles={{
-                                backgroundColor: colors.gray + '10',
-                                borderRadius: borderRadius.small,
-                                height: responsiveWidth(25),
-                                marginBottom: responsiveWidth(2),
-                                borderWidth: 1,
-                                borderColor: colors.gray + '30',
-                                borderStyle: 'dashed'
-                            }}
-                            align="center"
-                            justify="center"
-                        >
-                            <IonIcon name="document-outline" size={responsiveWidth(8)} color={colors.gray} />
-                            <Spacer y="XS" />
-                            <CusText text="No cheque image available" size="S" color={colors.gray} />
-                        </Wrapper>
-                    )}
+                            >
+                                <CusText text={`Bank Account ${index + 1}`} size="M" bold color={colors.primary1} position="center" />
+                            </Wrapper>
+                        )}
 
-                    <Wrapper row align="center">
-                        <IonIcon name="checkmark-circle" size={responsiveWidth(4)} color={colors.green} />
-                        <Spacer x="XS" />
-                        <CusText text="Document uploaded and verified" size="S" color={colors.Hard_Black} medium />
+                        {/* Bank Cards Grid */}
+                        <Wrapper row customStyles={{ flexWrap: 'wrap', gap: responsiveWidth(2) }}>
+                            {/* Account Number Card */}
+                            <Wrapper
+                                customStyles={{
+                                    backgroundColor: colors.Hard_White,
+                                    borderRadius: borderRadius.medium,
+                                    padding: responsiveWidth(3),
+                                    borderLeftWidth: 4,
+                                    borderLeftColor: colors.primary1,
+                                    shadowColor: colors.black,
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.1,
+                                    shadowRadius: 4,
+                                    elevation: 3,
+                                    width: '48%'
+                                }}
+                            >
+                                <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(1) }}>
+                                    <IonIcon name="card" size={responsiveWidth(4)} color={colors.primary1} />
+                                    <Spacer x="XS" />
+                                    <CusText text="Account Number" size="XS" color={colors.gray} medium />
+                                </Wrapper>
+                                <CusText text={bankData?.account_no || 'N/A'} size="S" color={colors.Hard_Black} bold />
+                            </Wrapper>
+
+                            {/* Account Type Card */}
+                            <Wrapper
+                                customStyles={{
+                                    backgroundColor: colors.Hard_White,
+                                    borderRadius: borderRadius.medium,
+                                    padding: responsiveWidth(3),
+                                    borderLeftWidth: 4,
+                                    borderLeftColor: colors.blue,
+                                    shadowColor: colors.black,
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.1,
+                                    shadowRadius: 4,
+                                    elevation: 3,
+                                    width: '48%'
+                                }}
+                            >
+                                <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(1) }}>
+                                    <IonIcon name="library" size={responsiveWidth(4)} color={colors.blue} />
+                                    <Spacer x="XS" />
+                                    <CusText text="Account Type" size="XS" color={colors.gray} medium />
+                                </Wrapper>
+                                <CusText text={bankData?.account_type || 'Savings'} size="S" color={colors.Hard_Black} bold />
+                            </Wrapper>
+
+                            {/* Bank Name Card */}
+                            <Wrapper
+                                customStyles={{
+                                    backgroundColor: colors.Hard_White,
+                                    borderRadius: borderRadius.medium,
+                                    padding: responsiveWidth(3),
+                                    borderLeftWidth: 4,
+                                    borderLeftColor: colors.orange,
+                                    shadowColor: colors.black,
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.1,
+                                    shadowRadius: 4,
+                                    elevation: 3,
+                                    width: '48%'
+                                }}
+                            >
+                                <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(1) }}>
+                                    <IonIcon name="business" size={responsiveWidth(4)} color={colors.orange} />
+                                    <Spacer x="XS" />
+                                    <CusText text="Bank Name" size="XS" color={colors.gray} medium />
+                                </Wrapper>
+                                <CusText text={bankData?.BankMaster?.bank_name || 'N/A'} size="S" color={colors.Hard_Black} bold />
+                            </Wrapper>
+
+                            {/* IFSC Code Card */}
+                            <Wrapper
+                                customStyles={{
+                                    backgroundColor: colors.Hard_White,
+                                    borderRadius: borderRadius.medium,
+                                    padding: responsiveWidth(3),
+                                    borderLeftWidth: 4,
+                                    borderLeftColor: colors.green,
+                                    shadowColor: colors.black,
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.1,
+                                    shadowRadius: 4,
+                                    elevation: 3,
+                                    width: '48%'
+                                }}
+                            >
+                                <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(1) }}>
+                                    <IonIcon name="code" size={responsiveWidth(4)} color={colors.green} />
+                                    <Spacer x="XS" />
+                                    <CusText text="IFSC Code" size="XS" color={colors.gray} medium />
+                                </Wrapper>
+                                <CusText text={bankData?.ifsc || 'N/A'} size="S" color={colors.Hard_Black} bold />
+                            </Wrapper>
+
+                            {/* MICR Code Card */}
+                            <Wrapper
+                                customStyles={{
+                                    backgroundColor: colors.Hard_White,
+                                    borderRadius: borderRadius.medium,
+                                    padding: responsiveWidth(3),
+                                    borderLeftWidth: 4,
+                                    borderLeftColor: colors.purple,
+                                    shadowColor: colors.black,
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.1,
+                                    shadowRadius: 4,
+                                    elevation: 3,
+                                    width: '48%'
+                                }}
+                            >
+                                <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(1) }}>
+                                    <IonIcon name="barcode" size={responsiveWidth(4)} color={colors.purple} />
+                                    <Spacer x="XS" />
+                                    <CusText text="MICR Code" size="XS" color={colors.gray} medium />
+                                </Wrapper>
+                                <CusText text={bankData?.micr || 'N/A'} size="S" color={colors.Hard_Black} bold />
+                            </Wrapper>
+
+                            {/* Branch Card */}
+                            <Wrapper
+                                customStyles={{
+                                    backgroundColor: colors.Hard_White,
+                                    borderRadius: borderRadius.medium,
+                                    padding: responsiveWidth(3),
+                                    borderLeftWidth: 4,
+                                    borderLeftColor: colors.red,
+                                    shadowColor: colors.black,
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.1,
+                                    shadowRadius: 4,
+                                    elevation: 3,
+                                    width: '48%'
+                                }}
+                            >
+                                <Wrapper row align="center" customStyles={{ marginBottom: responsiveWidth(1) }}>
+                                    <IonIcon name="location" size={responsiveWidth(4)} color={colors.red} />
+                                    <Spacer x="XS" />
+                                    <CusText text="Branch" size="XS" color={colors.gray} medium />
+                                </Wrapper>
+                                <CusText text={bankData?.branch || 'N/A'} size="S" color={colors.Hard_Black} bold />
+                            </Wrapper>
+                        </Wrapper>
+
+                        {/* Separator between accounts */}
+                        {index < bankAccounts.length - 1 && (
+                            <Wrapper
+                                customStyles={{
+                                    height: 2,
+                                    backgroundColor: colors.fieldborder,
+                                    marginVertical: responsiveWidth(3),
+                                    borderRadius: 1
+                                }}
+                            />
+                        )}
                     </Wrapper>
-                </Wrapper>
+                ))}
             </Wrapper>
-        )
-    }
+        );
+    };
 
     // Nominee Details Content
     const renderNomineeContent = () => (
@@ -1389,7 +1494,7 @@ const QuickSummary = ({ setSelectedTab }: any) => {
                             justify="center"
                         >
                             <Image
-                                source={{ uri: getImageUrl('signature', summaryData?.PersonalDocument?.signature) }}
+                                source={{ uri: getImageUrl('signature', summaryData?.PersonalDocument?.signature) || '' }}
                                 style={{
                                     width: '100%',
                                     height: '100%',
@@ -1466,7 +1571,7 @@ const QuickSummary = ({ setSelectedTab }: any) => {
                             justify="center"
                         >
                             <Image
-                                source={{ uri: getImageUrl('photo', summaryData?.PersonalDocument?.photo) }}
+                                source={{ uri: getImageUrl('photo', summaryData?.PersonalDocument?.photo) || '' }}
                                 style={{
                                     width: '100%',
                                     height: '100%',
@@ -1585,10 +1690,10 @@ const QuickSummary = ({ setSelectedTab }: any) => {
                             () => setSelectedTab('Nominee')
                         )}
 
-                        {/* Documents */}
-                        {renderAccordionItem(
-                            "Documents",
-                            "documents",
+                        {/* Documents - Hide when KYC is done */}
+                        {isKYCDone && userDetails?.annualFund === '<50K' ? null : renderAccordionItem(
+                            "Person Verification",
+                            "Person Verification",
                             renderDocumentsContent(),
                             () => setSelectedTab('InPersonVerification')
                         )}
@@ -1596,26 +1701,251 @@ const QuickSummary = ({ setSelectedTab }: any) => {
                         {/* <Spacer y="S" /> */}
 
                         {/* Agreement Checkbox */}
-                        <Wrapper row align="center" customStyles={{ paddingHorizontal: responsiveWidth(2) }}>
-                            <CheckBox
-                                isChecked={isAgreed}
-                                onPress={() => setIsAgreed(!isAgreed)}
-                                label="I agree that the details are reviewed and verified."
-                                size={20}
-                                checkedColor={colors.orange}
-                                uncheckedColor={colors.orange}
-                            />
 
-                        </Wrapper>
-
-                        <Spacer y="S" />
 
                         {/* Edit and Complete KYC Buttons */}
-                        <Wrapper row align="center" justify="apart" customStyles={{ gap: responsiveWidth(3) }}>
+                        <Wrapper >
+
+                            {
+                                !isCanRegister ?
+                                    (
+
+                                        <>
+                                            <Wrapper row align="center" customStyles={{ paddingHorizontal: responsiveWidth(2) }}>
+                                                <CheckBox
+                                                    isChecked={isAgreed}
+                                                    onPress={() => setIsAgreed(!isAgreed)}
+                                                    label="I agree that the details are reviewed and verified."
+                                                    size={20}
+                                                    checkedColor={colors.orange}
+                                                    uncheckedColor={colors.orange}
+                                                />
+
+                                            </Wrapper>
+
+                                            <Spacer y="S" />
+
+                                            {
+                                                isKYCDone ? (
+                                                    <>
+                                                        <Wrapper row align="center" justify="apart" customStyles={{ gap: responsiveWidth(3) }}>
+                                                            <TouchableOpacity
+                                                                activeOpacity={0.7}
+                                                                onPress={handleEditDetails}
+                                                                style={{
+                                                                    backgroundColor: colors.primary,
+                                                                    paddingVertical: responsiveWidth(2),
+                                                                    borderRadius: borderRadius.medium,
+                                                                    alignItems: 'center',
+                                                                    flex: 1,
+                                                                    flexDirection: 'row',
+                                                                    justifyContent: 'center'
+                                                                }}
+                                                            >
+                                                                <IonIcon name="pencil" size={responsiveWidth(4)} color={colors.Hard_White} />
+                                                                <Spacer x="XS" />
+                                                                <CusText text="Edit Details" size="M" bold color={colors.Hard_White} />
+                                                            </TouchableOpacity>
+                                                            <TouchableOpacity
+                                                                activeOpacity={0.7}
+                                                                onPress={() => {
+                                                                    const userDetails = getKYC_Details()?.user_basic_details || getKYC_Details()?.member_basic_details
+                                                                    // if (isKYCDone && userDetails?.annualFund === '<=50K') {
+                                                                    handleCompleteKycisKycDone()
+                                                                    //     return
+                                                                    // } else {
+                                                                    //     handleCompleteKyc()
+                                                                    // }
+                                                                    // handleCompleteKyc()
+                                                                }}
+                                                                disabled={isCompleting}
+                                                                style={{
+                                                                    backgroundColor: isCompleting ? colors.gray : colors.orange,
+                                                                    paddingVertical: responsiveWidth(2),
+                                                                    borderRadius: borderRadius.medium,
+                                                                    alignItems: 'center',
+                                                                    flex: 1
+                                                                }}
+                                                            >
+                                                                {isCompleting ? (
+                                                                    <ActivityIndicator color={colors.Hard_White} size="small" />
+                                                                ) : (
+                                                                    <CusText text="Complete KYC" size="M" bold color={colors.Hard_White} />
+                                                                )}
+                                                            </TouchableOpacity>
+                                                        </Wrapper>
+                                                    </>
+                                                ) :
+                                                    !isKYCComplete ? (
+                                                        <>
+                                                            <Wrapper row align="center" justify="apart" customStyles={{ gap: responsiveWidth(3) }}>
+                                                                <TouchableOpacity
+                                                                    activeOpacity={0.7}
+                                                                    onPress={handleEditDetails}
+                                                                    style={{
+                                                                        backgroundColor: colors.primary,
+                                                                        paddingVertical: responsiveWidth(2),
+                                                                        borderRadius: borderRadius.medium,
+                                                                        alignItems: 'center',
+                                                                        flex: 1,
+                                                                        flexDirection: 'row',
+                                                                        justifyContent: 'center'
+                                                                    }}
+                                                                >
+                                                                    <IonIcon name="pencil" size={responsiveWidth(4)} color={colors.Hard_White} />
+                                                                    <Spacer x="XS" />
+                                                                    <CusText text="Edit Details" size="M" bold color={colors.Hard_White} />
+                                                                </TouchableOpacity>
+                                                                <TouchableOpacity
+                                                                    activeOpacity={0.7}
+                                                                    onPress={() => {
+                                                                        const userDetails = getKYC_Details()?.user_basic_details || getKYC_Details()?.member_basic_details
+                                                                        // if (isKYCDone && userDetails?.annualFund === '<=50K') {
+                                                                        // handleCompleteKycisKycDone()
+                                                                        //     return
+                                                                        // } else {
+                                                                        handleCompleteKyc()
+                                                                        // }
+                                                                        // handleCompleteKyc()
+                                                                    }}
+                                                                    disabled={isCompleting}
+                                                                    style={{
+                                                                        backgroundColor: isCompleting ? colors.gray : colors.orange,
+                                                                        paddingVertical: responsiveWidth(2),
+                                                                        borderRadius: borderRadius.medium,
+                                                                        alignItems: 'center',
+                                                                        flex: 1
+                                                                    }}
+                                                                >
+                                                                    {isCompleting ? (
+                                                                        <ActivityIndicator color={colors.Hard_White} size="small" />
+                                                                    ) : (
+                                                                        <CusText text="Complete KYC" size="M" bold color={colors.Hard_White} />
+                                                                    )}
+                                                                </TouchableOpacity>
+                                                            </Wrapper>
+
+                                                        </>
+                                                    ) :
+                                                        (
+                                                            <>
+                                                                <Wrapper row align="center" justify="apart" customStyles={{ gap: responsiveWidth(3) }} >
+                                                                    <TouchableOpacity
+                                                                        activeOpacity={0.7}
+                                                                        onPress={() => {
+                                                                            setKYC_ISMember(false);
+                                                                            const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', null);
+                                                                            setKYC_Details(update_data);
+                                                                            navigation.navigate('Profile')
+                                                                        }}
+                                                                        style={{
+                                                                            backgroundColor: colors.primary,
+                                                                            paddingVertical: responsiveWidth(2),
+                                                                            borderRadius: borderRadius.medium,
+                                                                            alignItems: 'center',
+                                                                            flex: 1,
+                                                                            flexDirection: 'row',
+                                                                            justifyContent: 'center'
+                                                                        }}
+                                                                    >
+                                                                        <IonIcon name="arrow-back-outline" size={responsiveWidth(4)} color={colors.Hard_White} />
+                                                                        <Spacer x="XS" />
+                                                                        <CusText text="Back to Profile" size="M" bold color={colors.Hard_White} />
+                                                                    </TouchableOpacity>
+                                                                    {
+                                                                        isKYCDone && (
+                                                                            <>
+                                                                                <TouchableOpacity
+                                                                                    activeOpacity={0.7}
+                                                                                    onPress={handleEditDetails}
+                                                                                    style={{
+                                                                                        backgroundColor: colors.primary,
+                                                                                        paddingVertical: responsiveWidth(2),
+                                                                                        borderRadius: borderRadius.medium,
+                                                                                        alignItems: 'center',
+                                                                                        flex: 1,
+                                                                                        flexDirection: 'row',
+                                                                                        justifyContent: 'center'
+                                                                                    }}
+                                                                                >
+                                                                                    <IonIcon name="pencil" size={responsiveWidth(4)} color={colors.Hard_White} />
+                                                                                    <Spacer x="XS" />
+                                                                                    <CusText text="Edit" size="M" bold color={colors.Hard_White} />
+                                                                                </TouchableOpacity>
+                                                                            </>
+                                                                        )
+                                                                    }
+                                                                </Wrapper>
+                                                            </>
+                                                        )
+                                            }
+                                        </>
+
+
+                                    )
+                                    :
+                                    (
+                                        <>
+                                            <Wrapper row align="center" justify="apart" customStyles={{ gap: responsiveWidth(3) }} >
+                                                <TouchableOpacity
+                                                    activeOpacity={0.7}
+                                                    onPress={() => {
+                                                        setKYC_ISMember(false);
+                                                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', null);
+                                                        setKYC_Details(update_data);
+                                                        navigation.navigate('Profile')
+                                                    }}
+                                                    style={{
+                                                        backgroundColor: colors.primary,
+                                                        paddingVertical: responsiveWidth(2),
+                                                        borderRadius: borderRadius.medium,
+                                                        alignItems: 'center',
+                                                        flex: 1,
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'center'
+                                                    }}
+                                                >
+                                                    <IonIcon name="arrow-back-outline" size={responsiveWidth(4)} color={colors.Hard_White} />
+                                                    <Spacer x="XS" />
+                                                    <CusText text="Back to Profile" size="M" bold color={colors.Hard_White} />
+                                                </TouchableOpacity>
+                                                {
+                                                    isKYCDone && (
+                                                        <>
+                                                            <TouchableOpacity
+                                                                activeOpacity={0.7}
+                                                                onPress={handleEditDetails}
+                                                                style={{
+                                                                    backgroundColor: colors.primary,
+                                                                    paddingVertical: responsiveWidth(2),
+                                                                    borderRadius: borderRadius.medium,
+                                                                    alignItems: 'center',
+                                                                    flex: 1,
+                                                                    flexDirection: 'row',
+                                                                    justifyContent: 'center'
+                                                                }}
+                                                            >
+                                                                <IonIcon name="pencil" size={responsiveWidth(4)} color={colors.Hard_White} />
+                                                                <Spacer x="XS" />
+                                                                <CusText text="Edit" size="M" bold color={colors.Hard_White} />
+                                                            </TouchableOpacity>
+                                                        </>
+                                                    )
+                                                }
+                                            </Wrapper>
+                                        </>
+                                    )
+
+
+
+
+
+                            }
+
                             {/* Edit Button */}
-                            <TouchableOpacity
+                            {/* <TouchableOpacity
                                 activeOpacity={0.7}
-                                onPress={() => setSelectedTab('PersonalInfo')}
+                                onPress={handleEditDetails}
                                 style={{
                                     backgroundColor: colors.primary,
                                     paddingVertical: responsiveWidth(2),
@@ -1629,12 +1959,21 @@ const QuickSummary = ({ setSelectedTab }: any) => {
                                 <IonIcon name="pencil" size={responsiveWidth(4)} color={colors.Hard_White} />
                                 <Spacer x="XS" />
                                 <CusText text="Edit Details" size="M" bold color={colors.Hard_White} />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
 
                             {/* Complete KYC Button */}
-                            <TouchableOpacity
+                            {/* <TouchableOpacity
                                 activeOpacity={0.7}
-                                onPress={handleCompleteKyc}
+                                onPress={() => {
+                                    const userDetails = getKYC_Details()?.user_basic_details || getKYC_Details()?.member_basic_details
+                                    if (isKYCDone && userDetails?.annualFund === '<=50K') {
+                                        handleCompleteKycisKycDone()
+                                        return
+                                    } else {
+                                        handleCompleteKyc()
+                                    }
+                                    // handleCompleteKyc()
+                                }}
                                 disabled={isCompleting}
                                 style={{
                                     backgroundColor: isCompleting ? colors.gray : colors.orange,
@@ -1649,7 +1988,7 @@ const QuickSummary = ({ setSelectedTab }: any) => {
                                 ) : (
                                     <CusText text="Complete KYC" size="M" bold color={colors.Hard_White} />
                                 )}
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </Wrapper>
 
                         <Spacer y="S" />

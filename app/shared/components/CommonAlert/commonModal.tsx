@@ -23,10 +23,13 @@ const CommonModal = ({
     iconColor = '#000',
     title,
     description,
+    subDescription,
     button1Text,
     onButton1Press,
     button2Text,
     onButton2Press,
+    button2Loading,
+    button2Color,
 }: any) => {
       const { colors }: any = React.useContext(AppearanceContext);
     return (
@@ -59,7 +62,18 @@ const CommonModal = ({
                     {title && <CusText bold size={"SL"} color={colors.primary} semibold customStyles={styles.title} text={title} />}
 
                     {/* Description */}
-                    {description && <CusText size={"SS"} color={colors.primary} semibold customStyles={styles.description} text={description} />}
+                    {description && (
+                        typeof description === 'string' ? (
+                            <CusText size={"SS"} color={colors.primary} semibold customStyles={styles.description} text={description} />
+                        ) : (
+                            <Wrapper customStyles={styles.description}>
+                                {description}
+                            </Wrapper>
+                        )
+                    )}
+
+                    {/* Sub Description */}
+                    {subDescription && <CusText size={"XS"} color={colors.gray} customStyles={{...styles.description, marginTop: responsiveWidth(2)}} text={subDescription} />}
                       {/* <LinearGradient
                   start={{ x: 1, y: 0 }}
                   end={{ x: 0, y: 1 }}
@@ -100,7 +114,9 @@ const CommonModal = ({
                                     onPress={onButton2Press}
                                      textSize='SS'
                                      textWeight='bold'
-                                   lgcolor1={colors.orange} lgcolor2={colors.orange}
+                                   lgcolor1={button2Color || colors.orange}
+                                   lgcolor2={button2Color || colors.orange}
+                                   loading={button2Loading}
                                 />
                             </Wrapper>
                         )}

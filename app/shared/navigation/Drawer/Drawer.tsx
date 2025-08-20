@@ -20,6 +20,11 @@ import KycInfoPage from '../../../screens/home/KycInfoPage/kycInfoPage';
 import KycDigiLockerInfo from '../../../screens/home/KycInfoPage/kycDigiLockerInfo';
 import KycDashboard from '../../../screens/home/KYCDashboard/kycDashboard';
 import Profile from '../../../screens/home/Profile/profile';
+import MutualFunds from '../../../screens/home/MutualFund/mutualFund';
+import TopPerformingSchemes from '../../../screens/home/MutualFund/TopPerformingSchemes';
+import AllAmcList from '../../../screens/home/MutualFund/AllAmcList';
+import AllFundManagerList from '../../../screens/home/MutualFund/AllFundManagerList';
+
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -47,6 +52,11 @@ const AppStack = () => {
       <Stack.Screen name="KycDigiLockerInfo" component={KycDigiLockerInfo} />
       <Stack.Screen name="KycDashboard" component={KycDashboard} />
       <Stack.Screen name="Profile" component={Profile} />
+      <Stack.Screen name="MutualFunds" component={MutualFunds} />
+      <Stack.Screen name="TopPerformingSchemes" component={TopPerformingSchemes} />
+      <Stack.Screen name="AllAmcList" component={AllAmcList} />
+      <Stack.Screen name="AllFundManagerList" component={AllFundManagerList} />
+      <Stack.Screen name="FundPicker" component={FundPicker} />
     </Stack.Navigator>
   );
 };

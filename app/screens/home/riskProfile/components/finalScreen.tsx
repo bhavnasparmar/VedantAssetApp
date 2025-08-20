@@ -38,6 +38,7 @@ const COLORS = ['#2E7D32', '#DCE775', '#FFEB3B', '#FFB74D', '#D32F2F']; // Low â
 const LABELS = ['Low', 'Moderately Low', 'Moderate', 'Moderately High', 'High'];
 
 const FinalScreen = ({setIndex, data}: any) => {
+  console.log('data', data);
   const {colors}: any = React.useContext(AppearanceContext);
   const [totaldata, settotaldata] = useState(data?.totalPoints || 0);
   const navigation: any = useNavigation();
@@ -192,6 +193,7 @@ const getLabel = (score: number): string => {
          },
        ],
      };
+     console.log('option', option);
     if (chartRef.current) {
       chart = echarts.init(chartRef.current, 'light', {
         renderer: 'svg',

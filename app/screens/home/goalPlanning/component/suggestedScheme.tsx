@@ -473,7 +473,7 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                                 <CusText size='SS' color={colors.label} text={`${item?.SchemeMaster?.name}`} />
                             </Wrapper>
                             <Wrapper align='center' row>
-                                <CusText size='SS' color={colors.label} bold text={`Morningstar Rating: `} />
+                                <CusText size='SS' color={colors.label} bold text={`Rating: `} />
                                 <Wrapper row align='center' customStyles={{ gap: responsiveWidth(1) }}>
                                     <CusText size='SS' color={colors.label} text={item?.SchemeMaster?.SchemePerformances[0]?.OverallRating || 0} />
                                     <IonIcon name='star' color={colors.orange} size={10} />
@@ -533,7 +533,7 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
 
     return (
         <>
-            <Header name={'MF Allocation'} backBtn />
+            <Header name={'MF Allocation 1'} backBtn />
             <Container Xcenter contentWidth={responsiveWidth(95)} bgcolor={colors.Hard_White}>
                 <Wrapper align='center' row position='center' customStyles={{ gap: responsiveWidth(5), paddingVertical: responsiveWidth(5) }}>
                     <PieChart

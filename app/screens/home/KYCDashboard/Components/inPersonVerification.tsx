@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image } from 'react-native';
+import { ScrollView, TouchableOpacity, Alert, ActivityIndicator, Image, BackHandler } from 'react-native';
 import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { AppearanceContext } from '../../../../context/AppearanceContext';
 
@@ -16,9 +16,9 @@ import { borderRadius, colors, fontSize, responsiveHeight, responsiveWidth } fro
 import CusText from '../../../../ui/custom-text';
 import RadioButton from '../../../../ui/radioButton';
 import DateTimePicker from '../../../../ui/datetimePicker';
-import { CreateKYCInvsSignZy, getAllCountryApi, getAllStateByCountryApi, getOnBoardingListingsApi, saveNomineeDetailsApi, updatePersonalDetailApi, uploadImagesApi, investorSignatureApi, investorPhotoApi, uploadLiveImagesApi, changeKycStepApi, getPersonalDocumentInfoApi } from '../../../../api/homeapi';
+import { CreateKYCInvsSignZy, getAllCountryApi, getAllStateByCountryApi, getOnBoardingListingsApi, saveNomineeDetailsApi, updatePersonalDetailApi, uploadImagesApi, investorSignatureApi, investorPhotoApi, uploadLiveImagesApi, changeKycStepApi, getPersonalDocumentInfoApi, UpdateInvestorApi } from '../../../../api/homeapi';
 import { showToast, toastTypes } from '../../../../services/toastService';
-import { getKYC_Details, setKYC_Details, updateObjectKey, getImageUrl } from '../../../../utils/Commanutils';
+import { getKYC_Details, setKYC_Details, updateObjectKey, getImageUrl, getKYC_ISMember } from '../../../../utils/Commanutils';
 import ImagePickerModal from '../../../../shared/components/ImagePickerModal';
 import { Camera, useCameraDevices, useFrameProcessor } from 'react-native-vision-camera';
 import detectFaces from 'react-native-vision-camera-face-detector'
@@ -28,6 +28,7 @@ import LivePhotoCapture from '../../../../shared/components/LivePhotoCapture';
 const InPersonVerification = ({ setSelectedTab }: any) => {
     // const { colors }: any = React.useContext(AppearanceContext);
     const isFocused: any = useIsFocused();
+    const navigation: any = useNavigation();
     const [signZyData, setSignZydata] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<any>(null);
     const [signatureImage, setSignatureImage] = useState<string>('');
@@ -79,7 +80,7 @@ const InPersonVerification = ({ setSelectedTab }: any) => {
                 // Call investor signature API with result data
                 const signaturePayload = {
                     filename: result?.data?.fileName,
-                    investor_id: getKYC_Details()?.user_basic_details?.id,
+                    investor_id: getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id,
                     userToken: signZyData?.id,
                     synzyuserId: signZyData?.userId
                 };
@@ -146,7 +147,7 @@ const InPersonVerification = ({ setSelectedTab }: any) => {
                 };
                 // formData.append("public_id", name);
                 formData.append("photo", photoImageFile);
-                formData.append("investor_id", getKYC_Details()?.user_basic_details?.id);
+                formData.append("investor_id", getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id);
                 formData.append("userToken", signZyData?.id);
                 formData.append("synzyuserId", signZyData?.userId);
             }
@@ -239,15 +240,41 @@ const InPersonVerification = ({ setSelectedTab }: any) => {
     };
 
     useEffect(() => {
-        kycSignZyStatus();
+        const backAction = () => {
+            navigation.navigate('Profile')
+            return true; // Return true to prevent default back behavior
+        };
+
+        const backHandler = BackHandler.addEventListener(
+            "hardwareBackPress",
+            backAction
+        );
+
+        return () => backHandler.remove(); // Clean up the listener on unmount
+    }, []);
+
+    useEffect(() => {
+
+        if (getKYC_ISMember()) {
+            if (getKYC_Details()?.member_basic_details?.signzy_user_name && getKYC_Details()?.member_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+        else {
+            if (getKYC_Details()?.user_basic_details?.signzy_user_name && getKYC_Details()?.user_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+
+        // kycSignZyStatus();
         getPersonalDocumentInfo();
     }, [isFocused]);
 
     const kycSignZyStatus = async () => {
         try {
             let payload = {
-                "username": getKYC_Details()?.user_basic_details?.signzy_user_name,
-                "password": getKYC_Details()?.user_basic_details?.signzy_kyc_id
+                "username": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_user_name : getKYC_Details()?.user_basic_details?.signzy_user_name,
+                "password": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_kyc_id : getKYC_Details()?.user_basic_details?.signzy_kyc_id
             }
             const [result, error]: any = await CreateKYCInvsSignZy(payload)
             if (result) {
@@ -265,7 +292,7 @@ const InPersonVerification = ({ setSelectedTab }: any) => {
 
     const getPersonalDocumentInfo = async () => {
         try {
-            const investorId = getKYC_Details()?.user_basic_details?.id;
+            const investorId = getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id;
 
             if (investorId) {
                 const [result, error]: any = await getPersonalDocumentInfoApi(investorId);
@@ -304,6 +331,65 @@ const InPersonVerification = ({ setSelectedTab }: any) => {
         }
     }
 
+    const handleNext_BUP = async () => {
+        // Check if both signature and photo are uploaded
+        if (!signatureImage) {
+            showToast(toastTypes.error, 'Signature is mandatory. Please upload your signature.');
+            return;
+        }
+
+        if (!capturedPhoto) {
+            showToast(toastTypes.error, 'Photo is mandatory. Please capture your photo.');
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+
+            // Update KYC step to indicate in-person verification is complete
+            const payload = {
+                investor_id: getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id
+            };
+
+            console.log('Change KYC Step Payload:', payload);
+
+            const [result, error]: any = await changeKycStepApi(payload);
+
+            if (result) {
+                console.log('Change KYC Step Result:', result);
+                showToast(toastTypes.success, result?.msg || 'In-person verification completed successfully');
+
+                // Update KYC details if needed
+                if (result?.data) {
+
+                    if (getKYC_ISMember()) {
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+                    } else {
+
+
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+
+                    }
+
+                    setSelectedTab('QuickSummary');
+                }
+
+                // Navigate to Quick Summary
+
+            } else {
+                console.log('Change KYC Step Error:', error);
+                showToast(toastTypes.error, error?.msg || 'Failed to update KYC step');
+            }
+        } catch (error: any) {
+            console.log('Change KYC Step Catch Error:', error);
+            showToast(toastTypes.error, 'Something went wrong while updating KYC step');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleNext = async () => {
         // Check if both signature and photo are uploaded
         if (!signatureImage) {
@@ -321,12 +407,13 @@ const InPersonVerification = ({ setSelectedTab }: any) => {
 
             // Update KYC step to indicate in-person verification is complete
             const payload = {
-                investor_id: getKYC_Details()?.user_basic_details?.id
+                investor_id: getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id,
+                last_kyc_step: 8,
             };
 
-            console.log('Change KYC Step Payload:', payload);
+            console.log('Update Investor Payload 1:', payload);
 
-            const [result, error]: any = await changeKycStepApi(payload);
+            const [result, error]: any = await UpdateInvestorApi(payload);
 
             if (result) {
                 console.log('Change KYC Step Result:', result);
@@ -335,8 +422,17 @@ const InPersonVerification = ({ setSelectedTab }: any) => {
                 // Update KYC details if needed
                 if (result?.data) {
 
-                    const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
-                    setKYC_Details(update_data);
+                    if (getKYC_ISMember()) {
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+                    } else {
+
+
+                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
+                        setKYC_Details(update_data);
+
+                    }
+
                     setSelectedTab('QuickSummary');
                 }
 

@@ -13,7 +13,7 @@ import styles from '../funpickerdetailstyles';
 import { useIsFocused } from '@react-navigation/native';
 const COLORS = ['#2E7D32', '#DCE775', '#FFEB3B', '#FFB74D', '#D32F2F']; // Low → High
 const LABELS = ['Low', 'Moderately Low', 'Moderate', 'Moderately High', 'High'];
-const Information = ({ totaldata }: any) => {
+const Information = ({ totaldata, schemeDetails }: any) => {
     const { colors }: any = useContext(AppearanceContext);
     const [activeTab, setActiveTab] = useState('Overview');
     const [totaldataa, settotaldata] = useState(totaldata || 0);
@@ -124,65 +124,50 @@ const Information = ({ totaldata }: any) => {
         </Wrapper>
     );
 
-    const renderOverviewTab = () => (
-        <ScrollView showsVerticalScrollIndicator={false}>
-            <Wrapper customStyles={styles.section}>
-                <CusText text="About" size="M" color={colors.primary} bold underline/>
-                <Spacer y="XS" />
+    const renderOverviewTab = (schemeDetails: any) => {
+        // console.log('schemeDetails === >>>> ', schemeDetails)
+        return (
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <Wrapper customStyles={styles.section}>
+                    <CusText text="About" size="M" color={colors.primary} bold underline />
+                    <Spacer y="XS" />
+                    <Wrapper customStyles={styles.saprator} />
+                    <InfoItem
+                        label="Type"
+                        value={schemeDetails?.SchemeSubcategory?.Name || '--'}
+                    />
+                    <Wrapper customStyles={styles.saprator} />
+                    <InfoItem
+                        label="Custodian"
+                        value={schemeDetails?.AMCMaster?.Name || '--'}
+                    />
+                    <Wrapper customStyles={styles.saprator} />
+                    <InfoItem
+                        label="Registrar"
+                        value={'--'}
+                    />
+                    <Wrapper customStyles={styles.saprator} />
+                    <InfoItem
+                        label="Benchmark"
+                        value={schemeDetails?.SchemeBenchmarksMappings[0]?.SchemeBenchmarksMaster?.benchmark_name || '--'}
+                    />
+                    <Wrapper customStyles={styles.saprator} />
+                    <InfoItem
+                        label="Launch Date"
+                        value="₹ 100"
+                    />
+                    <Wrapper customStyles={styles.saprator} />
+                    <InfoItem
+                        label="Expense Ratio"
+                        value={schemeDetails?.net_expense_ratio ? schemeDetails?.net_expense_ratio + '%' : '--'}
+                    />
+                    
+                </Wrapper>
 
-                <InfoItem
-                    label="Scheme Name"
-                    value="HDFC Mid-Cap Opportunities Gr"
-                />
-                <Wrapper customStyles={styles.saprator} />
-                <InfoItem
-                    label="AMC Name"
-                    value="HDFC Mutual Fund"
-                />
-                <Wrapper customStyles={styles.saprator} />
-                <InfoItem
-                    label="Inception Date"
-                    value="25 Jun 2007"
-                />
-                <Wrapper customStyles={styles.saprator} />
-                <InfoItem
-                    label="AUM as on March 2023"
-                    value="₹ 72,610 Cr"
-                />
-                <Wrapper customStyles={styles.saprator} />
-                <InfoItem
-                    label="Min. Investment Lumpsum"
-                    value="₹ 500"
-                />
-                <Wrapper customStyles={styles.saprator} />
-                <InfoItem
-                    label="Min. Investment SIP"
-                    value="₹ 100"
-                />
-                <Wrapper customStyles={styles.saprator} />
-                <InfoItem
-                    label="Expense Ratio as on 30 Apr 2023"
-                    value="1.51 %"
-                />
-                <Wrapper customStyles={styles.saprator} />
-                <InfoItem
-                    label="NIL exit load"
-                    value="units on or before 1Y, NIL after 1Y"
-                />
-                 <Wrapper customStyles={styles.saprator} />
-                  <InfoItem
-                    label="Risk Rating"
-                    value="High"
-                />
-                 <Wrapper customStyles={styles.saprator} />
-                  <InfoItem
-                    label="Benchmark"
-                    value="CRISIL Hybrid 50+50 - Moderate Index"
-                />
-            </Wrapper>
+            </ScrollView>
+        )
+    }
 
-        </ScrollView>
-    );
 
     const renderObjectiveTab = () => (
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -220,45 +205,46 @@ const Information = ({ totaldata }: any) => {
 
     return (
         <>
-        <Wrapper customStyles={{ padding: responsiveWidth(4), width:responsiveWidth(100) }}>
-            {/* Tab buttons */}
-            <Wrapper row customStyles={styles.tabContainer}>
-                <TouchableOpacity
-                    style={[
-                        styles.tabButton,
-                        activeTab === 'Overview' && styles.activeTabButton
-                    ]}
-                    onPress={() => setActiveTab('Overview')}
-                >
-                    <CusText
-                        text="Overview"
-                        size="S"
-                        color={activeTab === 'Overview' ? colors.white : colors.black}
-                        bold={activeTab === 'Overview'}
-                    />
-                </TouchableOpacity>
+            <Wrapper customStyles={{ padding: responsiveWidth(4), width: responsiveWidth(100) }}>
+                {/* Tab buttons */}
+                {/* <Wrapper row customStyles={styles.tabContainer}>
+                    <TouchableOpacity
+                        style={[
+                            styles.tabButton,
+                            activeTab === 'Overview' && styles.activeTabButton
+                        ]}
+                        onPress={() => setActiveTab('Overview')}
+                    >
+                        <CusText
+                            text="Overview"
+                            size="S"
+                            color={activeTab === 'Overview' ? colors.white : colors.black}
+                            bold={activeTab === 'Overview'}
+                        />
+                    </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[
-                        styles.tabButton,
-                        activeTab === 'Objective' && styles.activeTabButton
-                    ]}
-                    onPress={() => {setActiveTab('Objective');settotaldata(25)}}
-                >
-                    <CusText
-                        text="Objective"
-                        size="S"
-                        color={activeTab === 'Objective' ? colors.white : colors.black}
-                        bold={activeTab === 'Objective'}
-                    />
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[
+                            styles.tabButton,
+                            activeTab === 'Objective' && styles.activeTabButton
+                        ]}
+                        onPress={() => { setActiveTab('Objective'); settotaldata(25) }}
+                    >
+                        <CusText
+                            text="Objective"
+                            size="S"
+                            color={activeTab === 'Objective' ? colors.white : colors.black}
+                            bold={activeTab === 'Objective'}
+                        />
+                    </TouchableOpacity>
+                </Wrapper> */}
+
+                {/* <Spacer y="S" /> */}
+
+                {/* Tab content */}
+                {/* {activeTab === 'Overview' ? renderOverviewTab() : renderObjectiveTab()} */}
+                {renderOverviewTab(schemeDetails)}
             </Wrapper>
-
-            <Spacer y="S" />
-
-            {/* Tab content */}
-            {activeTab === 'Overview' ? renderOverviewTab() : renderObjectiveTab()}
-        </Wrapper>
         </>
     );
 };

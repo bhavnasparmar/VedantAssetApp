@@ -12,7 +12,7 @@ import CusButton from '../../../../ui/custom-button';
 import Header from '../../../../shared/components/Header/Header';
 import { borderRadius, colors, responsiveHeight, responsiveWidth } from '../../../../styles/variables';
 import { showToast, toastTypes } from '../../../../services/toastService';
-import { API_URL, getKYC_Details, IMAGE_API_URL, setKYC_Details, updateObjectKey } from '../../../../utils/Commanutils';
+import { API_URL, getKYC_Details, getKYC_ISMember, IMAGE_API_URL, setKYC_Details, updateObjectKey } from '../../../../utils/Commanutils';
 import { completeKycApi, completeKycFinalApi, CreateKYCInvsSignZy, registerFinalKYCApi, saveAadharPDFApi } from '../../../../api/homeapi';
 
 import IonIcon from 'react-native-vector-icons/Ionicons';
@@ -32,14 +32,24 @@ const KycComplete = ({ setSelectedTab }: any) => {
 
     useEffect(() => {
         const kycDetails = getKYC_Details();
-        kycSignZyStatus()
+        if (getKYC_ISMember()) {
+            if (getKYC_Details()?.member_basic_details?.signzy_user_name && getKYC_Details()?.member_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+        else {
+            if (getKYC_Details()?.user_basic_details?.signzy_user_name && getKYC_Details()?.user_basic_details?.signzy_kyc_id) {
+                kycSignZyStatus();
+            }
+        }
+        // kycSignZyStatus()
     }, []);
 
     const kycSignZyStatus = async () => {
         try {
             let payload = {
-                "username": getKYC_Details()?.user_basic_details?.signzy_user_name,
-                "password": getKYC_Details()?.user_basic_details?.signzy_kyc_id
+                "username": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_user_name : getKYC_Details()?.user_basic_details?.signzy_user_name,
+                "password": getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.signzy_kyc_id : getKYC_Details()?.user_basic_details?.signzy_kyc_id
             }
 
             const [result, error]: any = await CreateKYCInvsSignZy(payload)
@@ -62,7 +72,7 @@ const KycComplete = ({ setSelectedTab }: any) => {
         try {
             const payload = {
                 userToken: data?.id,
-                investor_id: getKYC_Details()?.user_basic_details?.id,
+                investor_id: getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id,
                 synzyuserId: data?.userId
             };
 
@@ -206,7 +216,7 @@ const KycComplete = ({ setSelectedTab }: any) => {
         try {
             const payload = {
                 userToken: signZyData?.id,
-                investor_id: getKYC_Details()?.user_basic_details?.id,
+                investor_id: getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id,
                 synzyuserId: signZyData?.userId
             };
 
@@ -214,22 +224,54 @@ const KycComplete = ({ setSelectedTab }: any) => {
             const [result, error]: any = await registerFinalKYCApi(payload)
             if (result) {
                 console.log('result:', result?.data);
-               
-                const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor);
-                setKYC_Details(update_data);
 
-                navigation.reset({
-                    index: 0,
-                    routes: [
-                        {
-                            name: 'Main',
-                            params: {
-                                screen: 'Tabs',
-                                params: { screen: 'Dashboard' }
+                if (getKYC_ISMember()) {
+                    const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', result?.data?.investor);
+                    setKYC_Details(update_data);
+                } else {
+
+                    const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor);
+                    setKYC_Details(update_data);
+
+                }
+
+                // Check if Profile is in tab navigation or standalone
+                const profileInTabs = navigation.getState()?.routes?.some((route: any) =>
+                    route.name === 'Main' &&
+                    route.state?.routes?.some((tabRoute: any) =>
+                        tabRoute.name === 'Tabs' &&
+                        tabRoute.state?.routes?.some((tab: any) => tab.name === 'Profile')
+                    )
+                );
+
+                if (profileInTabs) {
+                    // Profile is in tabs - navigate to tab
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                            {
+                                name: 'Main',
+                                params: {
+                                    screen: 'Tabs',
+                                    params: { screen: 'Profile' }
+                                }
                             }
-                        }
-                    ]
-                });
+                        ]
+                    });
+                } else {
+                    // Profile is standalone - navigate directly
+                    navigation.reset({
+                        index: 0,
+                        routes: [
+                            {
+                                name: 'Main',
+                                params: {
+                                    screen: 'Profile'
+                                }
+                            }
+                        ]
+                    });
+                }
             } else {
                 console.log('handleFinalSubmit Error : ', error)
                 showToast(toastTypes.error, error)

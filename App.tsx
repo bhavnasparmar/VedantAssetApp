@@ -237,6 +237,8 @@ export default function App() {
           await AsyncStorage.setItem(USER_DATA, JSON.stringify(data?.user));
           const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', data?.user?.InvestorRegistration)
           setKYC_Details(update_data)
+          // const update_member_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', data?.user?.InvestorRegistration)
+          // setKYC_Details(update_member_data)
           showToast(toastTypes.success, 'Login SuccessFully');
 
           let initialRoute = 'App';
