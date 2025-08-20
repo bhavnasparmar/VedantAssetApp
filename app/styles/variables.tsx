@@ -1,5 +1,6 @@
 import { Dimensions, Platform } from 'react-native';
 import Device from 'react-native-device-info';
+import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 
 const deviceHeight = Dimensions.get('window').height;
 const deviceWidth = Dimensions.get('window').width;
@@ -93,7 +94,9 @@ let reptativeColors = {
   darkGrayShades: '#313131',
   gray: '#999999',
   lightGray: '#eeeeee',
-  primary: 'rgba(35, 59, 116, 1)',
+  gridHeader:'#F7F6F6',
+  // primary: 'rgba(35, 59, 116, 1)',
+  primary: '#233B74',
   primarylow: '#8505B41F',
   primary1: '#3498DB',
   primary2: '#FF6207',
@@ -107,7 +110,7 @@ let reptativeColors = {
   yellow: '#eef240',
   green: '#01b81a',
   innerCard: '#1c1c1d',
-  tabBg: '#333333',
+  tabBg: '#EAECF0',
   itemborder: '#090F471A',
   itemtextcolor: '#090F47',
   errorText: '#E33629',
@@ -128,17 +131,24 @@ let reptativeColors = {
   bottomTabBG1: '#FFF',
   altProductColor: '#9CC54466',
   altoffercolor: '#20B038',
+  label:'#101828',
+  headerlist:'#EAECF0',
   //extra color code
-
+  greenshade:'#E6F8E9',
   inputLabel: '#BCBCBC',
-
+  headerColor:'#F8F8F8',
   gradient1: '#DA79FF',
   gradient2: '#7200E4',
-  placeholderColor: 'rgba(153,153,153,0.6)',
+  // placeholderColor: 'rgba(153,153,153,0.6)',
+  placeholderColor: '#98A2B3',
   placeholderColorFixed: 'rgba(255,255,255,0.6)',
   darkgreen: '#00830B',
   paginationborder: '#DFE3E8',
-  paginationselected: "#1B47C40F"
+  paginationselected: "#1B47C40F",
+  fieldborder:'#EAECF0',
+  bg:'#F4F6F8',
+  action:'#3498DB',
+  cardborder:'#DEDEDE'
 };
 
 const colors: any = {
@@ -146,11 +156,13 @@ const colors: any = {
   gradient3: 'rgba(229, 75, 186, 0.4)',
   gradient4: 'rgba(243, 118, 124, 0.29)',
   gradient5: 'rgba(255, 151, 75, 0.2)',
+  label:reptativeColors.label,
   transparent: reptativeColors.transparent,
   black: reptativeColors.black,
   white: reptativeColors.white,
   darkGray: reptativeColors.darkGray,
   darkGrayShades: reptativeColors.darkGrayShades,
+  gridHeader:reptativeColors.gridHeader,
   gray: reptativeColors.gray,
   primary: reptativeColors.primary,
   primary1: reptativeColors.primary1,
@@ -183,6 +195,16 @@ const colors: any = {
   paginationborder: reptativeColors.paginationborder,
   paginationselected: reptativeColors.paginationselected,
 
+  placeholder:reptativeColors.placeholderColor,
+  fieldborder:reptativeColors.fieldborder,
+  bg:reptativeColors.bg,
+  action:reptativeColors.action,
+  tabBg: reptativeColors.tabBg, //extra
+greenshade:reptativeColors.greenshade,
+  cardborder:reptativeColors.cardborder,
+  headerColor:reptativeColors.headerColor,
+ 
+
   //Header
   headerBg: reptativeColors.gray,
   headerIcon: reptativeColors.white,
@@ -191,6 +213,7 @@ const colors: any = {
   tabHeader: reptativeColors.primary3,
   count: reptativeColors.red,
   searchHeaderBG: reptativeColors.searchHeaderBG,
+  headerlist:reptativeColors.headerlist,
 
   background: reptativeColors?.lightGray,
 
@@ -204,7 +227,7 @@ const colors: any = {
   bottomTabTextActive: reptativeColors.white,
 
   //Input
-  inputBg: reptativeColors.lightGray,
+  inputBg: reptativeColors.white,
   inputLabel: reptativeColors.secondary3,
   inputValue: reptativeColors.black,
   inputText: reptativeColors.white,
@@ -306,6 +329,7 @@ export const darkColors: any = {
   gradient4: 'rgba(243, 118, 124, 0.29)',
   gradient5: 'rgba(255, 151, 75, 0.2)',
   transparent: reptativeColors.transparent,
+    label:reptativeColors.label,
   black: reptativeColors.white,
   white: reptativeColors.black,
   darkGray: reptativeColors.lightGray,
@@ -317,12 +341,15 @@ export const darkColors: any = {
   primary3: reptativeColors.primary3,
   secondary: reptativeColors.secondary,
   secondary3: reptativeColors.secondary3,
+  greenshade:reptativeColors.greenshade,
+   gridHeader:reptativeColors.gridHeader,
   red: reptativeColors.red,
   orange: reptativeColors.orange,
   yellow: reptativeColors.yellow,
   green: reptativeColors.green,
   tabBg: reptativeColors.tabBg, //extra
   errorText: reptativeColors.errorText,
+   headerColor:reptativeColors.headerColor,
   bannerBg1: reptativeColors.bannerBg1,
   itemDec: reptativeColors.itemDec,
   dashBorder: reptativeColors.dashBorder,
@@ -351,6 +378,13 @@ export const darkColors: any = {
   count: reptativeColors.red,
   itemClose: reptativeColors.itemClose,
 
+  headerlist:reptativeColors.headerlist,
+
+    placeholder:reptativeColors.placeholderColor,
+  fieldborder:reptativeColors.fieldborder,
+  bg:reptativeColors.bg,
+  action:reptativeColors.action,
+
   //Bottom Tab
   bottomTabBG1: reptativeColors.darkGray,
   bottomTabBg: reptativeColors.darkGray,
@@ -362,7 +396,7 @@ export const darkColors: any = {
   bottomTabTextActive: reptativeColors.white,
 
   //Input
-  inputBg: reptativeColors.darkGray,
+  inputBg: reptativeColors.white,
   inputLabel: reptativeColors.secondary3,
   inputValue: reptativeColors.white,
   inputText: reptativeColors.white,
@@ -459,13 +493,35 @@ export const darkColors: any = {
 const fontFamily = {
   regular: 'Montserrat-Regular',
   medium:'Montserrat-Medium',
- // bold: 'Montserrat-SemiBold',
+ bold: 'Montserrat-SemiBold',
   semiBold : 'Montserrat-SemiBold'
 };
+
 
 const LARGE_DEVICE_SCALE = 1.3;
 
 let fontSize: any = {
+  XXXS: (0.85 * deviceHeight) / 100, // 7,
+  XXS: (1 * deviceHeight) / 100, // 8,
+  nanoSmall: (1.15 * deviceHeight) / 100, // 9,
+  extraSmall: (1.25 * deviceHeight) / 100, //10,
+  XMS: (1.35 * deviceHeight) / 100,//11,
+  small:(1.5 * deviceHeight) / 100, // 12,
+  middleSmall:(1.65 * deviceHeight) / 100, // 13,
+  semiSmall: (1.75 * deviceHeight) / 100, //14,
+  semiNormal: (1.85 * deviceHeight) / 100, //15,
+  normal: (2 * deviceHeight) / 100, //16,
+  medium: (2.25 * deviceHeight) / 100, // 18
+  semiLarge: (2.50 * deviceHeight) / 100, // 20
+  large: (2.75 * deviceHeight) / 100, // 22
+  extraLarge: (3 * deviceHeight) / 100, // 24
+  // extraLarge:  24,
+  XL:(3.25 * deviceHeight) / 100, // 26,
+  XXL: (3.5 * deviceHeight) / 100,// 28,
+  XXXL: (3.75 * deviceHeight) / 100,// 30,
+};
+
+let fontSize1: any = {
   XXXS: 7,
   XXS: 8,
   nanoSmall: 9,
@@ -478,8 +534,8 @@ let fontSize: any = {
   normal: 16,
   medium: 18,
   semiLarge: 20,
-  large: 22,
-  extraLarge: 24,
+  large:  22,
+  extraLarge:  24,
   XL: 26,
   XXL: 28,
   XXXL: 30,

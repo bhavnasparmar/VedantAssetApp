@@ -16,13 +16,13 @@ export const toastConfig = {
     <BaseToast
       {...props}
       text1NumberOfLines={20}
-      text2NumberOfLines={4}
+      text2NumberOfLines={20}
       style={{
         borderLeftColor: colors.secondary,
         backgroundColor: '#eee',
         height: 'auto',
         minHeight: 60,
-        maxHeight: responsiveHeight(40),
+        maxHeight: responsiveHeight(60),
       }}
       text1Style={{
         fontSize: fontSize.normal,
@@ -41,13 +41,13 @@ export const toastConfig = {
     <BaseToast
       {...props}
       text1NumberOfLines={20}
-      text2NumberOfLines={4}
+      text2NumberOfLines={20}
       style={{
         borderLeftColor: colors.goldenYellow,
         backgroundColor: '#eee',
         height: 'auto',
         minHeight: 60,
-        maxHeight: responsiveHeight(40),
+        maxHeight: responsiveHeight(60),
       }}
       text1Style={{
         fontSize: fontSize.normal,
@@ -61,13 +61,13 @@ export const toastConfig = {
     <ErrorToast
       {...props}
       text1NumberOfLines={20}
-      text2NumberOfLines={4}
+      text2NumberOfLines={20}
       style={{
         borderLeftColor: 'red',
         backgroundColor: '#eee',
         height: 'auto',
         minHeight: 60,
-        maxHeight: responsiveHeight(40),
+        Height: responsiveHeight(60),
       }}
       text1Style={{
         fontSize: fontSize.normal,

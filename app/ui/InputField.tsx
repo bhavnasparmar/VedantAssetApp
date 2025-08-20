@@ -193,14 +193,14 @@ const InputField = React.forwardRef(
                     // semibold
                     medium
                   />
-                  <CusText text={'*'} color={colors.red} size="S" semibold />
+                  <CusText text={'*'} color={colors.Hard_Black} size="S" semibold />
                 </Wrapper>
               ) : (
                 <CusText
                   customStyles={{
                     // paddingHorizontal: marginHorizontal.extraSmall,
                     paddingLeft: marginHorizontal.extraSmall,
-                    paddingTop: marginHorizontal.extraSmall,
+                    // paddingTop: marginHorizontal.extraSmall,
                     marginBottom: spaceVertical.XXS / 2,
                     ...labelStyle,
                   }}
@@ -221,7 +221,7 @@ const InputField = React.forwardRef(
                 width: width ? width : '100%',
                 maxWidth: '100%',
                 borderWidth: IsFocus || error ? 1 : 1,
-                borderRadius: borderRadius.medium,
+                borderRadius: borderRadius.middleSmall,
                 borderColor: ''
                   ? IsFocus
                     ? error
@@ -425,6 +425,6 @@ const styles = StyleSheet.create({
     color: colors.black,
     fontFamily: fontFamily.regular,
     fontSize: fontSize.middleSmall,
-    minHeight: responsiveWidth(9),
+    minHeight: responsiveWidth(5),
   },
 });

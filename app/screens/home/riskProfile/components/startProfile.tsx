@@ -4,10 +4,13 @@ import CusText from '../../../../ui/custom-text'
 import { AppearanceContext } from '../../../../context/appearanceContext';
 import Container from '../../../../ui/container';
 import Spacer from '../../../../ui/spacer';
-import { borderRadius, responsiveHeight, responsiveWidth } from '../../../../styles/variables';
+import { borderRadius, fontFamily, fontSize, responsiveHeight, responsiveWidth } from '../../../../styles/variables';
 import Wrapper from '../../../../ui/wrapper';
 import CusButton from '../../../../ui/custom-button';
 import IonIcon from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
+import { Text } from 'react-native-gesture-handler';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 const { width } = Dimensions.get('window');
 const lockWidth = width * 0.75;
@@ -65,14 +68,24 @@ const StartProfile = ({ setIndex }: any) => {
     return (
         <>
             <Container Xcenter>
-                <Wrapper position="center" color={colors.Hard_White} width={responsiveWidth(94)} customStyles={{ borderRadius: borderRadius.large, marginVertical: responsiveWidth(3), padding: responsiveWidth(5) }}>
+                <Wrapper position="center" color={colors.Hard_White} width={responsiveWidth(94)} height={responsiveHeight(80)} customStyles={{ borderRadius: borderRadius.large, marginVertical: responsiveWidth(3), padding: responsiveWidth(5), paddingHorizontal: responsiveWidth(3), flex: 1, justifyContent: 'center', alignItems: "center" }}>
                     <Wrapper position="center" customStyles={{ marginBottom: responsiveWidth(10) }}>
                         {/* <Image resizeMode='contain' source={require('../../../../assets/images/riskprofile.png')} style={{
                             width: responsiveWidth(80),
                             height: responsiveHeight(28)
                         }}></Image> */}
+                    <CusText position='center' semibold text={"To Make Better Decisions."} color={colors.Hard_Black} size="SL" />
+                    {/* <LinearGradient colors={[]}>
+                        <Text>
+{"You Need to Understand Yourself."}
+                        </Text>
+                    </LinearGradient> */}
+                    <MaskedView maskElement={<Text style={{textAlign:"center", fontSize: fontSize.medium, fontFamily: fontFamily.bold}}>{"You Need to Understand Yourself."}</Text>}>
+                        <LinearGradient colors={[colors.primary,colors.secondary,colors.transparent]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+                        <Text style={[, { opacity: 0, textAlign:"center", fontSize: fontSize.medium, fontFamily: fontFamily.bold }]}>{"You Need to Understand Yourself."}</Text>
+                        </LinearGradient>
+                    </MaskedView>
                     </Wrapper>
-                    <CusText position='center' semibold text={"To Make Better Decisions. You Need to Understand Yourself."} color={colors.Hard_Black} size="M" />
                     <Spacer y="XS" />
                     <CusText position='center' text={"Introducing Inxits Investor Personality, a tool to help you understand your investing behaviour."} color={colors.Hard_Black} size="XS" customStyles={{ opacity: 0.6 }} />
                     <Spacer y="L" />

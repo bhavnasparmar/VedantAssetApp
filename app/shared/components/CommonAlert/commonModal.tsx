@@ -10,6 +10,7 @@ import { borderRadius, responsiveWidth } from '../../../styles/variables';
 import { AppearanceContext } from '../../../context/appearanceContext';
 import CusText from '../../../ui/custom-text';
 import CusButton from '../../../ui/custom-button';
+import LinearGradient from 'react-native-linear-gradient';
 // import CusButton from '../../ui/custom-button';
 
 
@@ -22,10 +23,13 @@ const CommonModal = ({
     iconColor = '#000',
     title,
     description,
+    subDescription,
     button1Text,
     onButton1Press,
     button2Text,
     onButton2Press,
+    button2Loading,
+    button2Color,
 }: any) => {
       const { colors }: any = React.useContext(AppearanceContext);
     return (
@@ -58,22 +62,39 @@ const CommonModal = ({
                     {title && <CusText bold size={"SL"} color={colors.primary} semibold customStyles={styles.title} text={title} />}
 
                     {/* Description */}
-                    {description && <CusText size={"S"} color={colors.primary} semibold customStyles={styles.description} text={description} />}
+                    {description && (
+                        typeof description === 'string' ? (
+                            <CusText size={"SS"} color={colors.primary} semibold customStyles={styles.description} text={description} />
+                        ) : (
+                            <Wrapper customStyles={styles.description}>
+                                {description}
+                            </Wrapper>
+                        )
+                    )}
 
+                    {/* Sub Description */}
+                    {subDescription && <CusText size={"XS"} color={colors.gray} customStyles={{...styles.description, marginTop: responsiveWidth(2)}} text={subDescription} />}
+                      {/* <LinearGradient
+                  start={{ x: 1, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                   colors={[colors.primary, colors.primary, colors.primary]}
+                   style={{ width: '100%', height: 1, opacity: 0.5,marginBottom:responsiveWidth(3) }}></LinearGradient> */}
                     {/* Buttons */}
-                    <Wrapper width={responsiveWidth(70)} customStyles={styles.buttonContainer}>
+                    <Wrapper width={responsiveWidth(65)} customStyles={{...styles.buttonContainer,...{justifyContent :( button1Text && button2Text) ? "space-between" : "center"}}}>
                         {button1Text && (
                             // <TouchableOpacity style={styles.button} onPress={onButton1Press}>
                             //     <CusText bold customStyles={styles.buttonText} text={button1Text} />
                             // </TouchableOpacity>
                             <Wrapper>
                                 <CusButton
-                                    height={responsiveWidth(10)}
+                                    height={responsiveWidth(9)}
                                     width={responsiveWidth(31)}
                                     title={button1Text}
                                     position="center"
-                                    radius={borderRadius.medium}
+                                    radius={borderRadius.middleSmall}
                                     onPress={onButton1Press}
+                                    textSize='SS'
+                                    textWeight='bold'
                                     lgcolor1={colors.orange} lgcolor2={colors.orange}
                                 />
                             </Wrapper>
@@ -85,13 +106,17 @@ const CommonModal = ({
                             // </TouchableOpacity>
                             <Wrapper>
                                 <CusButton
-                                height={responsiveWidth(10)}
+                                height={responsiveWidth(9)}
                                     width={responsiveWidth(31)}
                                     title={button2Text}
                                     position="center"
-                                    radius={borderRadius.medium}
+                                    radius={borderRadius.middleSmall}
                                     onPress={onButton2Press}
-                                   lgcolor1={colors.orange} lgcolor2={colors.orange}
+                                     textSize='SS'
+                                     textWeight='bold'
+                                   lgcolor1={button2Color || colors.orange}
+                                   lgcolor2={button2Color || colors.orange}
+                                   loading={button2Loading}
                                 />
                             </Wrapper>
                         )}

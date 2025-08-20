@@ -6,6 +6,7 @@ import {
   fontSize,
   marginHorizontal,
   responsiveHeight,
+  responsiveWidth,
 } from '../styles/variables';
 import CusText from './custom-text';
 import Wrapper from './wrapper';
@@ -25,11 +26,11 @@ const CheckBox = ({value, label, onChange}: checkboxProps) => {
   return (
     <>
       <Spacer y="XS" />
-      <Wrapper row>
+      <Wrapper row align='center'>
         <IonIcon
           name={value ? "checkbox": 'square-outline'}
           color={value ? colors.primary : colors.primary}
-          size={fontSize.large}
+          size={fontSize.semiNormal}
           onPress={onChange}
         />
         <CusText
@@ -46,8 +47,9 @@ export default CheckBox;
 
 const styles = StyleSheet.create({
   checkboxText: {
-    marginTop: 3,
-    marginHorizontal: marginHorizontal.XXS,
+    // columnGap:responsiveWidth(1)
+    // marginTop: 3,
+    // marginHorizontal: marginHorizontal.XXS,
   },
 
   checkBox: {

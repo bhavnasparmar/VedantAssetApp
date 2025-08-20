@@ -1,39 +1,39 @@
 //#region Imports
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import React, {useState} from 'react';
-import {Appearance, NativeModules, Platform,  StatusBar, View} from 'react-native';
-import {AppearanceContext} from './app/context/appearanceContext';
-import {AuthContext} from './app/context/AuthContext';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { useState } from 'react';
+import { Appearance, NativeModules, Platform, StatusBar, View } from 'react-native';
+import { AppearanceContext } from './app/context/appearanceContext';
+import { AuthContext } from './app/context/AuthContext';
 import Login from './app/screens/auth/login/login';
 import Register from './app/screens/auth/Register/Register';
-import {_DarkTheme, _LightTheme} from './app/services/colorThemeService';
-import {colors, darkColors, fontFamily, fontSize} from './app/styles/variables';
+import { _DarkTheme, _LightTheme } from './app/services/colorThemeService';
+import { colors, darkColors, fontFamily, fontSize } from './app/styles/variables';
 import SideDrawer from './app/shared/navigation/Drawer/Drawer';
-import {BaseToast} from 'react-native-toast-message/lib/src/components/BaseToast';
-import {ErrorToast} from 'react-native-toast-message/lib/src/components/ErrorToast';
+import { BaseToast } from 'react-native-toast-message/lib/src/components/BaseToast';
+import { ErrorToast } from 'react-native-toast-message/lib/src/components/ErrorToast';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {endPoints, TOKEN_PREFIX, USER_DATA} from './app/utils/Commanutils';
-import {showToast} from './app/services/toastService';
-import {toastTypes} from './app/constant/constants';
+import { endPoints, getKYC_Details, setKYC_Details, TOKEN_PREFIX, updateObjectKey, USER_DATA } from './app/utils/Commanutils';
+import { showToast } from './app/services/toastService';
+import { toastTypes } from './app/constant/constants';
 import NetInfo from '@react-native-community/netinfo';
 import KycList from './app/screens/auth/kyc/kyclist/kyc';
 import PancardVerify from './app/screens/auth/pancardverify/pancardverify';
 import Kycvarification from './app/screens/auth/kycverification/kycvarification';
 import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
-import {Provider} from 'react-redux';
-import {persistor, store} from './app/Redux/Store';
-import {PersistGate} from 'redux-persist/integration/react';
+import { Provider } from 'react-redux';
+import { persistor, store } from './app/Redux/Store';
+import { PersistGate } from 'redux-persist/integration/react';
 import TabviewLogin from './app/screens/auth/tabviewLogin/tabviewLogin';
 import CheckNetworkModal from './app/shared/components/CheckNetworkModal/CheckNetworkModal';
 import Passwordrecovery from './app/screens/auth/passwordrecovery/passwordrecovery';
 import API from './app/utils/API';
 import Otp from './app/screens/auth/Otp/Otp';
 import SplashScreen from 'react-native-splash-screen';
-import {localStorageKeys} from './app/services/localStorageService';
+import { localStorageKeys } from './app/services/localStorageService';
 
-const {RootCheckModule} = NativeModules;
+const { RootCheckModule } = NativeModules;
 const RootStack = createNativeStackNavigator();
 const options = {
   headerShown: false,
@@ -228,21 +228,24 @@ export default function App() {
     () => ({
       welcomeUser: async () => {
         try {
-        } catch (error: any) {}
+        } catch (error: any) { }
       },
       signIn: async (data: any) => {
         console.log("data", data);
         try {
-          await AsyncStorage.setItem(TOKEN_PREFIX, data?.token);
+          await AsyncStorage.setItem(TOKEN_PREFIX, data?.token ? data?.token : "");
           await AsyncStorage.setItem(USER_DATA, JSON.stringify(data?.user));
-
+          const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', data?.user?.InvestorRegistration)
+          setKYC_Details(update_data)
+          // const update_member_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', data?.user?.InvestorRegistration)
+          // setKYC_Details(update_member_data)
           showToast(toastTypes.success, 'Login SuccessFully');
 
           let initialRoute = 'App';
           dispatch({
             type: 'SIGN_IN',
             initialRoute: initialRoute,
-            data: {token: data?.token},
+            data: { token: data?.token },
           });
           return [null, null];
         } catch (error: any) {
@@ -277,7 +280,7 @@ export default function App() {
         dispatch({
           type: 'SIGN_IN',
           initialRoute: initialRoute,
-          data: {token: null},
+          data: { token: null },
         });
       },
       signOut: async (setloggingOut: any) => {
@@ -300,41 +303,42 @@ export default function App() {
   return (
     <>
       {/* <SafeAreaView style={{flex: 1}}> */}
-    <SafeAreaProvider>
-      <SafeAreaView
-        style={{
-          flex: 1,}}
-      >
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <AuthContext.Provider value={authContext}>
-              <AppearanceContext.Provider
-                value={{
-                  colors: mode == LIGHT ? colors : darkColors,
-                  setloginnavigation,
-                  loginnavigation,
-                }}>
-                <NavigationContainer
-                  theme={mode === LIGHT ? _LightTheme : _DarkTheme}>
-                  <RootStack.Navigator screenOptions={options}>
-                    {/* <RootStack.Screen name="Auth" component={authstack} /> */}
-                    {state?.userToken != null ? (
-                      <RootStack.Screen name="App" component={SideDrawer} />
-                    ) : (
-                      <RootStack.Screen name="Auth" component={authstack} />
-                    )}
+      <SafeAreaProvider style={{ flex: 1 }}>
+        <SafeAreaView
+          style={{
+            flex: 1,
+          }}
+        >
+          <Provider store={store}>
+            <PersistGate loading={null} persistor={persistor}>
+              <AuthContext.Provider value={authContext}>
+                <AppearanceContext.Provider
+                  value={{
+                    colors: mode == LIGHT ? colors : darkColors,
+                    setloginnavigation,
+                    loginnavigation,
+                  }}>
+                  <NavigationContainer
+                    theme={mode === LIGHT ? _LightTheme : _DarkTheme}>
+                    <RootStack.Navigator screenOptions={options}>
+                      {/* <RootStack.Screen name="Auth" component={authstack} /> */}
+                      {state?.userToken != null ? (
+                        <RootStack.Screen name="App" component={SideDrawer} />
+                      ) : (
+                        <RootStack.Screen name="Auth" component={authstack} />
+                      )}
 
-                    {/* <RootStack.Screen name="App" component={SideDrawer} /> */}
-                  </RootStack.Navigator>
-                </NavigationContainer>
-              </AppearanceContext.Provider>
-            </AuthContext.Provider>
-            <Toast config={toastConfig} />
-            <CheckNetworkModal Visible={NetworkModal} />
-          </PersistGate>
-        </Provider>
-    </SafeAreaView>
-    </SafeAreaProvider>
+                      {/* <RootStack.Screen name="App" component={SideDrawer} /> */}
+                    </RootStack.Navigator>
+                  </NavigationContainer>
+                </AppearanceContext.Provider>
+              </AuthContext.Provider>
+              <Toast config={toastConfig} />
+              <CheckNetworkModal Visible={NetworkModal} />
+            </PersistGate>
+          </Provider>
+        </SafeAreaView>
+      </SafeAreaProvider>
     </>
   );
   //  return (

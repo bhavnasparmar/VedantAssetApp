@@ -5,6 +5,11 @@ import { borderRadius, colors, responsiveHeight, responsiveWidth } from "../../.
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
+        // alignSelf:'center',
+        // justifyContent:'center',
+        // alignContent:"center",
+        // alignItems:'center',
+        // height:responsiveHeight(85)
     },
     modalContainer: {
         borderRadius: borderRadius.large,
@@ -23,16 +28,16 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     title: {
-        marginVertical: responsiveWidth(4),
+        marginVertical: responsiveWidth(1.5),
     },
     description: {
         textAlign: 'center',
-        marginBottom: responsiveHeight(3),
+        marginBottom: responsiveHeight(2),
 
     },
     buttonContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+       // justifyContent: 'space-between',
        
     },
     button: {

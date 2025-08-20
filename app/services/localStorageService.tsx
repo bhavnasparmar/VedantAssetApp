@@ -53,7 +53,7 @@ export const removeData = async (key: string) => {
 };
 
 export const getUser = async () => {
-  return await getData(localStorageKeys.TOKEN);
+  return await getData(localStorageKeys.TOKEN_PREFIX);
 };
 
 export const setUser = async (data: any) => {

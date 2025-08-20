@@ -11,14 +11,14 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 // import { borderRadius, colors, fontSize, responsiveHeight, responsiveWidth } from '../../styles/variables';
 // import Wrapper from '../../ui/wrapper';
 // import CusText from '../../ui/custom-text';
-import {styles} from './commonModalStyle';
+import { styles } from './commonModalStyle';
 import Wrapper from '../../../ui/wrapper';
 import {
   borderRadius,
   responsiveHeight,
   responsiveWidth,
 } from '../../../styles/variables';
-import {AppearanceContext} from '../../../context/appearanceContext';
+import { AppearanceContext } from '../../../context/appearanceContext';
 import CusText from '../../../ui/custom-text';
 import CusButton from '../../../ui/custom-button';
 // import CusButton from '../../ui/custom-button';
@@ -37,7 +37,7 @@ const CommonModal = ({
   button2Text,
   onButton2Press,
 }: any) => {
-  const {colors}: any = React.useContext(AppearanceContext);
+  const { colors }: any = React.useContext(AppearanceContext);
   return (
     <Modal
       transparent
@@ -45,7 +45,8 @@ const CommonModal = ({
       animationType="fade"
       onRequestClose={onClose}
       style={styles.overlay}
-      >
+
+    >
       <Wrapper color="rgba(0, 0, 0, 0.5)" >
         <Wrapper
           height={responsiveHeight(50)}

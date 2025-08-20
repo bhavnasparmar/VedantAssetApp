@@ -67,7 +67,7 @@ const NewGoal = ({setisVisible, setgoalId, setGoalPlanID}: any) => {
         style={styles.image}></Image>
       <CusText
         position="center"
-        text={item?.goal_name}
+        text={item?.goal_name + '1'}
         // color={colors.Hard_White}
         size="XMS"
         customStyles={styles.title}

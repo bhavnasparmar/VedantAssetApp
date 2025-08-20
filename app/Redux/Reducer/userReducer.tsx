@@ -4,10 +4,11 @@ import { TokenTypes } from '../Actions/userAction';
 
 let RiskObject: any = null;
 let UserDetails: any = null;
-
+let GoalPlanningDetails: any = null;
 const initialState: any = {
      UserDetails: null,
     RiskObject: null,
+     GoalPlanningDetails: null,
 };
 
 function userReducer(state = initialState, action: any) {
@@ -18,7 +19,9 @@ function userReducer(state = initialState, action: any) {
         case TokenTypes.RISK_OBJECT:
             RiskObject = action.payload;
             return { ...state, RiskObject: action.payload };
-      
+       case TokenTypes.GOAL_PLANNING_OBJECT:
+            GoalPlanningDetails = action.payload;
+            return { ...state, GoalPlanningDetails: action.payload };
         default:
             return state;
     }

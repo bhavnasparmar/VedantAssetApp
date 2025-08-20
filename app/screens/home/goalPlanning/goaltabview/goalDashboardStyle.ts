@@ -31,6 +31,18 @@ export const styles = StyleSheet.create({
     marginVertical: responsiveWidth(2),
   },
 
+  flatlistImagewrapper: {
+    width: responsiveWidth(10),
+    height: responsiveWidth(10),
+    borderColor: colors.primary,
+    padding: 10,
+    borderRadius: borderRadius.ring,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: responsiveWidth(4),
+    marginVertical: responsiveWidth(2),
+  },
+
   flatliststyles: {
     width: responsiveWidth(20),
   },
@@ -39,14 +51,14 @@ export const styles = StyleSheet.create({
     width: responsiveWidth(15),
   },
   card: {
-      backgroundColor: colors.darkGray,
+      backgroundColor: colors.Hard_White,
       // backgroundColor: colors.red,
       width: responsiveWidth(50),
       padding: responsiveWidth(2),
       borderBottomLeftRadius: responsiveWidth(2)
   },
   slider: {
-    width: responsiveWidth(50),
+    width: responsiveWidth(60),
     height: 20,
     position: 'relative',
     zIndex: 1,
@@ -74,7 +86,6 @@ export const styles = StyleSheet.create({
     marginLeft: responsiveWidth(4),
   },
   gender: {
-    width: responsiveWidth(25),
     borderRadius: borderRadius.medium,
     padding: 2,
     marginHorizontal: responsiveWidth(2),

@@ -7,7 +7,7 @@ import {
   TextInput,
 } from 'react-native';
 import {AppearanceContext} from '../../../context/appearanceContext';
-import {borderRadius, responsiveHeight, responsiveWidth} from '../../../styles/variables';
+import {borderRadius, fontSize, responsiveHeight, responsiveWidth} from '../../../styles/variables';
 import CusButton from '../../../ui/custom-button';
 import CusText from '../../../ui/custom-text';
 import InputField from '../../../ui/InputField';
@@ -28,6 +28,7 @@ import {styles} from './RegisterStyle';
 import {REGEX} from '../../../utils/Commanutils';
 import {regularLogin, userRegiter} from '../../../api/authapi';
 import CheckBox from '../../../ui/check-box';
+import Container from '../../../ui/container';
 
 const Signup = () => {
   const {colors}: any = React.useContext(AppearanceContext);
@@ -133,7 +134,9 @@ const Signup = () => {
         <ScrollView
           style={{flex: 1}}
           contentContainerStyle={{justifyContent: 'center', minHeight: '100%'}}>
+             <Container Xcenter bgcolor={colors.Hard_White}>
           <Wrapper customStyles={{flex: 1, justifyContent: 'center'}}>
+             <Spacer y="S" />
             <Wrapper
               position="center"
               align="center"
@@ -153,8 +156,8 @@ const Signup = () => {
                 color={colors.placeholderColor}
               />
             </Wrapper>
-            <Spacer y="XS" />
-            <Wrapper position="center">
+            <Spacer y="S" />
+            <Wrapper position="center" customStyles={{gap:responsiveWidth(7)}}>
               <InputField
                 label="Email"
                 width={responsiveWidth(90)}
@@ -168,6 +171,10 @@ const Signup = () => {
                     ...Form,
                     email: value,
                   });
+                }}
+                fieldViewStyle={{
+                  height: responsiveWidth(11),
+                  borderRadius: borderRadius.normal,
                 }}
                 borderColor={colors.placeholderColor}
                 suffixIcon={'mail-outline'}
@@ -198,6 +205,10 @@ const Signup = () => {
                     ...Form,
                     mobile: value,
                   });
+                }}
+                 fieldViewStyle={{
+                  height: responsiveWidth(11),
+                  borderRadius: borderRadius.normal,
                 }}
                 borderColor={colors.placeholderColor}
                 suffixIcon={'call-outline'}
@@ -230,6 +241,10 @@ const Signup = () => {
                     password: value,
                   });
                 }}
+                 fieldViewStyle={{
+                  height: responsiveWidth(11),
+                  borderRadius: borderRadius.normal,
+                }}
                 password
                 borderColor={colors.placeholderColor}
                 suffixColor={colors.placeholderColor}
@@ -244,6 +259,10 @@ const Signup = () => {
                 width={responsiveWidth(90)}
                 placeholder={'Enter your confirm password'}
                 value={Form?.confirmPassword}
+                 fieldViewStyle={{
+                  height: responsiveWidth(11),
+                  borderRadius: borderRadius.normal,
+                }}
                 onChangeText={(value: string) => {
                   if (value) {
                     setConPasswordError(false);
@@ -272,20 +291,22 @@ const Signup = () => {
                 returnKeyType="done"
               />
             </Wrapper>
-            <Spacer y="S" />
+            <Spacer y="N" />
             <Wrapper
               width={responsiveWidth(90)}
               position="center"
               row
               justify="left">
-              <Wrapper row>
+              <Wrapper row align='center'>
                 <CheckBox
                   label={''}
                   value={Form.isPartner}
                   onChange={() => {
                     setForm({...Form, isPartner: !Form.isPartner});
                   }}
+                  
                 />
+                <Spacer x='XXS' />
                 <TouchableOpacity
                   onPress={() => {
                     setForm({...Form, isPartner: !Form.isPartner});
@@ -293,7 +314,7 @@ const Signup = () => {
                   <CusText
                     text={'Sign me up as Partner'}
                     color={colors.darkGray}
-                    size="N"
+                    size="SS"
                     position="center"
                     title
                   />
@@ -312,21 +333,25 @@ const Signup = () => {
               </Wrapper> */}
             </Wrapper>
             <Spacer y="S" />
-
+ {/* <CusText position='center' bold color={colors.Hard_White} text={'LOGIN'} /> */}
             <CusButton
               loading={loading}
               width={responsiveWidth(80)}
-              title="Sign Up"
+              height={responsiveWidth(10)}
+              title="SIGN UP"
+              textSize="SS"
               position="center"
+              textWeight='bold'
              color={colors.secondary}
             //  buttonStyle={{borderWidth: 1, borderColor: colors.btnBorder}}
-              radius={borderRadius.ring}
+              radius={borderRadius.middleSmall}
               onPress={() => {
                 onSubmit();
               }}
             />
           
           </Wrapper>
+          </Container>
         </ScrollView>
       </KeyboardAvoidingView>
     </>

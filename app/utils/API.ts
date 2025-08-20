@@ -6,12 +6,15 @@ import axios, {
 } from 'axios';
 
 import { API_URL, decryptData, TOKEN_PREFIX, tokenExpiredflagChange } from './Commanutils';
-import { getData, localStorageKeys } from '../services/localStorageService';
+import { getData } from '../services/localStorageService';
+
+// import { getData, localStorageKeys } from '../services/localStorageService';
 
 /**
  * Get user-friendly error message based on HTTP status
  */
 const getMessageFromStatus = (status: number, msg: string | null): string => {
+  console.log('status : ', status , msg);
   switch (status) {
     case 400:
       return msg || 'Bad Request';
@@ -86,7 +89,7 @@ const fetchClient = (): AxiosInstance => {
   instance.interceptors.request.use(async config => {
     try {
       const token = await getData(TOKEN_PREFIX);
-      console.log('Token : ', token)
+      // console.log('config : ', config)
       if (token) config.headers.Authorization = token;
     } catch (error) {
       console.log('Token fetch error:', error);
@@ -107,7 +110,7 @@ const fetchClient = (): AxiosInstance => {
     },
     async (error: AxiosError) => {
       const status = error?.response?.status;
-
+console.log("error api -----",status)
       console.log('API Error Response:', {
         statusCode: status,
         endpoint: error?.config?.url,

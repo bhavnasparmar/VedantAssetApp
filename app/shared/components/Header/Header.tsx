@@ -29,6 +29,7 @@ const Header = ({
   // navigation,
   menubtn,
   backBtn,
+  onBackPress,
   notifBtn,
   cartBtn,
   searchBox,
@@ -66,38 +67,29 @@ const Header = ({
 
   return (
     <>
-      <Wrapper  height={responsiveWidth(13)} row align='center'
+      <Wrapper color={'rgba(248, 248, 248, 1)'}  height={responsiveWidth(13)} row align='center'
         customStyles={{
         }}
       >
         <Spacer x='S' />
-        <Wrapper align='center' row  >
-          {menubtn ? (
-            <TouchableOpacity
-              onPress={() => {
-                navigation.openDrawer();
-              }}>
-              <Wrapper align='center'>
-                <Image
-                  source={require('../../../assets/Images/drawermenu.png')}
-                  tintColor={colors.primary}
-                  style={{
-                    height: responsiveWidth(9),
-                    width: responsiveWidth(9)
-                  }}
-                />
-              </Wrapper>
-            </TouchableOpacity>
-          ) : null}
+        <Wrapper align='center' row >
+          {/* {menubtn ? 
+           
+          <></>  
+          : null}   */}
 
           {backBtn ? (
             <>
               <IonIcon
                 onPress={() => {
-                  navigation.goBack();
+                  if (onBackPress) {
+                    onBackPress();
+                  } else {
+                    navigation.goBack();
+                  }
                 }}
                 name="chevron-back-outline"
-                size={responsiveWidth(7)}
+                size={responsiveWidth(6)}
                color={colors.primary}
                 style={{
                   padding: responsiveWidth(0.5),
@@ -105,8 +97,8 @@ const Header = ({
               />
             </>
           ) : null}
-          <Spacer x='S' />
-          <CusText semibold color={colors.primary} text={name} size='L' />
+          {/* <Spacer x='XXS' /> */}
+          <CusText semibold position='center' color={colors.primary} text={name} size='SL' />
         </Wrapper>
 
         {/* <Wrapper
@@ -139,7 +131,11 @@ const Header = ({
             <>
               <IonIcon
                 onPress={() => {
-                  navigation.goBack();
+                  if (onBackPress) {
+                    onBackPress();
+                  } else {
+                    navigation.goBack();
+                  }
                 }}
                 name="chevron-back-outline"
                 size={responsiveWidth(7)}

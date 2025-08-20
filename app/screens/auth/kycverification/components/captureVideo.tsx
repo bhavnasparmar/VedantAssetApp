@@ -4,7 +4,7 @@ import { BackHandler, Image, TouchableOpacity, View } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import Pdf from 'react-native-pdf';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import VideoPlayer from 'react-native-video';
+// import VideoPlayer from 'react-native-video';
 import { toastTypes } from "../../../../constant/constants";
 import { AppearanceContext } from "../../../../context/appearanceContext";
 import { showToast } from "../../../../services/toastService";
@@ -543,17 +543,18 @@ const CaptureVideo = ({ setSelectedTab, step }: any) => {
                                     {
                                         Form.video != '' ?
                                             (
-                                                <VideoPlayer
-                                                    source={{
-                                                        uri: Form.video,
-                                                    }}
-                                                    style={{
-                                                        borderRadius: 10,
-                                                        height: responsiveWidth(30),
-                                                        width: responsiveWidth(84)
-                                                    }}
-                                                    controls={true}
-                                                />
+                                                <></>
+                                                // <VideoPlayer
+                                                //     source={{
+                                                //         uri: Form.video,
+                                                //     }}
+                                                //     style={{
+                                                //         borderRadius: 10,
+                                                //         height: responsiveWidth(30),
+                                                //         width: responsiveWidth(84)
+                                                //     }}
+                                                //     controls={true}
+                                                // />
                                             )
                                             :
                                             (

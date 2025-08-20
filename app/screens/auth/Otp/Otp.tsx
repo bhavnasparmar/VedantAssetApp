@@ -4,7 +4,13 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import React, {useContext, useRef, useState} from 'react';
-import {Image, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity} from 'react-native';
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
 import {regularLogin, resendOtp, userOtpVerify} from '../../../api/authapi';
 import {toastTypes} from '../../../constant/constants';
 import {AppearanceContext} from '../../../context/appearanceContext';
@@ -120,7 +126,11 @@ const Otp = ({route}: any) => {
   };
 
   const onSubmit = async () => {
-    console.log(route?.params?.registerData);
+    // console.log('')
+    console.log(
+      'route?.params?.registerData   submit-',
+      route?.params?.registerData,
+    );
     if (!route?.params?.registerData) {
       showToast(`${toastTypes.error}`, 'Reresgister your data');
       navigation.goBack();
@@ -174,25 +184,25 @@ const Otp = ({route}: any) => {
     let reqData = {
       email: Data?.email ? Data?.email : RegiterData?.email,
       mobile: Number(Data?.mobile ? Data?.mobile : RegiterData?.mobile),
-      emailOTP: Number(
-        '' +
+      emailOTP: 
+        ('' +
           Form.inputfeild1 +
           Form.inputfeild2 +
           Form.inputfeild3 +
           Form.inputfeild4 +
           Form.inputfeild5 +
-          Form.inputfeild6,
-      ),
+          Form.inputfeild6)
+      ,
 
-      mobileOTP: Number(
+      mobileOTP:
         '' +
           Form2.inputfeild1 +
           Form2.inputfeild2 +
           Form2.inputfeild3 +
           Form2.inputfeild4 +
           Form2.inputfeild5 +
-          Form2.inputfeild6,
-      ),
+          Form2.inputfeild6
+      ,
     };
     setloading(true);
     console.log('reqData--', reqData);
@@ -315,15 +325,15 @@ const Otp = ({route}: any) => {
 
     let loginData = {
       email: Data?.email ? Data?.email : RegiterData?.email,
-      loginOTP: Number(
+      loginOTP:
         '' +
           Form.inputfeild1 +
           Form.inputfeild2 +
           Form.inputfeild3 +
           Form.inputfeild4 +
           Form.inputfeild5 +
-          Form.inputfeild6,
-      ),
+          Form.inputfeild6
+      ,
 
       fcmToken: fcmToken,
       deviceId: await DeviceInfo.getUniqueId(),
@@ -361,252 +371,72 @@ const Otp = ({route}: any) => {
           style={{flex: 1}}
           contentContainerStyle={{justifyContent: 'center', minHeight: '100%'}}>
           <Container Xcenter>
-        <Wrapper align="center">
-          <Image
-            source={require('../../../assets/Images/logo_light.png')}
-            style={{
-              height: responsiveHeight(15),
-              width: responsiveWidth(50),
-              resizeMode: 'contain',
-            }}
-          />
-        </Wrapper>
-        <Spacer y="S" />
-     
-        {route?.params?.registerData ? (
-          <>
-            <Wrapper
-              position="center"
-              align="center"
-              width={responsiveWidth(100)}>
-              <CusText text="OTP" size="L" bold color={colors.primary} />
-            </Wrapper>
-            <Spacer y="S" />
-            <Wrapper
-              position="center"
-              align="center"
-              width={responsiveWidth(100)}>
-              <CusText
-                text="We have sent the verification code to your email address"
-                size="SS"
-                customStyles={styles.subtitle}
-                position="center"
-                color={colors.placeholderColor}
+            <Wrapper align="center">
+              <Image
+                source={require('../../../assets/Images/logo_light.png')}
+                style={{
+                  height: responsiveHeight(15),
+                  width: responsiveWidth(50),
+                  resizeMode: 'contain',
+                }}
               />
             </Wrapper>
             <Spacer y="S" />
-            <Wrapper customStyles={{marginLeft: responsiveWidth(4)}}>
-              <CusText
-                text={
-                  route?.params?.isEmailOTPVerified &&
-                  route?.params?.isEmailOTPVerified
-                    ? 'OTP'
-                    : 'Email OTP'
-                }
-                size="S"
-                color={colors.black}
-              />
-            </Wrapper>
-            <Wrapper row justify="spEven">
-              <InputField
-                label=""
-                placeholder=""
-                keyboardType="numeric"
-                value={Form.inputfeild1}
-                maxLength={1}
-                bordered={true}
-                width={45}
-                textAlign={'center'}
-                ref={input1}
-                onKeyPress={e => {
-                  inputKeyPress(e, '', input2, 'inputfeild1');
-                }}
-                onChangeText={value => {
-                  if (value) {
-                    setInputError(false);
-                  }
-                  setForm({
-                    ...Form,
-                    inputfeild1: value != '.' && value != '-' ? value : '',
-                  });
-                }}
-                textContentType="oneTimeCode"
-              />
 
-              <InputField
-                label=""
-                placeholder=""
-                value={Form.inputfeild2}
-                maxLength={1}
-                keyboardType="numeric"
-                bordered={true}
-                width={45}
-                textAlign={'center'}
-                ref={input2}
-                onKeyPress={e => {
-                  inputKeyPress(e, input1, input3, 'inputfeild2');
-                }}
-                onChangeText={value => {
-                  if (value) {
-                    setInputError(false);
-                  }
-                  setForm({
-                    ...Form,
-                    inputfeild2: value != '.' && value != '-' ? value : '',
-                  });
-                }}
-                textContentType="oneTimeCode"
-              />
-              <InputField
-                label=""
-                placeholder=""
-                keyboardType="numeric"
-                value={Form.inputfeild3}
-                maxLength={1}
-                bordered={true}
-                width={45}
-                textAlign={'center'}
-                ref={input3}
-                onKeyPress={e => {
-                  inputKeyPress(e, input2, input4, 'inputfeild3');
-                }}
-                onChangeText={value => {
-                  if (value) {
-                    setInputError(false);
-                  }
-                  setForm({
-                    ...Form,
-                    inputfeild3: value != '.' && value != '-' ? value : '',
-                  });
-                }}
-                textContentType="oneTimeCode"
-              />
-              <InputField
-                label=""
-                placeholder=""
-                keyboardType="numeric"
-                value={Form.inputfeild4}
-                maxLength={1}
-                bordered={true}
-                width={45}
-                textAlign={'center'}
-                ref={input4}
-                onKeyPress={e => {
-                  inputKeyPress(e, input3, input5, 'inputfeild4');
-                }}
-                onChangeText={value => {
-                  if (value) {
-                    setInputError(false);
-                  }
-                  setForm({
-                    ...Form,
-                    inputfeild4: value != '.' && value != '-' ? value : '',
-                  });
-                }}
-                textContentType="oneTimeCode"
-              />
-              <InputField
-                label=""
-                placeholder=""
-                keyboardType="numeric"
-                value={Form.inputfeild5}
-                maxLength={1}
-                bordered={true}
-                width={45}
-                textAlign={'center'}
-                ref={input5}
-                onKeyPress={e => {
-                  inputKeyPress(e, input4, input6, 'inputfeild5');
-                }}
-                onChangeText={value => {
-                  if (value) {
-                    setInputError(false);
-                  }
-                  setForm({
-                    ...Form,
-                    inputfeild5: value != '.' && value != '-' ? value : '',
-                  });
-                }}
-                textContentType="oneTimeCode"
-              />
-              <InputField
-                label=""
-                placeholder=""
-                keyboardType="numeric"
-                value={Form.inputfeild6}
-                maxLength={1}
-                bordered={true}
-                width={45}
-                textAlign={'center'}
-                ref={input6}
-                onKeyPress={e => {
-                  inputKeyPress(e, input5, '', 'inputfeild6');
-                }}
-                onChangeText={value => {
-                  if (value) {
-                    setInputError(false);
-                  }
-                  setForm({
-                    ...Form,
-                    inputfeild6: value != '.' && value != '-' ? value : '',
-                  });
-                }}
-                textContentType="oneTimeCode"
-              />
-            </Wrapper>
-            <Spacer y="S" />
-            {inputError == true ? (
-              <Wrapper row justify="center">
-                <CusText
-                  size={'S'}
-                  text={
-                    inputError
-                      ? (Form.inputfeild1 && Form.inputfeild2) ||
-                        Form.inputfeild3 ||
-                        Form.inputfeild4
-                        ? 'Enter valid OTP'
-                        : 'OTP is required'
-                      : ''
-                  }
-                  error
-                />
-              </Wrapper>
-            ) : null}
-
-            {/* <Spacer y="S" /> */}
-            {!(
-              route?.params?.isEmailOTPVerified &&
-              route?.params?.isEmailOTPVerified
-            ) && (
-              <Wrapper customStyles={{marginLeft: responsiveWidth(4)}}>
-                <CusText text="Mobile OTP" size="S" color={colors.black} />
-              </Wrapper>
-            )}
-            {!(
-              route?.params?.isEmailOTPVerified &&
-              route?.params?.isEmailOTPVerified
-            ) && (
+            {route?.params?.registerData ? (
               <>
+                <Wrapper
+                  position="center"
+                  align="center"
+                  width={responsiveWidth(100)}>
+                  <CusText text="OTP" size="L" bold color={colors.primary} />
+                </Wrapper>
+                <Spacer y="S" />
+                <Wrapper
+                  position="center"
+                  align="center"
+                  width={responsiveWidth(100)}>
+                  <CusText
+                    text="We have sent the verification code to your email address"
+                    size="SS"
+                    customStyles={styles.subtitle}
+                    position="center"
+                    color={colors.placeholderColor}
+                  />
+                </Wrapper>
+                <Spacer y="S" />
+                <Wrapper customStyles={{marginLeft: responsiveWidth(4)}}>
+                  <CusText
+                    text={
+                      route?.params?.isEmailOTPVerified &&
+                      route?.params?.isEmailOTPVerified
+                        ? 'OTP'
+                        : 'Email OTP'
+                    }
+                    size="S"
+                    color={colors.black}
+                  />
+                </Wrapper>
                 <Wrapper row justify="spEven">
                   <InputField
                     label=""
                     placeholder=""
                     keyboardType="numeric"
-                    value={Form2.inputfeild1}
+                    value={Form.inputfeild1}
                     maxLength={1}
                     bordered={true}
                     width={45}
                     textAlign={'center'}
-                    ref={input01}
+                    ref={input1}
                     onKeyPress={e => {
-                      inputKeyPress2(e, '', input02, 'inputfeild1');
+                      inputKeyPress(e, '', input2, 'inputfeild1');
                     }}
                     onChangeText={value => {
                       if (value) {
-                        setInputError2(false);
+                        setInputError(false);
                       }
-                      setForm2({
-                        ...Form2,
+                      setForm({
+                        ...Form,
                         inputfeild1: value != '.' && value != '-' ? value : '',
                       });
                     }}
@@ -616,22 +446,22 @@ const Otp = ({route}: any) => {
                   <InputField
                     label=""
                     placeholder=""
-                    value={Form2.inputfeild2}
+                    value={Form.inputfeild2}
                     maxLength={1}
                     keyboardType="numeric"
                     bordered={true}
                     width={45}
                     textAlign={'center'}
-                    ref={input02}
+                    ref={input2}
                     onKeyPress={e => {
-                      inputKeyPress(e, input01, input03, 'inputfeild2');
+                      inputKeyPress(e, input1, input3, 'inputfeild2');
                     }}
                     onChangeText={value => {
                       if (value) {
-                        setInputError2(false);
+                        setInputError(false);
                       }
-                      setForm2({
-                        ...Form2,
+                      setForm({
+                        ...Form,
                         inputfeild2: value != '.' && value != '-' ? value : '',
                       });
                     }}
@@ -641,21 +471,21 @@ const Otp = ({route}: any) => {
                     label=""
                     placeholder=""
                     keyboardType="numeric"
-                    value={Form2.inputfeild3}
+                    value={Form.inputfeild3}
                     maxLength={1}
                     bordered={true}
                     width={45}
                     textAlign={'center'}
-                    ref={input03}
+                    ref={input3}
                     onKeyPress={e => {
-                      inputKeyPress2(e, input02, input04, 'inputfeild3');
+                      inputKeyPress(e, input2, input4, 'inputfeild3');
                     }}
                     onChangeText={value => {
                       if (value) {
-                        setInputError2(false);
+                        setInputError(false);
                       }
-                      setForm2({
-                        ...Form2,
+                      setForm({
+                        ...Form,
                         inputfeild3: value != '.' && value != '-' ? value : '',
                       });
                     }}
@@ -665,21 +495,21 @@ const Otp = ({route}: any) => {
                     label=""
                     placeholder=""
                     keyboardType="numeric"
-                    value={Form2.inputfeild4}
+                    value={Form.inputfeild4}
                     maxLength={1}
                     bordered={true}
                     width={45}
                     textAlign={'center'}
-                    ref={input04}
+                    ref={input4}
                     onKeyPress={e => {
-                      inputKeyPress2(e, input03, input05, 'inputfeild4');
+                      inputKeyPress(e, input3, input5, 'inputfeild4');
                     }}
                     onChangeText={value => {
                       if (value) {
-                        setInputError2(false);
+                        setInputError(false);
                       }
-                      setForm2({
-                        ...Form2,
+                      setForm({
+                        ...Form,
                         inputfeild4: value != '.' && value != '-' ? value : '',
                       });
                     }}
@@ -689,21 +519,21 @@ const Otp = ({route}: any) => {
                     label=""
                     placeholder=""
                     keyboardType="numeric"
-                    value={Form2.inputfeild5}
+                    value={Form.inputfeild5}
                     maxLength={1}
                     bordered={true}
                     width={45}
                     textAlign={'center'}
-                    ref={input05}
+                    ref={input5}
                     onKeyPress={e => {
-                      inputKeyPress2(e, input04, input06, 'inputfeild5');
+                      inputKeyPress(e, input4, input6, 'inputfeild5');
                     }}
                     onChangeText={value => {
                       if (value) {
-                        setInputError2(false);
+                        setInputError(false);
                       }
-                      setForm2({
-                        ...Form2,
+                      setForm({
+                        ...Form,
                         inputfeild5: value != '.' && value != '-' ? value : '',
                       });
                     }}
@@ -713,21 +543,21 @@ const Otp = ({route}: any) => {
                     label=""
                     placeholder=""
                     keyboardType="numeric"
-                    value={Form2.inputfeild6}
+                    value={Form.inputfeild6}
                     maxLength={1}
                     bordered={true}
                     width={45}
                     textAlign={'center'}
-                    ref={input06}
+                    ref={input6}
                     onKeyPress={e => {
-                      inputKeyPress2(e, input05, '', 'inputfeild6');
+                      inputKeyPress(e, input5, '', 'inputfeild6');
                     }}
                     onChangeText={value => {
                       if (value) {
-                        setInputError2(false);
+                        setInputError(false);
                       }
-                      setForm2({
-                        ...Form2,
+                      setForm({
+                        ...Form,
                         inputfeild6: value != '.' && value != '-' ? value : '',
                       });
                     }}
@@ -735,15 +565,15 @@ const Otp = ({route}: any) => {
                   />
                 </Wrapper>
                 <Spacer y="S" />
-                {inputError2 == true ? (
+                {inputError == true ? (
                   <Wrapper row justify="center">
                     <CusText
                       size={'S'}
                       text={
-                        inputError2
-                          ? (Form2.inputfeild1 && Form2.inputfeild2) ||
-                            Form2.inputfeild3 ||
-                            Form2.inputfeild4
+                        inputError
+                          ? (Form.inputfeild1 && Form.inputfeild2) ||
+                            Form.inputfeild3 ||
+                            Form.inputfeild4
                             ? 'Enter valid OTP'
                             : 'OTP is required'
                           : ''
@@ -752,111 +582,300 @@ const Otp = ({route}: any) => {
                     />
                   </Wrapper>
                 ) : null}
-              </>
-            )}
-          </>
-        ) : null}
-        <Spacer y="XS" />
-        <Wrapper
-          width={responsiveWidth(90)}
-          position="center"
-          row
-          justify="right">
-          <Wrapper>
-            <TouchableOpacity
-              onPress={() => {
-                onResendOTP();
-              }}>
-              <CusText
-                text={'Resend OTP'}
-                color={colors.primary}
-                size="N"
-                position="right"
-                title
-              />
-            </TouchableOpacity>
-          </Wrapper>
-        </Wrapper>
-        <Spacer y="XS" />
-        <Wrapper align="center">
-          {route?.params?.isEmailOTPVerified &&
-            route?.params?.isEmailOTPVerified && (
-              <CusText
-                text={` Otp :${
-                  Data?.loginOTP
-                    ? Data?.loginOTP
-                    : route?.params?.registerData?.loginOTP
-                }`}
-              />
-            )}
 
-          {!(
-            route?.params?.isEmailOTPVerified &&
-            route?.params?.isEmailOTPVerified
-          ) && (
-            <CusText
-              text={`Email Otp :${
-                Data?.emailOTP
-                  ? Data?.emailOTP
-                  : route?.params?.registerData?.emailOTP
-              }`}
-            />
-          )}
-          {!(
-            route?.params?.isEmailOTPVerified &&
-            route?.params?.isEmailOTPVerified
-          ) && (
-            <CusText
-              text={`Mobile OTP :${
-                Data?.mobileOTP
-                  ? Data?.mobileOTP
-                  : route?.params?.registerData?.mobileOTP
-              }`}
-            />
-          )}
-        </Wrapper>
-
-        <Spacer y="L" />
-
-        <CusButton
-          loading={loading}
-          width={responsiveWidth(90)}
-          title="Submit"
-          position="center"
-          radius={borderRadius.medium}
-          onPress={() => {
-            if (route?.params?.registerData) {
-              if (
-                !(
+                {/* <Spacer y="S" /> */}
+                {!(
                   route?.params?.isEmailOTPVerified &&
                   route?.params?.isEmailOTPVerified
-                )
-              ) {
-                onSubmit();
-              } else {
-                onSubmitLoginOtp();
-              }
-            } else {
-              navigation.navigate('ResetPassword');
-            }
+                ) && (
+                  <Wrapper customStyles={{marginLeft: responsiveWidth(4)}}>
+                    <CusText text="Mobile OTP" size="S" color={colors.black} />
+                  </Wrapper>
+                )}
+                {!(
+                  route?.params?.isEmailOTPVerified &&
+                  route?.params?.isEmailOTPVerified
+                ) && (
+                  <>
+                    <Wrapper row justify="spEven">
+                      <InputField
+                        label=""
+                        placeholder=""
+                        keyboardType="numeric"
+                        value={Form2.inputfeild1}
+                        maxLength={1}
+                        bordered={true}
+                        width={45}
+                        textAlign={'center'}
+                        ref={input01}
+                        onKeyPress={e => {
+                          inputKeyPress2(e, '', input02, 'inputfeild1');
+                        }}
+                        onChangeText={value => {
+                          if (value) {
+                            setInputError2(false);
+                          }
+                          setForm2({
+                            ...Form2,
+                            inputfeild1:
+                              value != '.' && value != '-' ? value : '',
+                          });
+                        }}
+                        textContentType="oneTimeCode"
+                      />
 
-            //
-          }}
-        />
-        <Spacer y="S" />
-         <Wrapper>
-                <TouchableOpacity onPress={() => {navigation.goBack()}}>
+                      <InputField
+                        label=""
+                        placeholder=""
+                        value={Form2.inputfeild2}
+                        maxLength={1}
+                        keyboardType="numeric"
+                        bordered={true}
+                        width={45}
+                        textAlign={'center'}
+                        ref={input02}
+                        onKeyPress={e => {
+                          inputKeyPress(e, input01, input03, 'inputfeild2');
+                        }}
+                        onChangeText={value => {
+                          if (value) {
+                            setInputError2(false);
+                          }
+                          setForm2({
+                            ...Form2,
+                            inputfeild2:
+                              value != '.' && value != '-' ? value : '',
+                          });
+                        }}
+                        textContentType="oneTimeCode"
+                      />
+                      <InputField
+                        label=""
+                        placeholder=""
+                        keyboardType="numeric"
+                        value={Form2.inputfeild3}
+                        maxLength={1}
+                        bordered={true}
+                        width={45}
+                        textAlign={'center'}
+                        ref={input03}
+                        onKeyPress={e => {
+                          inputKeyPress2(e, input02, input04, 'inputfeild3');
+                        }}
+                        onChangeText={value => {
+                          if (value) {
+                            setInputError2(false);
+                          }
+                          setForm2({
+                            ...Form2,
+                            inputfeild3:
+                              value != '.' && value != '-' ? value : '',
+                          });
+                        }}
+                        textContentType="oneTimeCode"
+                      />
+                      <InputField
+                        label=""
+                        placeholder=""
+                        keyboardType="numeric"
+                        value={Form2.inputfeild4}
+                        maxLength={1}
+                        bordered={true}
+                        width={45}
+                        textAlign={'center'}
+                        ref={input04}
+                        onKeyPress={e => {
+                          inputKeyPress2(e, input03, input05, 'inputfeild4');
+                        }}
+                        onChangeText={value => {
+                          if (value) {
+                            setInputError2(false);
+                          }
+                          setForm2({
+                            ...Form2,
+                            inputfeild4:
+                              value != '.' && value != '-' ? value : '',
+                          });
+                        }}
+                        textContentType="oneTimeCode"
+                      />
+                      <InputField
+                        label=""
+                        placeholder=""
+                        keyboardType="numeric"
+                        value={Form2.inputfeild5}
+                        maxLength={1}
+                        bordered={true}
+                        width={45}
+                        textAlign={'center'}
+                        ref={input05}
+                        onKeyPress={e => {
+                          inputKeyPress2(e, input04, input06, 'inputfeild5');
+                        }}
+                        onChangeText={value => {
+                          if (value) {
+                            setInputError2(false);
+                          }
+                          setForm2({
+                            ...Form2,
+                            inputfeild5:
+                              value != '.' && value != '-' ? value : '',
+                          });
+                        }}
+                        textContentType="oneTimeCode"
+                      />
+                      <InputField
+                        label=""
+                        placeholder=""
+                        keyboardType="numeric"
+                        value={Form2.inputfeild6}
+                        maxLength={1}
+                        bordered={true}
+                        width={45}
+                        textAlign={'center'}
+                        ref={input06}
+                        onKeyPress={e => {
+                          inputKeyPress2(e, input05, '', 'inputfeild6');
+                        }}
+                        onChangeText={value => {
+                          if (value) {
+                            setInputError2(false);
+                          }
+                          setForm2({
+                            ...Form2,
+                            inputfeild6:
+                              value != '.' && value != '-' ? value : '',
+                          });
+                        }}
+                        textContentType="oneTimeCode"
+                      />
+                    </Wrapper>
+                    <Spacer y="S" />
+                    {inputError2 == true ? (
+                      <Wrapper row justify="center">
+                        <CusText
+                          size={'S'}
+                          text={
+                            inputError2
+                              ? (Form2.inputfeild1 && Form2.inputfeild2) ||
+                                Form2.inputfeild3 ||
+                                Form2.inputfeild4
+                                ? 'Enter valid OTP'
+                                : 'OTP is required'
+                              : ''
+                          }
+                          error
+                        />
+                      </Wrapper>
+                    ) : null}
+                  </>
+                )}
+              </>
+            ) : null}
+            <Spacer y="XS" />
+            <Wrapper
+              width={responsiveWidth(90)}
+              position="center"
+              row
+              justify="right">
+              <Wrapper>
+                <TouchableOpacity
+                  onPress={() => {
+                    onResendOTP();
+                  }}>
                   <CusText
-                    text={'Back To Login'}
+                    text={'Resend OTP'}
                     color={colors.primary}
                     size="N"
-                    position="center"
+                    position="right"
                     title
                   />
                 </TouchableOpacity>
               </Wrapper>
-      </Container>
-      </ScrollView>
+            </Wrapper>
+            <Spacer y="XS" />
+            <Wrapper align="center">
+              {route?.params?.isEmailOTPVerified &&
+                route?.params?.isEmailOTPVerified && (
+                  <CusText
+                    text={` Otp :${
+                      Data?.loginOTP
+                        ? Data?.loginOTP
+                        : route?.params?.registerData?.loginOTP
+                    }`}
+                  />
+                )}
+
+              {!(
+                route?.params?.isEmailOTPVerified &&
+                route?.params?.isEmailOTPVerified
+              ) && (
+                <CusText
+                  text={`Email Otp :${
+                    Data?.emailOTP
+                      ? Data?.emailOTP
+                      : route?.params?.registerData?.emailOTP
+                  }`}
+                />
+              )}
+              {!(
+                route?.params?.isEmailOTPVerified &&
+                route?.params?.isEmailOTPVerified
+              ) && (
+                <CusText
+                  text={`Mobile OTP :${
+                    Data?.mobileOTP
+                      ? Data?.mobileOTP
+                      : route?.params?.registerData?.mobileOTP
+                  }`}
+                />
+              )}
+            </Wrapper>
+
+            <Spacer y="L" />
+
+            <CusButton
+              loading={loading}
+              width={responsiveWidth(90)}
+              title="Submit"
+              position="center"
+              radius={borderRadius.medium}
+              onPress={() => {
+                if (route?.params?.registerData) {
+                  if (
+                    !(
+                      route?.params?.isEmailOTPVerified &&
+                      route?.params?.isEmailOTPVerified
+                    )
+                  ) {
+                    onSubmit();
+                  } else {
+                    onSubmitLoginOtp();
+                  }
+                } else {
+                  navigation.navigate('ResetPassword');
+                }
+
+                //
+              }}
+            />
+            <Spacer y="S" />
+            <Wrapper>
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.goBack();
+                }}>
+                <CusText
+                  text={'Back To Login'}
+                  color={colors.primary}
+                  size="N"
+                  position="center"
+                  title
+                />
+              </TouchableOpacity>
+            </Wrapper>
+          </Container>
+        </ScrollView>
       </KeyboardAvoidingView>
     </>
   );

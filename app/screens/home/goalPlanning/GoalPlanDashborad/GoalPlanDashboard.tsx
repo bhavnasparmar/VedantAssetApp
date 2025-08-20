@@ -1,90 +1,156 @@
-import React, { useEffect, useState } from "react";
-import CusText from "../../../../ui/custom-text";
-import Header from "../../../../shared/components/Header/Header";
-import Container from "../../../../ui/container";
-import Wrapper from "../../../../ui/wrapper";
-import { colors, responsiveWidth } from "../../../../styles/variables";
-import Spacer from "../../../../ui/spacer";
-import { Text, TouchableOpacity } from "react-native";
-import NewGoal from "./Components/NewGoal";
-import OnGoingGoal from "./Components/OnGoingGoal";
-import CompletedGoal from "./Components/CompletedGoal";
-import { useIsFocused } from "@react-navigation/native";
+import React, { useState, useContext, useEffect } from 'react';
+import { Dimensions, Text } from 'react-native';
+import { TabBar, TabView } from 'react-native-tab-view';
+import {
+  borderRadius,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../../../styles/variables';
+import Wrapper from '../../../../ui/wrapper';
+import Chartshow from '../component/chartShow';
+import NewGoalpopup from '../component/newGoalpopup';
+import RecommendedPlan from '../component/recomendedPlan';
+import CompletedGoal from './components/completedGoal';
+import Header from '../../../../shared/components/Header/Header';
+import { AppearanceContext } from '../../../../context/appearanceContext';
+import NewGoal from './Components/NewGoal';
+import OnGoingGoal from './Components/OnGoingGoal';
+import { useIsFocused, useRoute } from '@react-navigation/native';
 
+const GoalDashboard = () => {
+  const { colors }: any = useContext(AppearanceContext);
+  const route: any = useRoute()
+  const isFocused: any = useIsFocused()
+  const layout = Dimensions.get('window');
+  console.log('route Data : ', route?.params)
 
-const getComponent = (key: string) => {
-    const timestamp = new Date().getTime(); // Unique key to force re-render
-    switch (key) {
-        case 'NewGoal':
-            const NewGoal = require('./Components/NewGoal').default;
-            return <NewGoal key={`NewGoal-${timestamp}`} />;
-        case 'OnGoingGoal':
-            const OnGoingGoal = require('./Components/OnGoingGoal').default;
-            return <OnGoingGoal key={`OnGoingGoal-${timestamp}`} />;
-        case 'CompletedGoal':
-            const CompletedGoal = require('./Components/CompletedGoal').default;
-            return <CompletedGoal key={`CompletedGoal-${timestamp}`} />;
-        default:
-            return <Text>Select a component</Text>;
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    { key: 'newgoal', title: 'New' },
+    { key: 'ongoinggoal', title: 'Ongoing' },
+    { key: 'completedgoal', title: 'Completed' },
+  ]);
+
+  const [chartshow, setChartshow] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [goalID, setGoalId] = useState<any>('');
+  const [goalPlanID, setGoalPlanID] = useState<any>('');
+  const [recommended, setRecommended] = useState(false);
+  const [riskProfileData, setriskProfileData] = useState<any>({})
+  const [editGoalData, setEditGoalData] = useState<any>({})
+  const [goalPlanName, setGoalPlanName] = useState<any>('')
+  const [pageName, setPageName] = useState<any>('')
+
+  useEffect(() => {
+    if (route?.params?.tabNumber === 0) {
+      setIndex(route?.params?.tabNumber)
+      setIsVisible(false)
+    } else {
+      if (route?.params?.tabNumber) {
+        console.log('Route Available')
+        setEditGoalData(route?.params?.goalPlanData)
+        setIndex(route?.params?.tabNumber)
+        setIsVisible(route?.params?.tabNumber === 0 ? false : route?.params?.showAlert)
+        setPageName('')
+      } else {
+        // console.log('Route Not Available')
+        // setIsVisible(false)
+      }
     }
+
+
+  }, [isFocused])
+
+  const renderScene = ({ route }: any) => {
+    switch (route.key) {
+      case 'newgoal':
+        return (
+          <NewGoal
+            setisVisible={(value: boolean) => setIsVisible(value)}
+            setgoalId={(value: any) => setGoalId(value)}
+            setGoalPlanID={(value: any) => setGoalPlanID(value)}
+            setGoalName={(value: any) => setGoalPlanName(value)}
+            riskprofileData={(value: any) => setriskProfileData(value)}
+            setPageName={(value: any) => setPageName(value)}
+          />
+        );
+      case 'ongoinggoal':
+        return (
+          <OnGoingGoal
+            setgoalId={(value: any) => setGoalId(value)}
+            setGoalName={(value: any) => setGoalPlanName(value)}
+            setGoalPlanID={(value: any) => setGoalPlanID(value)}
+          />
+        );
+      case 'completedgoal':
+        return <></>;
+      // <CompletedGoal />;
+      default:
+        return null;
+    }
+  };
+  console.log("setriskProfileData", goalPlanID, riskProfileData,)
+  return (
+    <>
+      <Header backBtn name="Goal Planning" />
+      <Wrapper color={colors.Hard_White} height={responsiveHeight(92)}>
+        <TabView
+          lazy
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{ width: layout.width }}
+          style={{
+            marginBottom: responsiveWidth(3),
+          }}
+          renderTabBar={props => (
+            <TabBar
+              {...props}
+              indicatorStyle={{ backgroundColor: colors.Hard_White,
+              borderTopLeftRadius: borderRadius.medium, borderTopRightRadius: borderRadius.medium, height: responsiveWidth(10) }}
+                pressOpacity={0}
+                pressColor={colors.tabBg}
+              style={{ backgroundColor: colors.tabBg }}
+              inactiveColor={colors.black}
+              activeColor={colors.black}
+              tabStyle={{paddingBottom :0}}
+              // renderLabel={({ route, focused }: any) => (
+              //   <Text
+              //     style={{
+              //       color: focused ? colors.pink : colors.pink,
+              //       fontWeight: focused ? 'bold' : 'normal',
+              //     }}>
+              //     {route.title}
+              //   </Text>
+              // )}
+            />
+          )}
+        />
+      </Wrapper>
+      <NewGoalpopup
+        isVisible={isVisible}
+        goalID={goalID}
+        goalPlanID={goalPlanID}
+        goalPlanName={goalPlanName}
+        setisVisible={(value: any) => setIsVisible(value)}
+        flag={(value: boolean) => setRecommended(value)}
+        riskProfileData={riskProfileData}
+        editGoalData={pageName === 'NewGoal' ? null : route?.params?.goalPlanData}
+      />
+      <RecommendedPlan
+        isVisible={recommended}
+        setisVisible={(value: any) => setRecommended(value)}
+        goalPlanID={goalPlanID}
+        flag={setChartshow}
+      />
+      <Chartshow
+        isVisible={chartshow}
+        setisVisible={setChartshow}
+        goalPlanID={goalPlanID}
+        flag={setRecommended}
+      />
+    </>
+  );
 };
 
-const GoalPlanDashboard = () => {
-
-    const isFocused: any = useIsFocused()
-    const [activeComponent, setActiveComponent] = useState<string>('NewGoal');
-
-    useEffect(() => {
-        setActiveComponent('NewGoal')
-    }, [isFocused])
-
-
-
-    return (
-        <>
-            <Header menubtn name="Goal Planning" />
-            <Spacer y="S" />
-            <Wrapper row position="center" align="center" justify="apart" customStyles={{
-                paddingHorizontal: responsiveWidth(1),
-
-            }}>
-                <TouchableOpacity onPress={() => setActiveComponent('NewGoal')}>
-                    <CusText semibold color={activeComponent === 'NewGoal' ? colors.orange : colors.primary} text={'New Goal'} size={activeComponent === 'NewGoal' ? "M" : "SN"} />
-                </TouchableOpacity>
-                <Wrapper
-                    customStyles={{ marginHorizontal: responsiveWidth(2) }}
-                    width={responsiveWidth(7)}
-                    height={responsiveWidth(0.3)}
-                    color={colors.primary}
-                />
-                <TouchableOpacity onPress={() => setActiveComponent('OnGoingGoal')}>
-                    <CusText semibold color={activeComponent === 'OnGoingGoal' ? colors.orange : colors.primary} position="center" text={'Ongoing'} size={activeComponent === 'OnGoingGoal' ? "M" : "SN"} />
-                </TouchableOpacity>
-                <Wrapper
-                    customStyles={{ marginHorizontal: responsiveWidth(2) }}
-                    width={responsiveWidth(7)}
-                    height={responsiveWidth(0.3)}
-                    color={colors.primary}
-                />
-                <TouchableOpacity onPress={() => setActiveComponent('CompletedGoal')}>
-                    <CusText semibold color={activeComponent === 'CompletedGoal' ? colors.orange : colors.primary} text={'Completed'} size={activeComponent === 'CompletedGoal' ? "M" : "SN"} />
-                </TouchableOpacity>
-            </Wrapper>
-            <Spacer y="XS" />
-            <Wrapper
-                customStyles={{ marginHorizontal: responsiveWidth(1) }}
-                width={responsiveWidth(100)}
-                height={responsiveWidth(0.5)}
-                color="rgba(226, 226, 226, 1)"
-            />
-            <Spacer y="XS" />
-            <Wrapper >
-                {getComponent(activeComponent)}
-            </Wrapper>
-
-        </>
-    )
-
-}
-
-export default GoalPlanDashboard
+export default GoalDashboard;
