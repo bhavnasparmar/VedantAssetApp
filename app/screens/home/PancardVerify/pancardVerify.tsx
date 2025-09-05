@@ -119,11 +119,11 @@ const PancardVerify = () => {
                 // console.log('PAN Validation Success : ', result)
                 setIsPanLaod(false)
 
-                if (result?.msg === 'PAN Status Checked') {
+                if (result?.data) {
                     setIsPanValidated(true)
                     setcheckPancardData(result?.data)
                     setKycStatus(result?.data?.kycStatus)
-                    showToast(toastTypes.success, result?.msg || 'PAN validation successful')
+                    showToast(toastTypes.info, result?.msg || 'PAN validation successful')
                 } else {
                     setIsPanValidated(false)
                     showToast(toastTypes.error, 'PAN validation failed')

@@ -11,7 +11,8 @@ import SuggestedScheme from '../../../screens/home/goalPlanning/component/sugges
 import Cart from '../../../screens/home/cart/cart';
 import FunpickerDetail from '../../../screens/home/fundpickerdetail/funpickerdetail';
 import FundPicker from '../../../screens/home/fundpicker/fundpicker';
-import GoalDashboard from '../../../screens/home/goalPlanning/GoalPlanDashborad/GoalPlanDashboard';
+// import GoalDashboard from '../../../screens/home/goalPlanning/GoalPlanDashborad/GoalPlanDashboard'; // Old Goal Plan - Commented out
+import { GoalPlan } from '../../../screens/goalplan'; // New Goal Plan Module
 import Dashboard from '../../../screens/home/Dashboard/Dashboard';
 import PancardVerify from '../../../screens/home/PancardVerify/pancardVerify';
 import AnnualInvest from '../../../screens/home/AnnualInvest/annualInvest';
@@ -24,6 +25,9 @@ import MutualFunds from '../../../screens/home/MutualFund/mutualFund';
 import TopPerformingSchemes from '../../../screens/home/MutualFund/TopPerformingSchemes';
 import AllAmcList from '../../../screens/home/MutualFund/AllAmcList';
 import AllFundManagerList from '../../../screens/home/MutualFund/AllFundManagerList';
+import AccountHolding from '../../../screens/home/AccountHolding/AccountHolding';
+import CreateMandate from '../../../screens/home/CreateMandate/CreateMandate';
+import { MFAllocation, SchemeSelection } from '../../../screens/goalplan/components';
 
 
 const Drawer = createDrawerNavigator();
@@ -39,7 +43,7 @@ const AppStack = () => {
     <Stack.Navigator initialRouteName="Tabs" screenOptions={options}>
       <Stack.Screen name="Tabs" component={Tabs} />
       <Stack.Screen name="ChangePassword" component={ChangePassword} />
-      <Stack.Screen name="GoalDashboard" component={GoalDashboard} />
+      <Stack.Screen name="GoalDashboard" component={GoalPlan} />
       <Stack.Screen name="SelectScheme" component={SelectScheme} />
       <Stack.Screen name="SchemeEdit" component={SchemeEdit} />
       <Stack.Screen name="Cart" component={Cart} />
@@ -52,11 +56,15 @@ const AppStack = () => {
       <Stack.Screen name="KycDigiLockerInfo" component={KycDigiLockerInfo} />
       <Stack.Screen name="KycDashboard" component={KycDashboard} />
       <Stack.Screen name="Profile" component={Profile} />
+      <Stack.Screen name="AccountHolding" component={AccountHolding} />
       <Stack.Screen name="MutualFunds" component={MutualFunds} />
       <Stack.Screen name="TopPerformingSchemes" component={TopPerformingSchemes} />
       <Stack.Screen name="AllAmcList" component={AllAmcList} />
       <Stack.Screen name="AllFundManagerList" component={AllFundManagerList} />
       <Stack.Screen name="FundPicker" component={FundPicker} />
+      <Stack.Screen name="MFAllocation" component={MFAllocation} />
+      <Stack.Screen name="SchemeSelection" component={SchemeSelection} />
+      <Stack.Screen name="CreateMandate" component={CreateMandate} />
     </Stack.Navigator>
   );
 };

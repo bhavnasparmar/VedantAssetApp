@@ -6,10 +6,11 @@ import { getGoalPlanningDetails, getRiskObject, getuserDetails } from '../Redux/
 import { ISKYCMember, KYCDetailsObj, KYCMemberDetailsObj, KYCPanDetailsObj } from '../Redux/Actions/KycAction';
 
 //live server base url
-// export const API_URL = 'https://prosesenv.com:9065/';
-// export const API_URL = 'http://192.168.1.68:9065/';
-export const IMAGE_API_URL = 'http://192.168.1.40:9065';
+
+// export const IMAGE_API_URL = 'http://192.168.1.40:9065';
+// export const IMAGE_API_URL = 'http://localhost9000:9065';
 export const API_URL = 'https://vedant.prosesenv.com:9065/';
+// export const API_URL = 'http://192.168.1.46:9065/';
 export const IMAGE_URL = `${API_URL}static/`;
 export const IMAGE_URL_GOAL = `${API_URL}static/`;
 export const PDF_URL = `${API_URL}static/`;
@@ -97,6 +98,10 @@ const endPoints = {
   getMutualHoldingData: 'scheme/get-mutual-holdingData',
   getFundManagerData: 'scheme/get-fundmanager-data',
   getRatioSchemeData: 'scheme/get-ratio-scheme-data',
+  getInvestorSearch: 'investor/search',
+  getInvestorAcHolding: 'investor/account-holding',
+  getmfumandates: 'mfu/mandates',
+  createHolding:'investor/create-holding',
 };
 
 export { endPoints };
@@ -311,7 +316,7 @@ export const formatNumber = (value: any) => {
 }
 
 export const convertToCrores = (number: number) => {
-    const crore = 10000000; // 1 crore is 10 million
-    const crores = number / crore;
-    return crores?.toFixed(2); // Returns the number in crores rounded to 2 decimal places
+  const crore = 10000000; // 1 crore is 10 million
+  const crores = number / crore;
+  return crores?.toFixed(2); // Returns the number in crores rounded to 2 decimal places
 };

@@ -275,6 +275,35 @@ export function DrawerContent(props: any) {
                 });
               }}
             />
+            <LinearGradient
+              start={{ x: 1, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              colors={[
+                colors.Hard_White,
+                colors.Hard_White,
+                colors.Hard_White,
+              ]}
+              style={{ width: "90%", alignSelf: 'center', height: 0.5, opacity: 0.2 }}
+            ></LinearGradient>
+          </Wrapper>
+          <Wrapper color={colors.primary}>
+            <DrawerItem
+              icon={({ focused }) => (
+                <IonIcon
+                  name="wallet-outline"
+                  color={colors.Hard_White}
+                  size={responsiveWidth(6)}
+                />
+              )}
+              label={({ }) => (
+                <CusText bold={false} customStyles={{ marginLeft: responsiveWidth(0) }} color={colors.Hard_White} size={'SS'} style={styles.menuTextstyle} text="Account Holdings" />
+              )}
+              onPress={() => {
+                props.navigation.navigate('Main', {
+                  screen: 'AccountHolding'
+                });
+              }}
+            />
             {/* <LinearGradient
               start={{ x: 1, y: 0 }}
               end={{ x: 0, y: 1 }}

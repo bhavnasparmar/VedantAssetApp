@@ -20,7 +20,8 @@ import Wrapper from '../../ui/wrapper';
 import Dashboard from '../../screens/home/Dashboard/Dashboard';
 import Spacer from '../../ui/spacer';
 import FundPicker from '../../screens/home/fundpicker/fundpicker';
-import GoalDashboard from '../../screens/home/goalPlanning/GoalPlanDashborad/GoalPlanDashboard';
+// import GoalDashboard from '../../screens/home/goalPlanning/GoalPlanDashborad/GoalPlanDashboard'; // Old Goal Plan - Commented out
+import { GoalPlan } from '../../screens/goalplan'; // New Goal Plan Module
 import RiskProfile from '../../screens/home/riskProfile/riskProfile';
 
 const Tab = createBottomTabNavigator();
@@ -311,7 +312,7 @@ const Tabs = ({route, navigation: parentNavigation}: any) => {
 
         <Tab.Screen
           name="GoalPlanDashboard"
-          component={GoalDashboard}
+          component={GoalPlan}
         />
         
         <Tab.Screen

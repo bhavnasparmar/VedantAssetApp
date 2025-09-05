@@ -141,7 +141,11 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                     setAllocation(result?.data?.finalplan?.goal_plan_id)
                     // setisVisible(false)
                     // setGoalPlanningDetails(null)
-                    navigation.navigate('GoalDashboard')
+                    // navigation.navigate('GoalDashboard') // Old Goal Plan
+                    navigation.navigate('Main', {
+                        screen: 'Tabs',
+                        params: { screen: 'GoalPlanDashboard' }
+                    }); // Navigate to new Goal Plan
                     showToast(toastTypes.success, result?.msg)
                 } else {
                     console.log('goalPlanID Error', result?.msg)
@@ -154,7 +158,11 @@ const SuggestedScheme = ({ isVisible, setisVisible, flag, goalPlanID }: any) => 
                     setAllocation(result?.data?.plans?.goal_plan_id)
                     //  setisVisible(false)
                     //  setGoalPlanningDetails(null)
-                    navigation.navigate('GoalDashboard')
+                    // navigation.navigate('GoalDashboard') // Old Goal Plan
+                    navigation.navigate('Main', {
+                        screen: 'Tabs',
+                        params: { screen: 'GoalPlanDashboard' }
+                    }); // Navigate to new Goal Plan
 
                     showToast(toastTypes.success, result?.msg)
                 } else {

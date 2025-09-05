@@ -443,3 +443,25 @@ export const getRatioSchemeDataApi = (payload: any) => {
     const promise = API.post(`${API_URL}${endPoints.getRatioSchemeData}`, payload);
     return promiseHandler(promise);
 };
+
+
+export const getInvestorSearchApi = (userId: any) => {
+    const promise = API.get(`${API_URL}${endPoints.getInvestorSearch}/${userId}`);
+    return promiseHandler(promise);
+};
+
+
+export const getInvestorAcHoldingApi = (userId: any) => {
+    const promise = API.get(`${API_URL}${endPoints.getInvestorAcHolding}/${userId}`);
+    return promiseHandler(promise);
+};
+
+export const getMandatesApi = (userId: any) => {
+    const promise = API.get(`${API_URL}${endPoints.getmfumandates}`);
+    return promiseHandler(promise);
+};
+
+export const createACHoldingApi = (payload: any) => {
+    const promise = API.post(`${API_URL}${endPoints.createHolding}`, payload);
+    return promiseHandler(promise);
+};

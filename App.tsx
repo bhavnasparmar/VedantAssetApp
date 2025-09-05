@@ -231,11 +231,13 @@ export default function App() {
         } catch (error: any) { }
       },
       signIn: async (data: any) => {
-        console.log("data", data);
+        console.log("signIn data", data);
         try {
           await AsyncStorage.setItem(TOKEN_PREFIX, data?.token ? data?.token : "");
-          await AsyncStorage.setItem(USER_DATA, JSON.stringify(data?.user));
-          const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', data?.user?.InvestorRegistration)
+          const user_data_Combine: any = { ...data?.user, ...data?.meta }
+          console.log("user_data_Combine data", user_data_Combine);
+          await AsyncStorage.setItem(USER_DATA, JSON.stringify(user_data_Combine));
+          const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', user_data_Combine?.InvestorRegistration)
           setKYC_Details(update_data)
           // const update_member_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', data?.user?.InvestorRegistration)
           // setKYC_Details(update_member_data)

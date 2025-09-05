@@ -82,7 +82,16 @@ const Profile = () => {
         let useretail1 = JSON.parse(useretail);
         const kycDetails = getKYC_Details();
         console.log('kycDetails data', kycDetails);
-        if (!kycDetails?.user_basic_details?.is_kyc_complete) {
+
+        console.log('userData data', useretail1);
+        // if (!kycDetails?.user_basic_details?.is_kyc_complete) {
+        //     setisVisible(true)
+        // }
+        if (
+            (!useretail1?.InvestorRegistration) ||
+            (kycDetails && kycDetails?.user_basic_details?.is_kyc_complete === false) ||
+            kycDetails?.user_basic_details?.is_kyc_complete === null
+        ) {
             setisVisible(true)
         }
         // setisVisible(true)
@@ -249,6 +258,7 @@ const Profile = () => {
             }
 
         } else {
+            console.log('User KYC Details : ', getKYC_Details()?.user_basic_details)
             setKYC_ISMember(false);
             const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', null);
             setKYC_Details(update_data);
@@ -684,6 +694,23 @@ const Profile = () => {
                                 <Wrapper row align="center" justify="apart">
                                     <CusText text="Account Holding" size="SS" medium color={colors.Hard_Black} />
                                     <CusText text={kycUsers?.accountHolding || 'Not Linked'} size="SS" medium color={themeColors.gray} />
+                                </Wrapper>
+                                <Wrapper row align="center" justify="right">
+                                    {/* <CusText text="Account Holding" size="SS" medium color={colors.Hard_Black} /> */}
+                                    {
+                                        kycUsers?.is_kyc_complete && kycUsers?.isKYCDone && (
+                                            <TouchableOpacity
+                                                activeOpacity={0.7}
+                                                onPress={() => {
+                                                    console.log('Navigating to Account Holdings');
+                                                    navigation.navigate('AccountHolding');
+                                                }}
+                                            >
+                                                <CusText text="Link Account" size="SS" medium color={colors.orange} underline />
+                                            </TouchableOpacity>
+                                        )
+                                    }
+
                                 </Wrapper>
                             </Wrapper>
                         </Wrapper>

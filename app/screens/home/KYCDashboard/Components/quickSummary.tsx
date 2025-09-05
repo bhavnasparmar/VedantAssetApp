@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, TouchableOpacity, ActivityIndicator, Image, Linking, BackHandler } from 'react-native';
+import { ScrollView, TouchableOpacity, ActivityIndicator, Image, Linking, BackHandler, Modal, KeyboardAvoidingView, Platform, View } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import Container from '../../../../ui/container';
 import Wrapper from '../../../../ui/wrapper';
@@ -8,6 +8,8 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import Header from '../../../../shared/components/Header/Header';
 import { borderRadius, colors, responsiveHeight, responsiveWidth } from '../../../../styles/variables';
 import CusText from '../../../../ui/custom-text';
+import CusButton from '../../../../ui/custom-button';
+import API from '../../../../utils/API';
 
 import { getInvestorSummaryApi, completeKycApi, CreateKYCInvsSignZy, completeKycFinalApi, UpdateInvestorApi, completeKycisdoneApi } from '../../../../api/homeapi';
 import { showToast, toastTypes } from '../../../../services/toastService';
@@ -20,8 +22,14 @@ const QuickSummary = ({ setSelectedTab }: any) => {
     const [summaryData, setSummaryData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isCompleting, setIsCompleting] = useState(false);
+    const [transactionData, seTransactionData] = useState({})
     const [isAgreed, setIsAgreed] = useState(false);
     const [signZyData, setSignZydata] = useState<any>(null);
+
+    // Modal state
+    const [showKycCompleteModal, setShowKycCompleteModal] = useState(false);
+    const [kycCompleteData, setKycCompleteData] = useState<any>(null);
+    const [accountHoldingData, setAccountHoldingData] = useState<any>(null);
 
     // Check if KYC is done
     const isKYCDone = !getKYC_ISMember() ? getKYC_Details()?.user_basic_details?.isKYCDone : getKYC_Details()?.member_basic_details?.isKYCDone;
@@ -239,7 +247,19 @@ const QuickSummary = ({ setSelectedTab }: any) => {
         }
     };
 
+    // API call to fetch account holding data
+    const fetchAccountHoldingData = async (investorId: number) => {
+        try {
+            const response = await API.get(`investor/account-holding/${investorId}`);
+            return [response, null];
+        } catch (error) {
+            console.log('Fetch account holding error:', error);
+            return [null, error];
+        }
+    };
+
     const handleCompleteKycisKycDone = async () => {
+        console.log('handleCompleteKycisKycDone : ')
         if (!isAgreed) {
             showToast(toastTypes.error, 'Please agree to the terms before completing KYC');
             return;
@@ -255,21 +275,68 @@ const QuickSummary = ({ setSelectedTab }: any) => {
             const [result, error]: any = await completeKycisdoneApi(payload);
 
             if (result) {
-                console.log('Complete KYC Result is done:', result);
+                console.log('handleCompleteKycisKycDone KYC Result is done:', result?.data);
+                const result_data = result?.data?.canResponse?.CANIndFillEezzResp;
+                if (result_data?.RESP_HEADER?.RES_CODE !== "0") {
+                    console.log(result_data?.RESP_HEADER?.RES_MSG)
+                    const _transactionData = {
+                        can_id: result?.RESP_BODY?.CAN ?? '',
+                        name: getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.name : getKYC_Details()?.user_basic_details?.name,
+                        status: result?.RESP_HEADER?.RES_MSG ?? '',
+                        code: result?.RESP_HEADER?.RES_CODE ?? ''
+                    };
+                    console.log('_transactionData : ', _transactionData);
+                    seTransactionData(_transactionData)
+                } 
+                // else {
+                //     // navigate to can-onboarding
+                // }
+
                 if (result?.data) {
-                    if (getKYC_ISMember()) {
-                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', result?.data?.investor_data);
-                        setKYC_Details(update_data);
+                    if (result?.data?.investor_data?.partner || result?.data?.investor_data?.RM || result?.data?.investor_data?.superAdmin) {
+                        // Navigate to Investor List
                     } else {
-                        const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
-                        setKYC_Details(update_data);
+                        if (getKYC_ISMember()) {
+                            const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'member_basic_details', result?.data?.investor_data);
+                            setKYC_Details(update_data);
+                        } else {
+                            const update_data = updateObjectKey(getKYC_Details() ? getKYC_Details() : {}, 'user_basic_details', result?.data?.investor_data);
+                            setKYC_Details(update_data);
+                        }
+                        showToast(toastTypes.success, result?.msg || 'KYC completed successfully');
+
+                        // Fetch account holding data and show modal
+                        const investorId = getKYC_ISMember() ? getKYC_Details()?.member_basic_details?.id : getKYC_Details()?.user_basic_details?.id;
+                        const [accountResponse, _accountError] = await fetchAccountHoldingData(investorId);
+
+                        if (accountResponse && (accountResponse as any).data) {
+                            setAccountHoldingData((accountResponse as any).data);
+                        }
+
+                        // Prepare KYC complete data for modal
+                        const kycData = getKYC_Details();
+                        const basicDetails = getKYC_ISMember() ? kycData?.member_basic_details : kycData?.user_basic_details;
+
+                        setKycCompleteData({
+                            canNumber: (accountResponse as any)?.data?.can_number || result?.data?.can_number || 'N/A',
+                            customerName: basicDetails?.name || 'N/A',
+                            email: basicDetails?.email || 'N/A',
+                            phone: basicDetails?.mobile || 'N/A',
+                            panNumber: basicDetails?.pan || 'N/A',
+                            registrationDate: basicDetails?.createdAt || basicDetails?.registration_date || 'N/A',
+                            applicationId: basicDetails?.id || 'N/A',
+                            isMember: getKYC_ISMember()
+                        });
+
+                        setShowKycCompleteModal(true);
                     }
 
-                }
-                showToast(toastTypes.success, result?.msg || 'KYC completed successfully');
 
-                // Redirect to Profile page
-                navigation.navigate('Profile');
+                }
+                // showToast(toastTypes.success, result?.msg || 'KYC completed successfully');
+
+                // // Redirect to Profile page
+                // navigation.navigate('Profile');
 
             } else {
                 console.log('Complete KYC Error:', error);
@@ -1611,6 +1678,117 @@ const QuickSummary = ({ setSelectedTab }: any) => {
         </Wrapper>
     );
 
+    // KYC Complete Modal
+    const renderKycCompleteModal = () => {
+        return (
+            <Modal
+                visible={showKycCompleteModal}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowKycCompleteModal(false)}
+            >
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={{ flex: 1 }}
+                >
+                    <Wrapper
+                        justify='center'
+                        align='center'
+                        color='rgba(0, 0, 0, 0.5)'
+                        customStyles={{ flex: 1 }}
+                    >
+                        <Wrapper
+                            width={responsiveWidth(90)}
+                            color={colors.white}
+                            align="center"
+                            customStyles={{
+                                borderRadius: borderRadius.large,
+                                padding: responsiveWidth(6),
+                                shadowColor: colors.black,
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.25,
+                                shadowRadius: 4,
+                                elevation: 5,
+                                maxHeight: responsiveHeight(80),
+                            }}
+                        >
+                            {/* Success Icon */}
+                            <View style={{
+                                width: responsiveWidth(20),
+                                height: responsiveWidth(20),
+                                borderRadius: responsiveWidth(10),
+                                backgroundColor: colors.green,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                marginBottom: responsiveWidth(4)
+                            }}>
+                                <IonIcon name="checkmark" size={40} color={colors.white} />
+                            </View>
+
+                            {/* Success Message */}
+                            <CusText text="KYC Completed Successfully!" size="XL" semibold color={colors.black} customStyles={{ textAlign: 'center', marginBottom: responsiveWidth(2) }} />
+                            <CusText text="Congratulations! Your account is now ready." size="M" color={colors.gray} customStyles={{ textAlign: 'center', marginBottom: responsiveWidth(6) }} />
+
+                            {/* Customer Details */}
+                            <ScrollView showsVerticalScrollIndicator={false} style={{ width: '100%', maxHeight: responsiveHeight(40) }}>
+                                <View style={{
+                                    width: '100%',
+                                    backgroundColor: colors.lightGray + '20',
+                                    borderRadius: borderRadius.medium,
+                                    padding: responsiveWidth(4),
+                                    marginBottom: responsiveWidth(4)
+                                }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: responsiveWidth(2), borderBottomWidth: 1, borderBottomColor: colors.lightGray + '30' }}>
+                                        <CusText text="Customer Account Number:" size="M" color={colors.gray} />
+                                        <CusText text={kycCompleteData?.canNumber || 'N/A'} size="M" semibold color={colors.black} />
+                                    </View>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: responsiveWidth(2), borderBottomWidth: 1, borderBottomColor: colors.lightGray + '30' }}>
+                                        <CusText text="Customer Name:" size="M" color={colors.gray} />
+                                        <CusText text={kycCompleteData?.customerName || 'N/A'} size="M" semibold color={colors.black} />
+                                    </View>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: responsiveWidth(2), borderBottomWidth: 1, borderBottomColor: colors.lightGray + '30' }}>
+                                        <CusText text="Email:" size="M" color={colors.gray} />
+                                        <CusText text={kycCompleteData?.email || 'N/A'} size="M" color={colors.black} />
+                                    </View>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: responsiveWidth(2), borderBottomWidth: 1, borderBottomColor: colors.lightGray + '30' }}>
+                                        <CusText text="Phone:" size="M" color={colors.gray} />
+                                        <CusText text={kycCompleteData?.phone || 'N/A'} size="M" color={colors.black} />
+                                    </View>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: responsiveWidth(2), borderBottomWidth: 1, borderBottomColor: colors.lightGray + '30' }}>
+                                        <CusText text="PAN Number:" size="M" color={colors.gray} />
+                                        <CusText text={kycCompleteData?.panNumber || 'N/A'} size="M" color={colors.black} />
+                                    </View>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: responsiveWidth(2), borderBottomWidth: 1, borderBottomColor: colors.lightGray + '30' }}>
+                                        <CusText text="Registration Date:" size="M" color={colors.gray} />
+                                        <CusText text={kycCompleteData?.registrationDate ? new Date(kycCompleteData.registrationDate).toLocaleDateString() : 'N/A'} size="M" color={colors.black} />
+                                    </View>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: responsiveWidth(2) }}>
+                                        <CusText text="Application ID:" size="M" color={colors.gray} />
+                                        <CusText text={kycCompleteData?.applicationId || 'N/A'} size="M" color={colors.black} />
+                                    </View>
+                                </View>
+                            </ScrollView>
+
+                            <CusText text="Welcome to Vedant Mutual Fund!" size="M" color={colors.green} customStyles={{ textAlign: 'center', fontStyle: 'italic', marginBottom: responsiveWidth(4) }} />
+
+                            {/* Continue Button */}
+                            <CusButton
+                                title="Continue to Profile"
+                                onPress={() => {
+                                    setShowKycCompleteModal(false);
+                                    navigation.navigate('Profile');
+                                }}
+                                width={responsiveWidth(75)}
+                                lgcolor1={colors.orange}
+                                lgcolor2={colors.orange}
+                            />
+                        </Wrapper>
+                    </Wrapper>
+                </KeyboardAvoidingView>
+            </Modal>
+        );
+    };
+
     if (isLoading) {
         return (
             <>
@@ -1995,6 +2173,9 @@ const QuickSummary = ({ setSelectedTab }: any) => {
                     </Wrapper>
                 </ScrollView>
             </Wrapper>
+
+            {/* KYC Complete Modal */}
+            {renderKycCompleteModal()}
         </>
     );
 };
