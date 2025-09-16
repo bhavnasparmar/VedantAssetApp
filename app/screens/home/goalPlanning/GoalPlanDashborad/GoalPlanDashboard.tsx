@@ -92,7 +92,7 @@ const GoalDashboard = () => {
   console.log("setriskProfileData", goalPlanID, riskProfileData,)
   return (
     <>
-      <Header backBtn name="Goal Planning" />
+      <Header backBtn name="Goal Planning 1" />
       <Wrapper color={colors.Hard_White} height={responsiveHeight(92)}>
         <TabView
           lazy

@@ -67,12 +67,12 @@ const Header = ({
 
   return (
     <>
-      <Wrapper color={'rgba(248, 248, 248, 1)'}  height={responsiveWidth(13)} row align='center'
+      <Wrapper color={'rgba(248, 248, 248, 1)'} height={responsiveWidth(13)} row align='center'
         customStyles={{
         }}
       >
-        <Spacer x='S' />
-        <Wrapper align='center' row >
+        <Spacer x='XXS' />
+        <Wrapper align='center' justify='center' row >
           {/* {menubtn ? 
            
           <></>  
@@ -89,16 +89,16 @@ const Header = ({
                   }
                 }}
                 name="chevron-back-outline"
-                size={responsiveWidth(6)}
-               color={colors.primary}
+                size={responsiveWidth(8)}
+                color={colors.primary}
                 style={{
-                  padding: responsiveWidth(0.5),
+                  // padding: responsiveWidth(0.5),
                 }}
               />
             </>
           ) : null}
           {/* <Spacer x='XXS' /> */}
-          <CusText semibold position='center' color={colors.primary} text={name} size='SL' />
+          <CusText customStyles={{ marginLeft: responsiveWidth(2) }} semibold position='center' color={colors.primary} text={name} size='SL' />
         </Wrapper>
 
         {/* <Wrapper

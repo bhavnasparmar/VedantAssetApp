@@ -82,13 +82,14 @@ const AnnualInvest = () => {
                 user_type: obj?.userType,
                 // kycStatus: investment === 2 ? false : true,
                 kycStatus: route?.params?.kycStatus,
-                annualFund: obj?.userType === 'Rural' ? investment === 2 ? ">=50K" : "<50K" : null
+                annualFund: obj?.userType === 'Rural' ? investment === 2 ? ">=50K" : "<50K" : null,
+                investor_id: !getKYC_ISMember() ? getKYC_Details()?.user_basic_details?.id : null,
             }
             if (obj?.userType === 'Rural' && investment === 1) {
                 payload.kycStatus = true;
             }
             console.log('createUserKyc Payload : ', payload)
-            return
+
             const [result, error]: any = await CreateKYCInvs(payload)
             if (result) {
                 console.log('createUserKyc result : ', result)

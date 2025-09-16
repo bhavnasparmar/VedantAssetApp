@@ -49,9 +49,8 @@ const Login = () => {
 
 
   const CRED = {
-    email: 'raj34@yopmail.com',
+    email: 'rajan.proses@gmail.com',
     password: '123456',
-    
     // email: 'gautam.proses@gmail.com',
     // password: '123456',
     // email: '',
@@ -81,17 +80,19 @@ const Login = () => {
       showToast(toastTypes.info, 'All fields are required');
       setloginloading(false);
       return;
-    } else if (!emailRegex.test(Form.email)) {
-      setemailerror(true);
-      setloginloading(false);
-      return;
-    } else if (!Form.password) {
+    } 
+    // else if (!emailRegex.test(Form.email)) {
+    //   setemailerror(true);
+    //   setloginloading(false);
+    //   return;
+    // } 
+    else if (!Form.password) {
       setpassworderror(true);
       setloginloading(false);
       return;
     }
     let loginData = {
-      email: Form.email,
+      userName: Form.email,
       password: Form.password,
       fcmToken: fcmToken,
       deviceId: await DeviceInfo.getUniqueId(),
@@ -204,13 +205,13 @@ const Login = () => {
                 suffixArea={30}
                 suffixColor={colors.placeholderColor}
                 onSubmitEditing={() => input1.current.focus()}
-                error={
-                  emailerror
-                    ? Form.email
-                      ? 'Please enter valid Email'
-                      : 'Please enter Email'
-                    : null
-                }
+                // error={
+                //   emailerror
+                //     ? Form.email
+                //       ? 'Please enter valid Email'
+                //       : 'Please enter Email'
+                //     : null
+                // }
               />
 
               <InputField
